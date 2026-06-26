@@ -1170,7 +1170,7 @@ function Toolbar({ search, setSearch, filters, filter, setFilter, right, placeho
 }
 
 /* ─────── COMMAND CENTER (default tab) ─────── */
-function CommandCenter({ contacts, calls, sms, businesses, loading, onOpenLead, onTab, onUpdate }) {
+function CommandCenter({ contacts, calls, sms, businesses, engineRuns, loading, onOpenLead, onTab, onUpdate }) {
   if (loading) {
     return (
       <div className="space-y-4">
@@ -1192,7 +1192,7 @@ function CommandCenter({ contacts, calls, sms, businesses, loading, onOpenLead, 
       <KpiStrip contacts={contacts} calls={calls} sms={sms}/>
 
       {/* AI Prospecting (outbound) */}
-      <ProspectingPanel businesses={businesses}/>
+      <ProspectingPanel businesses={businesses} engineRuns={engineRuns}/>
 
       {/* Priority Queue + Activity Rail */}
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-4 items-start">
@@ -2006,7 +2006,7 @@ const ProspectRows = ({ rows }) => (
 );
 
 /* Dashboard panel — AI Prospecting */
-function ProspectingPanel({ businesses }) {
+function ProspectingPanel({ businesses, engineRuns = [] }) {
   const stats = useMemo(() => {
     const found        = businesses.length;
     const analyzed     = businesses.filter(b => b.website_analyzed_at).length;
@@ -2020,14 +2020,47 @@ function ProspectingPanel({ businesses }) {
     return { found, analyzed, qualified, awaitingQual, highPriority, lastRun };
   }, [businesses]);
 
+  /* Workflow Health + Last Successful Run — derived from engine_runs (one completion row per run, written by WF1/WF2/WF3) */
+  const engine = useMemo(() => {
+    const KEYS = ['sourcing','website_analysis','qualification'];
+    const rows = Array.isArray(engineRuns) ? engineRuns : [];
+    // latest row per workflow key (by created_at, newest first)
+    const latest = {};
+    for (const r of rows) {
+      const k = r && r.workflow_key;
+      if (KEYS.indexOf(k) === -1) continue;
+      const ts = new Date(r.created_at || r.finished_at || r.started_at || 0).getTime();
+      if (!latest[k] || ts > latest[k]._ts) latest[k] = { status: r.status, _ts: ts };
+    }
+    const present  = KEYS.filter(k => latest[k]);
+    const statuses = present.map(k => latest[k].status);
+
+    let health;
+    if (rows.length === 0)                       health = { label:'—',        color:'#94a3b8', sub:'No runs logged yet' };
+    else if (statuses.indexOf('error') !== -1)   health = { label:'Degraded', color:'#fb7185', sub:'A workflow reported an error' };
+    else if (statuses.indexOf('running') !== -1) health = { label:'Running',  color:'#fbbf24', sub:'A workflow is in progress' };
+    else if (present.length === KEYS.length && statuses.every(s => s === 'success'))
+                                                 health = { label:'Healthy',  color:'#34d399', sub:'All engines succeeded' };
+    else                                         health = { label:'—',        color:'#94a3b8', sub:present.length + '/' + KEYS.length + ' engines reporting' };
+
+    // Last successful run = latest finished_at among rows with status === 'success'
+    let lastSuccess = 0;
+    for (const r of rows) {
+      if (!r || r.status !== 'success' || !r.finished_at) continue;
+      const t = new Date(r.finished_at).getTime();
+      if (t > lastSuccess) lastSuccess = t;
+    }
+    return { health, lastSuccess };
+  }, [engineRuns]);
+
   const items = [
     { label:'Businesses Found',       value: stats.found,        icon:'building', color:'#818cf8', sub:'Sourced by AI' },
     { label:'Businesses Analyzed',    value: stats.analyzed,     icon:'check',    color:'#a5b4fc', sub:`${Math.max(stats.found - stats.analyzed,0)} pending` },
     { label:'Businesses Qualified',   value: stats.qualified,    icon:'target',   color:'#34d399', sub:`${stats.found ? Math.round(stats.qualified/stats.found*100) : 0}% of found` },
     { label:'High Priority Prospects',value: stats.highPriority, icon:'flame',    color:'#fb7185', sub: stats.highPriority ? 'Top targets' : 'After qualification' },
     { label:'Awaiting Qualification', value: stats.awaitingQual, icon:'clock',    color:'#fbbf24', sub: stats.awaitingQual ? 'Ready for scoring' : 'All caught up' },
-    { label:'Workflow Health',        value: '—',                icon:'bolt',     color:'#94a3b8', sub:'Needs run logging' },
-    { label:'Last Successful Run',    value: stats.lastRun ? fmtAgo(new Date(stats.lastRun)) : '—', icon:'refresh', color:'#60a5fa', sub:'Last enrichment write' },
+    { label:'Workflow Health',        value: engine.health.label, icon:'bolt',     color: engine.health.color, sub: engine.health.sub },
+    { label:'Last Successful Run',    value: engine.lastSuccess ? fmtAgo(new Date(engine.lastSuccess)) : '—', icon:'refresh', color:'#60a5fa', sub:'From engine_runs' },
   ];
 
   return (
@@ -2406,6 +2439,7 @@ function App() {
   const [err, setErr]               = useState(null);
   const [drawerLead, setDrawerLead] = useState(null);
   const [businesses, setBusinesses] = useState([]);
+  const [engineRuns, setEngineRuns] = useState([]);
   const [drawerProspect, setDrawerProspect] = useState(null);
   const [mobileNav, setMobileNav]   = useState(false);
   const [settings, setSettings]     = useState({});
@@ -2425,11 +2459,12 @@ function App() {
       const smsResult = smsQuery.error
         ? await db.from('admin_lead_alerts').select('*').order('created_at',{ascending:false}).limit(300)
         : smsQuery;
-      const [{ data:c, error:e1 }, { data:cl, error:e2 }, { data:amb, error:e3 }, { data:biz, error:e4 }] = await Promise.all([
+      const [{ data:c, error:e1 }, { data:cl, error:e2 }, { data:amb, error:e3 }, { data:biz, error:e4 }, { data:er, error:e5 }] = await Promise.all([
         db.from('contacts').select('*').order('created_at',{ascending:false}).limit(500),
         db.from('calls').select('*').order('created_at',{ascending:false}).limit(300),
         db.from('ambassador_applicants').select('*').order('created_at',{ascending:false}).limit(500),
         db.from('businesses').select('*').order('created_at',{ascending:false}).limit(500),
+        db.from('engine_runs').select('workflow_key,status,started_at,finished_at,created_at').order('created_at',{ascending:false}).limit(200),
       ]);
       const firstErr = e1||e2||smsResult.error;
       if (firstErr) setErr(firstErr.message);
@@ -2437,6 +2472,7 @@ function App() {
         setContacts(c||[]); setCalls(cl||[]); setSms(smsResult.data||[]);
         setAmbassadors(amb||[]);   // e3 (ambassador table) is non-fatal — table may not exist yet
         setBusinesses(biz||[]);    // e4 (businesses) non-fatal too
+        setEngineRuns(er||[]);     // e5 (engine_runs) non-fatal — Workflow Health / Last Successful Run telemetry
         try {
           const { data: st } = await db.from('app_settings').select('data').eq('id',1).maybeSingle();
           const s = (st && st.data) || {};
@@ -2593,7 +2629,7 @@ function App() {
           ) : (
             <Fragment>
               {tab === 'overview' && (
-                <CommandCenter contacts={contacts} calls={calls} sms={sms} businesses={businesses} loading={loading} onOpenLead={setDrawerLead} onTab={onTabChange} onUpdate={updateContact}/>
+                <CommandCenter contacts={contacts} calls={calls} sms={sms} businesses={businesses} engineRuns={engineRuns} loading={loading} onOpenLead={setDrawerLead} onTab={onTabChange} onUpdate={updateContact}/>
               )}
 
               {tab === 'pipeline' && (
