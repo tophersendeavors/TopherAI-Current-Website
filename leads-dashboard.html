@@ -2010,24 +2010,24 @@ function ProspectingPanel({ businesses }) {
   const stats = useMemo(() => {
     const found        = businesses.length;
     const analyzed     = businesses.filter(b => b.website_analyzed_at).length;
+    const qualified    = businesses.filter(b => b.qualification_score != null).length;
     const awaitingQual = businesses.filter(b => b.website_analyzed_at && b.qualification_score == null).length;
     const highPriority = businesses.filter(b => b.recommended_priority === 'High').length;
-    const draftsAwait  = businesses.filter(b => b.outreach_status === 'pending_approval').length;
     const lastRun      = businesses.reduce((acc, b) => {
       const t = b.website_analyzed_at ? new Date(b.website_analyzed_at).getTime() : 0;
       return t > acc ? t : acc;
     }, 0);
-    return { found, analyzed, awaitingQual, highPriority, draftsAwait, lastRun };
+    return { found, analyzed, qualified, awaitingQual, highPriority, lastRun };
   }, [businesses]);
 
   const items = [
-    { label:'Businesses Found',         value: stats.found,        icon:'building', color:'#818cf8', sub:'Sourced by AI' },
-    { label:'Websites Analyzed',        value: stats.analyzed,     icon:'check',    color:'#a5b4fc', sub:`${Math.max(stats.found - stats.analyzed,0)} pending` },
-    { label:'Awaiting Qualification',   value: stats.awaitingQual, icon:'clock',    color:'#fbbf24', sub:'Ready for scoring' },
-    { label:'High Priority',            value: stats.highPriority, icon:'flame',    color:'#fb7185', sub: stats.highPriority ? 'Top targets' : 'After qualification' },
-    { label:'Drafts Awaiting Approval', value: stats.draftsAwait,  icon:'inbox',    color:'#22d3ee', sub:'Review queue' },
-    { label:'Workflow Health',          value: '—',                icon:'bolt',     color:'#94a3b8', sub:'Needs engine_runs' },
-    { label:'Last Successful Run',      value: stats.lastRun ? fmtAgo(new Date(stats.lastRun)) : '—', icon:'refresh', color:'#34d399', sub:'Last enrichment write' },
+    { label:'Businesses Found',       value: stats.found,        icon:'building', color:'#818cf8', sub:'Sourced by AI' },
+    { label:'Businesses Analyzed',    value: stats.analyzed,     icon:'check',    color:'#a5b4fc', sub:`${Math.max(stats.found - stats.analyzed,0)} pending` },
+    { label:'Businesses Qualified',   value: stats.qualified,    icon:'target',   color:'#34d399', sub:`${stats.found ? Math.round(stats.qualified/stats.found*100) : 0}% of found` },
+    { label:'High Priority Prospects',value: stats.highPriority, icon:'flame',    color:'#fb7185', sub: stats.highPriority ? 'Top targets' : 'After qualification' },
+    { label:'Awaiting Qualification', value: stats.awaitingQual, icon:'clock',    color:'#fbbf24', sub: stats.awaitingQual ? 'Ready for scoring' : 'All caught up' },
+    { label:'Workflow Health',        value: '—',                icon:'bolt',     color:'#94a3b8', sub:'Needs run logging' },
+    { label:'Last Successful Run',    value: stats.lastRun ? fmtAgo(new Date(stats.lastRun)) : '—', icon:'refresh', color:'#60a5fa', sub:'Last enrichment write' },
   ];
 
   return (
@@ -2087,10 +2087,12 @@ function ProspectingTab({ rows, loading, onOpenProspect, search, setSearch }) {
                       <ScoreCell score={b.qualification_score}/>
                     </div>
                     <div className="text-[11px] text-slate-500 truncate">{b.city || b.industry || '—'}</div>
-                    <div className="flex items-center gap-2 mt-2 flex-wrap">
-                      <ProspectStagePill stage={deriveProspectStage(b)}/>
+                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                      <PriorityCell priority={b.recommended_priority}/>
                       <AnalysisPill status={b.website_analysis_status}/>
-                      <span className="text-[10.5px] text-slate-600">{fmtAgo(b.created_at)}</span>
+                      {Array.isArray(b.pain_points) && b.pain_points.slice(0,2).map((p,i) => (
+                        <span key={i} className="pill badge-muted" style={{fontSize:'9.5px'}}>{String(p).replace(/_/g,' ')}</span>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -2108,12 +2110,11 @@ function ProspectingTab({ rows, loading, onOpenProspect, search, setSearch }) {
                   <th className="px-4 py-2.5 font-semibold hidden lg:table-cell">Website</th>
                   <th className="px-4 py-2.5 font-semibold hidden lg:table-cell">Email</th>
                   <th className="px-4 py-2.5 font-semibold">Rating</th>
-                  <th className="px-4 py-2.5 font-semibold hidden xl:table-cell">Reviews</th>
+                  <th className="px-4 py-2.5 font-semibold hidden xl:table-cell">Review Count</th>
                   <th className="px-4 py-2.5 font-semibold">Score</th>
                   <th className="px-4 py-2.5 font-semibold">Priority</th>
+                  <th className="px-4 py-2.5 font-semibold hidden lg:table-cell">Pain Points</th>
                   <th className="px-4 py-2.5 font-semibold hidden xl:table-cell">Analysis</th>
-                  <th className="px-4 py-2.5 font-semibold">Stage</th>
-                  <th className="px-4 py-2.5 font-semibold">Created</th>
                   <th className="px-4 py-2.5 font-semibold w-8"></th>
                 </tr>
               </thead>
@@ -2139,9 +2140,17 @@ function ProspectingTab({ rows, loading, onOpenProspect, search, setSearch }) {
                     <td className="px-4 py-3 text-slate-400 text-[11.5px] hidden xl:table-cell">{b.review_count != null ? b.review_count : '—'}</td>
                     <td className="px-4 py-3"><ScoreCell score={b.qualification_score}/></td>
                     <td className="px-4 py-3"><PriorityCell priority={b.recommended_priority}/></td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      {Array.isArray(b.pain_points) && b.pain_points.length ? (
+                        <div className="flex flex-wrap gap-1 max-w-[230px]">
+                          {b.pain_points.slice(0,2).map((p,i) => (
+                            <span key={i} className="pill badge-muted" style={{fontSize:'9.5px'}}>{String(p).replace(/_/g,' ')}</span>
+                          ))}
+                          {b.pain_points.length > 2 && <span className="pill badge-muted" style={{fontSize:'9.5px'}}>+{b.pain_points.length - 2}</span>}
+                        </div>
+                      ) : <span className="text-slate-600 text-[11.5px]">—</span>}
+                    </td>
                     <td className="px-4 py-3 hidden xl:table-cell"><AnalysisPill status={b.website_analysis_status}/></td>
-                    <td className="px-4 py-3"><ProspectStagePill stage={deriveProspectStage(b)}/></td>
-                    <td className="px-4 py-3 text-slate-500 text-[11px]">{fmtAgo(b.created_at)}</td>
                     <td className="px-4 py-3 text-slate-600"><Icon name="chevron-r" size={13}/></td>
                   </tr>
                 ))}
