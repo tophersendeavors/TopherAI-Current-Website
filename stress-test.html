@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topher AI - Stress Test Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #020817; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+        .header { text-align: center; margin-bottom: 36px; }
+        .logo { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .logo-mark { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg,#0ea5e9,#818cf8); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; color: #fff; }
+        .logo-text { font-size: 17px; font-weight: 700; }
+        .logo-text span { color: #38bdf8; }
+        h1 { font-size: clamp(1.6rem,4vw,2.2rem); font-weight: 900; letter-spacing: -0.03em; margin-bottom: 8px; }
+        .subtitle { font-size: 13.5px; color: rgba(255,255,255,0.4); max-width: 420px; margin: 0 auto; line-height: 1.6; }
+        .console { width: 100%; max-width: 580px; background: rgba(8,21,43,0.72); backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,0.10); border-radius: 24px; overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,0.5); }
+        .persona { display: flex; align-items: center; gap: 14px; padding: 18px 22px; border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(14,165,233,0.05); }
+        .persona-avatar { width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg,#818cf8,#0ea5e9); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .persona-name { font-size: 14.5px; font-weight: 800; margin-bottom: 2px; }
+        .persona-role { font-size: 11.5px; color: rgba(255,255,255,0.38); }
+        .persona-badge { margin-left: auto; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); border-radius: 100px; padding: 4px 12px; font-size: 10px; font-weight: 700; color: #fbbf24; letter-spacing: 0.05em; text-transform: uppercase; flex-shrink: 0; }
+        .status-bar { display: flex; align-items: center; gap: 10px; padding: 14px 22px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); flex-shrink: 0; transition: background 0.3s; }
+        .dot.connecting { background: #fbbf24; animation: pulse-y 1s infinite; }
+        .dot.live { background: #34d399; animation: pulse-g 1.4s infinite; }
+        .dot.ended { background: #f87171; }
+        .status-text { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.45); letter-spacing: 0.04em; text-transform: uppercase; }
+        #timer { margin-left: auto; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.25); font-variant-numeric: tabular-nums; }
+        #diag { padding: 7px 22px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 10.5px; color: rgba(255,255,255,0.3); font-family: monospace; }
+        .waveform { display: flex; align-items: center; justify-content: center; gap: 3px; height: 44px; padding: 0 22px; border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(14,165,233,0.04); }
+        .bar { width: 3px; border-radius: 99px; background: rgba(56,189,248,0.25); transition: height 0.15s; }
+        .transcript { height: 320px; overflow-y: auto; padding: 16px 22px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+        .transcript::-webkit-scrollbar { width: 4px; }
+        .transcript::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+        .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: rgba(255,255,255,0.2); font-size: 12.5px; gap: 8px; text-align: center; }
+        .empty i { font-size: 22px; opacity: 0.3; }
+        .msg { display: flex; flex-direction: column; gap: 3px; animation: fadeUp 0.25s ease; }
+        .msg-role { font-size: 9.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+        .msg.lauren .msg-role { color: #818cf8; }
+        .msg.riley .msg-role { color: #38bdf8; }
+        .msg-text { font-size: 12.5px; line-height: 1.6; color: rgba(255,255,255,0.72); }
+        .controls { padding: 18px 22px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; gap: 10px; }
+        .btn-start { flex: 1; height: 46px; border-radius: 14px; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 700; background: linear-gradient(135deg,#0284c7,#0ea5e9); color: #fff; box-shadow: 0 6px 20px rgba(14,165,233,0.35); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-start:hover { transform: translateY(-1px); }
+        .btn-start:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+        .btn-stop { height: 46px; padding: 0 20px; border-radius: 14px; border: 1px solid rgba(248,113,113,0.4); background: rgba(248,113,113,0.1); color: #f87171; font-family: Inter,sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; display: none; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes pulse-g { 0%,100% { box-shadow:0 0 0 0 rgba(52,211,153,0.5); } 50% { box-shadow:0 0 0 5px rgba(52,211,153,0); } }
+        @keyframes pulse-y { 0%,100% { box-shadow:0 0 0 0 rgba(251,191,36,0.5); } 50% { box-shadow:0 0 0 5px rgba(251,191,36,0); } }
+        @keyframes wave { 0%,100% { height:5px; } 50% { height:22px; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">
+        <div class="logo-mark">T</div>
+        <span class="logo-text">Topher <span>AI</span></span>
+    </div>
+    <h1>Stress Test Console</h1>
+    <p class="subtitle">Lauren calls Riley. Full transcript loads when the call ends.</p>
+</div>
+
+<div class="console">
+    <div class="persona">
+        <div class="persona-avatar">&#x1F486;</div>
+        <div>
+            <div class="persona-name">Lauren Kim</div>
+            <div class="persona-role">Owner &middot; Luxe Glow Med Spa &middot; Scottsdale, AZ</div>
+        </div>
+        <div class="persona-badge">AI Caller</div>
+    </div>
+
+    <div class="status-bar">
+        <div class="dot" id="dot"></div>
+        <span class="status-text" id="status">Ready</span>
+        <span id="timer">00:00</span>
+    </div>
+
+    <div id="diag">waiting...</div>
+
+    <div class="waveform" id="waveform">
+        <div class="bar" style="height:5px"></div><div class="bar" style="height:9px"></div>
+        <div class="bar" style="height:6px"></div><div class="bar" style="height:14px"></div>
+        <div class="bar" style="height:7px"></div><div class="bar" style="height:20px"></div>
+        <div class="bar" style="height:9px"></div><div class="bar" style="height:24px"></div>
+        <div class="bar" style="height:10px"></div><div class="bar" style="height:18px"></div>
+        <div class="bar" style="height:7px"></div><div class="bar" style="height:13px"></div>
+        <div class="bar" style="height:5px"></div><div class="bar" style="height:9px"></div>
+        <div class="bar" style="height:6px"></div><div class="bar" style="height:16px"></div>
+        <div class="bar" style="height:8px"></div><div class="bar" style="height:11px"></div>
+        <div class="bar" style="height:5px"></div><div class="bar" style="height:8px"></div>
+    </div>
+
+    <div class="transcript" id="transcript">
+        <div class="empty">
+            <i class="fas fa-phone"></i>
+            <span>Press Start - transcript loads after the call</span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-start" id="btn" onclick="runTest()">
+            <i class="fas fa-phone"></i> Start Stress Test
+        </button>
+        <button class="btn-stop" id="btn-stop" onclick="stopCall()">
+            <i class="fas fa-phone-slash"></i> Stop
+        </button>
+    </div>
+</div>
+
+<script>
+    // PASTE YOUR KEYS HERE
+    var PRIVATE_KEY   = "PASTE_PRIVATE_KEY_HERE";
+    var FROM_PHONE_ID = "c08ca4c8-1739-4f42-9868-892be9019d93";
+    var LAUREN_ID     = "e77a55c2-acec-4817-8a79-60635a35ef61";
+    var RILEY_NUMBER  = "+14472749290";
+
+    var dotEl  = document.getElementById("dot");
+    var statEl = document.getElementById("status");
+    var tmrEl  = document.getElementById("timer");
+    var waveEl = document.getElementById("waveform");
+    var tArea  = document.getElementById("transcript");
+    var btnEl  = document.getElementById("btn");
+    var stopEl = document.getElementById("btn-stop");
+    var diagEl = document.getElementById("diag");
+
+    var callId   = null;
+    var pollInt  = null;
+    var timerInt = null;
+    var secs     = 0;
+
+    function setStatus(cls, text) {
+        dotEl.className    = "dot " + cls;
+        statEl.textContent = text;
+    }
+
+    function startTimer() {
+        secs = 0;
+        timerInt = setInterval(function() {
+            secs++;
+            var m = String(Math.floor(secs / 60)).padStart(2, "0");
+            var s = String(secs % 60).padStart(2, "0");
+            tmrEl.textContent = m + ":" + s;
+        }, 1000);
+    }
+
+    function animateWave(on) {
+        waveEl.querySelectorAll(".bar").forEach(function(b, i) {
+            b.style.background = on ? "#38bdf8" : "rgba(56,189,248,0.25)";
+            b.style.animation  = on ? "wave " + (0.45 + Math.random() * 0.55) + "s ease-in-out " + (i * 0.04) + "s infinite" : "none";
+            if (!on) b.style.height = (4 + Math.random() * 10) + "px";
+        });
+    }
+
+    function addMsg(side, text) {
+        var em = tArea.querySelector(".empty");
+        if (em) em.remove();
+        var d = document.createElement("div");
+        d.className = "msg " + side;
+        var label = side === "lauren" ? "Lauren (AI Caller)" : "Riley (Topher AI)";
+        d.innerHTML = "<span class='msg-role'>" + label + "</span><span class='msg-text'>" + text + "</span>";
+        tArea.appendChild(d);
+        tArea.scrollTop = tArea.scrollHeight;
+    }
+
+    function reset() {
+        clearInterval(pollInt);
+        clearInterval(timerInt);
+        animateWave(false);
+        btnEl.disabled = false;
+        btnEl.innerHTML = "<i class='fas fa-redo'></i> Run Again";
+        stopEl.style.display = "none";
+        callId = null;
+    }
+
+    function showTranscript(msgs) {
+        msgs.forEach(function(m) {
+            var text = (m.message || m.content || "").trim();
+            if (!text) return;
+            var role = (m.role || "").toLowerCase();
+            if (role === "system" || role === "tool") return;
+            var side = (role === "assistant" || role === "bot") ? "lauren" : "riley";
+            addMsg(side, text);
+        });
+        animateWave(true);
+        setTimeout(function() { animateWave(false); }, 1000);
+    }
+
+    function poll(id) {
+        pollInt = setInterval(function() {
+            fetch("https://api.vapi.ai/call/" + id, {
+                headers: { "Authorization": "Bearer " + PRIVATE_KEY }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                diagEl.textContent = "status: " + d.status;
+
+                if (d.status === "ringing")      setStatus("connecting", "Ringing Riley...");
+                if (d.status === "in-progress")  setStatus("live", "Live - Lauren talking to Riley");
+
+                if (d.status === "ended") {
+                    clearInterval(pollInt);
+                    setStatus("ended", "Call ended - loading transcript...");
+
+                    // Retry fetching until artifact.messages appears
+                    var tries = 0;
+                    var retry = setInterval(function() {
+                        tries++;
+                        fetch("https://api.vapi.ai/call/" + id, {
+                            headers: { "Authorization": "Bearer " + PRIVATE_KEY }
+                        })
+                        .then(function(r) { return r.json(); })
+                        .then(function(d2) {
+                            var msgs = (d2.artifact && d2.artifact.messages) ? d2.artifact.messages : (d2.messages || []);
+                            diagEl.textContent = "fetching transcript... attempt " + tries + " - found " + msgs.length + " messages";
+                            if (msgs.length > 0) {
+                                clearInterval(retry);
+                                showTranscript(msgs);
+                                setStatus("ended", "Done - " + msgs.length + " messages");
+                                reset();
+                            } else if (tries >= 8) {
+                                clearInterval(retry);
+                                addMsg("riley", "No transcript returned. The call may have been too short.");
+                                setStatus("ended", "Call ended");
+                                reset();
+                            }
+                        })
+                        .catch(function() { clearInterval(retry); reset(); });
+                    }, 1500);
+                }
+            })
+            .catch(function(e) {
+                diagEl.textContent = "poll error: " + e.message;
+            });
+        }, 2000);
+    }
+
+    function runTest() {
+        tArea.innerHTML = "<div class='empty'><i class='fas fa-phone'></i><span>Calling Riley...</span></div>";
+        btnEl.disabled = true;
+        btnEl.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Calling...";
+        setStatus("connecting", "Dialing...");
+        tmrEl.textContent = "00:00";
+        diagEl.textContent = "starting call...";
+
+        fetch("https://api.vapi.ai/call/phone", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + PRIVATE_KEY,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                assistantId:        LAUREN_ID,
+                phoneNumberId:      FROM_PHONE_ID,
+                customer:           { number: RILEY_NUMBER },
+                maxDurationSeconds: 600
+            })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data.id) throw new Error(data.message || JSON.stringify(data));
+            callId = data.id;
+            stopEl.style.display = "flex";
+            setStatus("connecting", "Ringing Riley...");
+            startTimer();
+            animateWave(true);
+            addMsg("lauren", "Lauren called Riley - conversation in progress...");
+            diagEl.textContent = "call id: " + callId;
+            poll(callId);
+        })
+        .catch(function(err) {
+            diagEl.textContent = "error: " + err.message;
+            setStatus("ended", "Error - check private key");
+            btnEl.disabled = false;
+            btnEl.innerHTML = "<i class='fas fa-phone'></i> Start Stress Test";
+        });
+    }
+
+    function stopCall() {
+        if (!callId) return;
+        stopEl.disabled = true;
+        fetch("https://api.vapi.ai/call/" + callId, {
+            method: "DELETE",
+            headers: { "Authorization": "Bearer " + PRIVATE_KEY }
+        }).catch(function() {});
+        setStatus("ended", "Stopped - loading transcript...");
+        addMsg("riley", "Call ended manually");
+    }
+</script>
+</body>
+</html>

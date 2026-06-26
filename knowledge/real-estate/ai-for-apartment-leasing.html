@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *{font-family:'Inter',sans-serif}
+    body{background:#f5f5f7;color:#1d1d1f}
+    .glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.6)}
+    .quick-answer{background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08));border:1.5px solid rgba(99,102,241,0.25);border-radius:12px;padding:24px 28px}
+    .faq-btn{width:100%;text-align:left;padding:18px 22px;background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:#1d1d1f;transition:all .2s}
+    .faq-btn:hover{background:rgba(255,255,255,1);border-color:rgba(99,102,241,0.3)}
+    .faq-body{display:none;padding:16px 22px 20px;background:rgba(255,255,255,0.6);border:1px solid rgba(0,0,0,0.06);border-top:none;border-radius:0 0 10px 10px;color:#424245;line-height:1.7}
+    .toc-link{display:block;padding:7px 12px;border-radius:8px;font-size:0.82rem;color:#424245;text-decoration:none;transition:all .2s}
+    .toc-link:hover,.toc-link.active{background:rgba(99,102,241,0.1);color:#4f46e5;font-weight:600}
+    .stat-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px 24px;text-align:center}
+    .step-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0}
+    table{width:100%;border-collapse:collapse}
+    th{padding:12px 16px;text-align:left;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    td{padding:12px 16px;border-bottom:1px solid rgba(0,0,0,0.06);font-size:0.9rem;color:#424245}
+    tr:last-child td{border-bottom:none}
+    .win-ai{color:#059669;font-weight:600}
+    .win-human{color:#dc2626;font-weight:500}
+    .neutral{color:#6b7280}
+    .related-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px;cursor:pointer;transition:all .25s}
+    .related-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+    .breadcrumb a{color:#6b7280;font-size:0.82rem;text-decoration:none}
+    .breadcrumb a:hover{color:#4f46e5}
+    .breadcrumb span{color:#9ca3af;font-size:0.82rem;margin:0 6px}
+    nav{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.06)}
+    footer{background:#1d1d1f}
+  </style>
+</head>
+<title>AI Receptionist for Apartment Leasing | Topher AI</title>
+<meta name="description" content="AI automates apartment leasing: prospect qualification, tour scheduling, follow-up, and waitlist management — 24/7, no leasing agent required."/>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {"@type":"Article","headline":"AI Receptionist for Apartment Leasing","description":"How AI automates apartment leasing workflows including prospect qualification, tour scheduling, and follow-up.","author":{"@type":"Organization","name":"Topher AI"},"publisher":{"@type":"Organization","name":"Topher AI","url":"https://topherai.com"},"datePublished":"2025-01-01","dateModified":"2025-06-01"},
+    {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Knowledge Center","item":"https://topherai.com/knowledge/"},{"@type":"ListItem","position":2,"name":"Real Estate","item":"https://topherai.com/knowledge/real-estate/"},{"@type":"ListItem","position":3,"name":"AI for Apartment Leasing"}]},
+    {"@type":"FAQPage","mainEntity":[
+      {"@type":"Question","name":"Can AI schedule apartment tours automatically?","acceptedAnswer":{"@type":"Answer","text":"Yes. AI can check availability, confirm prospect preferences, and book tours directly into property management systems like Yardi, AppFolio, or Google Calendar."}},
+      {"@type":"Question","name":"What does AI ask apartment prospects?","acceptedAnswer":{"@type":"Answer","text":"AI typically asks about move-in date, number of occupants, desired unit size, pet ownership, income range, and how they heard about the property."}},
+      {"@type":"Question","name":"Is AI compliant with Fair Housing laws?","acceptedAnswer":{"@type":"Answer","text":"AI systems designed for property management are built to ask only permitted questions and avoid any criteria that would violate Fair Housing Act protections. Always verify with your legal counsel."}}
+    ]},
+    {"@type":"SpeakableSpecification","cssSelector":["#quick-answer","h2","h3"]}
+  ]
+}
+</script>
+<body>
+<nav class="sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+    <a href="../../index.html" class="flex items-center gap-2 no-underline">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+        <i class="fa-solid fa-headset text-white text-xs"></i>
+      </div>
+      <span class="font-bold text-base" style="color:#1d1d1f">Topher AI</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="../../index.html#features" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Features</a>
+      <a href="../../index.html#industries" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Industries</a>
+      <a href="../../index.html#pricing" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Pricing</a>
+      <a href="../" class="text-sm font-medium transition-colors" style="color:#4f46e5;font-weight:600">Knowledge</a>
+      <a href="../../index.html#contact" class="text-sm font-medium text-white px-4 py-2 rounded-xl transition-opacity hover:opacity-90" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">Get Started</a>
+    </div>
+  </div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 py-12">
+  <div class="breadcrumb flex items-center gap-1 mb-8">
+    <a href="../">Knowledge Center</a><span>/</span>
+    <a href="../">Real Estate</a><span>/</span>
+    <span class="text-sm" style="color:#1d1d1f">AI for Apartment Leasing</span>
+  </div>
+
+  <div class="mb-10">
+    <span class="text-xs font-semibold px-3 py-1 rounded-full inline-block mb-4" style="background:#05966922;color:#059669">Real Estate</span>
+    <h1 class="text-4xl font-bold mb-4" style="color:#1d1d1f">AI Receptionist for Apartment Leasing</h1>
+    <p class="text-xl" style="color:#424245;max-width:700px">Automate prospect qualification, tour scheduling, and follow-up — without adding headcount.</p>
+  </div>
+
+  <div class="grid lg:grid-cols-[1fr_280px] gap-10">
+    <div>
+      <div id="quick-answer" class="quick-answer mb-10">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="fa-solid fa-bolt text-indigo-500"></i>
+          <span class="text-xs font-bold uppercase tracking-wider" style="color:#6366f1">Quick Answer</span>
+        </div>
+        <p class="font-semibold text-lg mb-2" style="color:#1d1d1f">AI handles the full leasing inquiry funnel — from first contact to booked tour — without a human leasing agent.</p>
+        <p style="color:#424245">When a prospect inquires about a unit, AI engages immediately, qualifies them (move-in date, unit size, budget, pets), answers common questions, and schedules a tour — all in the same conversation.</p>
+      </div>
+
+      <h2 id="the-leasing-problem" class="text-2xl font-bold mb-6" style="color:#1d1d1f">The Leasing Lead Problem</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#059669">67%</div><div class="text-sm" style="color:#6b7280">of leasing inquiries come after hours</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#059669">3x</div><div class="text-sm" style="color:#6b7280">more tours booked with instant follow-up</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#059669">40%</div><div class="text-sm" style="color:#6b7280">of tours are no-shows without reminders</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#059669">8min</div><div class="text-sm" style="color:#6b7280">average time AI takes to qualify and book a tour</div></div>
+      </div>
+
+      <h2 id="what-ai-handles" class="text-2xl font-bold mb-6" style="color:#1d1d1f">What AI Handles in Leasing</h2>
+      <div class="space-y-4 mb-8">
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#05966922;color:#059669">1</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Instant Lead Response</h3><p class="text-sm" style="color:#424245">AI responds to web forms, ILS leads (Zillow, Apartments.com), and phone calls within seconds — day or night.</p></div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#05966922;color:#059669">2</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Prospect Qualification</h3><p class="text-sm" style="color:#424245">AI collects move-in date, occupant count, unit size preference, income range, and pet ownership — only Fair Housing–compliant questions.</p></div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#05966922;color:#059669">3</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Unit Matching & FAQs</h3><p class="text-sm" style="color:#424245">AI answers pricing, availability, amenity, pet policy, and lease term questions without a leasing agent getting on the phone.</p></div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#05966922;color:#059669">4</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Tour Scheduling</h3><p class="text-sm" style="color:#424245">AI books in-person or self-guided tours directly into your property management system or calendar.</p></div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#05966922;color:#059669">5</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Automated Reminders & Follow-Up</h3><p class="text-sm" style="color:#424245">AI sends tour reminders, re-engages no-shows, and follows up with prospects who didn't convert.</p></div>
+        </div>
+      </div>
+
+      <h2 id="integrations" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Property Management Integrations</h2>
+      <div class="glass rounded-2xl p-6 mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm" style="color:#424245">
+          <div><i class="fa-solid fa-check text-green-500 mr-2"></i>Yardi Voyager</div>
+          <div><i class="fa-solid fa-check text-green-500 mr-2"></i>AppFolio</div>
+          <div><i class="fa-solid fa-check text-green-500 mr-2"></i>Entrata</div>
+          <div><i class="fa-solid fa-check text-green-500 mr-2"></i>RealPage</div>
+          <div><i class="fa-solid fa-check text-green-500 mr-2"></i>MRI Software</div>
+          <div><i class="fa-solid fa-check text-green-500 mr-2"></i>Google Calendar</div>
+          <div><i class="fa-solid fa-check text-green-500 mr-2"></i>Apartments.com leads</div>
+          <div><i class="fa-solid fa-check text-green-500 mr-2"></i>Zillow Rentals leads</div>
+          <div><i class="fa-solid fa-check text-green-500 mr-2"></i>Twilio SMS follow-up</div>
+        </div>
+      </div>
+
+      <h2 id="faq" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Frequently Asked Questions</h2>
+      <div class="mb-10">
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(1)">
+        <span>Is AI leasing Fair Housing compliant?</span>
+        <i id="faq-icon-1" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-1" class="faq-body">AI systems built for property management are designed to ask only permitted questions and treat all prospects equally. Your specific implementation should be reviewed by legal counsel.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(2)">
+        <span>Can AI handle self-guided tour scheduling?</span>
+        <i id="faq-icon-2" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-2" class="faq-body">Yes. AI can send access codes, building entry instructions, and unit-specific tour information as part of the booking confirmation flow.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(3)">
+        <span>What happens when a unit isn't available?</span>
+        <i id="faq-icon-3" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-3" class="faq-body">AI can add prospects to a waitlist, notify them when a comparable unit becomes available, and continue nurturing them with property updates.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(4)">
+        <span>Can AI handle multiple properties at once?</span>
+        <i id="faq-icon-4" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-4" class="faq-body">Yes. Multi-property management is a core use case — AI routes inquiries to the correct property and can answer questions about all units in a portfolio.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(5)">
+        <span>How much does AI leasing automation cost?</span>
+        <i id="faq-icon-5" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-5" class="faq-body">Topher AI plans for multifamily start at $297/month per property — a fraction of a part-time leasing agent's cost.</div>
+    </div>
+      </div>
+
+      <h2 class="text-2xl font-bold mb-6" style="color:#1d1d1f">Related Articles</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        
+    <div class="related-card" onclick="window.location='../real-estate/ai-receptionist-for-realtors.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#05966922;color:#059669">Real Estate</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">AI Receptionist for Realtors</h4>
+      <p class="text-xs" style="color:#6b7280">How AI handles every incoming call for real estate agents.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../real-estate/ai-for-real-estate-lead-qualification.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#05966922;color:#059669">Real Estate</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">AI for Lead Qualification</h4>
+      <p class="text-xs" style="color:#6b7280">Score and route real estate leads automatically.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../compare/ai-receptionist-vs-human-receptionist.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Compare</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">AI vs. Human Receptionist</h4>
+      <p class="text-xs" style="color:#6b7280">Full cost and feature comparison.</p>
+    </div>
+      </div>
+    </div>
+    <aside class="hidden lg:block">
+      
+    <div class="space-y-6">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="color:#6b7280">On This Page</h3>
+        <a href="#the-leasing-problem" data-target="the-leasing-problem" class="toc-link">The Leasing Problem</a>
+<a href="#what-ai-handles" data-target="what-ai-handles" class="toc-link">What AI Handles</a>
+<a href="#integrations" data-target="integrations" class="toc-link">Integrations</a>
+<a href="#faq" data-target="faq" class="toc-link">FAQ</a>
+
+      </div>
+      <div class="rounded-2xl p-6 text-white" style="background:linear-gradient(135deg,#059669,#047857)">
+        <i class="fa-solid fa-building text-2xl mb-3 opacity-90"></i>
+        <h3 class="font-bold text-lg mb-2">Automate Your Leasing Funnel</h3>
+        <p class="text-sm opacity-80 mb-4">Book more tours with zero extra staff.</p>
+        <a href="../../index.html#contact" class="block w-full text-center py-2.5 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.2);color:white">Get a Free Demo</a>
+      </div>
+    </div>
+    </aside>
+  </div>
+</main>
+<footer class="py-16 px-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+            <i class="fa-solid fa-headset text-white text-xs"></i>
+          </div>
+          <span class="font-bold text-white">Topher AI</span>
+        </div>
+        <p class="text-sm" style="color:#86868b">AI receptionist &amp; automation for modern businesses.</p>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Product</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#features" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Features</a></li>
+          <li><a href="../../index.html#pricing" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Pricing</a></li>
+          <li><a href="../../index.html#industries" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Industries</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Industries</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#real-estate" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Real Estate</a></li>
+          <li><a href="../../index.html#law-firms" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Law Firms</a></li>
+          <li><a href="../../index.html#med-spas" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Med Spas</a></li>
+          <li><a href="../../index.html#insurance" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Insurance</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Knowledge</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Knowledge Center</a></li>
+          <li><a href="../what-is-an-ai-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">What Is an AI Receptionist</a></li>
+          <li><a href="../real-estate/ai-receptionist-for-realtors.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI for Real Estate</a></li>
+          <li><a href="../compare/ai-receptionist-vs-human-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI vs. Human</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Company</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#contact" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Contact</a></li>
+          <li><a href="../../index.html#demo" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Book a Demo</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t pt-8" style="border-color:rgba(255,255,255,0.1)">
+      <p class="text-sm text-center" style="color:#86868b">© 2025 Topher AI. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+<script>
+function toggleFaq(id){
+  var b=document.getElementById('faq-body-'+id);
+  var i=document.getElementById('faq-icon-'+id);
+  if(b.style.display==='block'){b.style.display='none';i.className='fa-solid fa-chevron-down text-gray-400 text-xs';}
+  else{b.style.display='block';i.className='fa-solid fa-chevron-up text-indigo-500 text-xs';}
+}
+window.addEventListener('scroll',function(){
+  var links=document.querySelectorAll('.toc-link[data-target]');
+  links.forEach(function(l){
+    var t=document.getElementById(l.dataset.target);
+    if(t){var r=t.getBoundingClientRect();if(r.top<=120&&r.bottom>=80){links.forEach(function(x){x.classList.remove('active')});l.classList.add('active');}}
+  });
+});
+</script>
+</body></html>

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Center | Topher AI — AI Receptionist Guides & Resources</title>
+    <meta name="description" content="The definitive resource for AI receptionists, voice agents, lead qualification, and business automation. Guides for real estate, law firms, med spas, and more.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="https://topherai.com/knowledge/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://topherai.com/knowledge/">
+    <meta property="og:title" content="Knowledge Center — Topher AI">
+    <meta property="og:description" content="Guides, comparisons, and research on AI receptionists, voice agents, and business automation.">
+    <meta property="og:image" content="https://topherai.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://topherai.com/#organization",
+          "name": "Topher AI",
+          "url": "https://topherai.com",
+          "logo": { "@type": "ImageObject", "url": "https://topherai.com/favicon-512x512.png" }
+        },
+        {
+          "@type": "CollectionPage",
+          "@id": "https://topherai.com/knowledge/",
+          "name": "Knowledge Center — Topher AI",
+          "description": "The definitive resource for AI receptionists, voice agents, lead qualification, and business automation.",
+          "url": "https://topherai.com/knowledge/",
+          "publisher": { "@id": "https://topherai.com/#organization" },
+          "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://topherai.com/" },
+              { "@type": "ListItem", "position": 2, "name": "Knowledge Center", "item": "https://topherai.com/knowledge/" }
+            ]
+          }
+        }
+      ]
+    }
+    </script>
+
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        navy: { 950: '#020817', 900: '#050d1f', 800: '#0a1628', 700: '#0f2040', 600: '#162952' },
+                        electric: { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' },
+                        neon: { 400: '#34d399', 500: '#10b981' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { box-sizing: border-box; }
+        body { background-color: #ffffff; color: #1d1d1f; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .glass-nav { background: rgba(255,255,255,0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 1px 0 rgba(0,0,0,0.07); }
+        .text-gradient-blue { background: linear-gradient(135deg, #0ea5e9 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .btn-glow { box-shadow: 0 4px 20px rgba(14,165,233,0.28), 0 2px 8px rgba(0,0,0,0.08); color: #ffffff !important; }
+        .btn-glow:hover { box-shadow: 0 8px 32px rgba(14,165,233,0.45), 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-1px); }
+        .article-card { border: 1px solid rgba(0,0,0,0.08); background: #ffffff; transition: all 0.2s ease; }
+        .article-card:hover { border-color: rgba(14,165,233,0.35); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(14,165,233,0.08); }
+        .category-chip { background: rgba(14,165,233,0.07); border: 1px solid rgba(14,165,233,0.15); color: #0284c7; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 100px; padding: 3px 10px; }
+        .category-chip.green { background: rgba(16,185,129,0.07); border-color: rgba(16,185,129,0.15); color: #059669; }
+        .category-chip.purple { background: rgba(129,140,248,0.08); border-color: rgba(129,140,248,0.2); color: #6366f1; }
+        .category-chip.amber { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); color: #d97706; }
+        .category-chip.rose { background: rgba(244,63,94,0.07); border-color: rgba(244,63,94,0.15); color: #e11d48; }
+        .hero-glow { background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(14,165,233,0.09) 0%, transparent 70%); }
+        .section-gray { background-color: #f5f5f7; }
+        .nav-cat-btn { border: 1px solid rgba(0,0,0,0.09); background: #fff; color: #424245; border-radius: 100px; padding: 7px 18px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; }
+        .nav-cat-btn:hover, .nav-cat-btn.active { background: #0ea5e9; border-color: #0ea5e9; color: #fff; }
+        .search-wrap input:focus { border-color: #0ea5e9; outline: none; box-shadow: 0 0 0 3px rgba(14,165,233,0.12); }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #f1f5f9; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="fixed w-full z-50 glass-nav border-b" id="navbar" aria-label="Main navigation">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+            <a href="../index.html" class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-lg text-white"
+                     style="background:linear-gradient(135deg,#0ea5e9,#818cf8);">T</div>
+                <span class="font-bold text-xl tracking-tight" style="color:#1d1d1f;">Topher <span class="text-gradient-blue">AI</span></span>
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="../index.html#industries" class="text-sm font-medium" style="color:#424245;" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Industries</a>
+                <a href="../index.html#how-it-works" class="text-sm font-medium" style="color:#424245;" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">How It Works</a>
+                <a href="../index.html#pricing" class="text-sm font-medium" style="color:#424245;" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Pricing</a>
+                <a href="./" class="text-sm font-semibold" style="color:#0284c7;">Knowledge</a>
+                <a href="../index.html#contact" class="text-sm font-medium" style="color:#424245;" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Get Started</a>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="tel:2138986724" class="hidden md:inline-flex items-center gap-2 text-sm font-semibold" style="color:#0284c7;">
+                    <i class="fas fa-phone text-xs"></i>(213) 898-6724
+                </a>
+                <a href="../index.html#contact" class="px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all btn-glow"
+                   style="background:linear-gradient(135deg,#0284c7,#0ea5e9);">Book Demo</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main>
+
+<!-- HERO -->
+<section class="relative overflow-hidden" style="background:#ffffff; padding-top:100px; padding-bottom:64px;">
+    <div class="absolute inset-0 hero-glow pointer-events-none"></div>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center relative" style="z-index:10;">
+
+        <!-- Breadcrumb -->
+        <nav aria-label="Breadcrumb" class="flex items-center justify-center gap-2 mb-8 text-xs" style="color:#86868b;">
+            <a href="../index.html" style="color:#86868b;" onmouseover="this.style.color='#0284c7'" onmouseout="this.style.color='#86868b'">Home</a>
+            <i class="fas fa-chevron-right" style="font-size:9px;"></i>
+            <span style="color:#1d1d1f; font-weight:600;">Knowledge Center</span>
+        </nav>
+
+        <div style="display:inline-flex;align-items:center;gap:8px;border:1.5px solid rgba(0,0,0,0.10);border-radius:100px;padding:6px 16px;margin-bottom:24px;background:rgba(255,255,255,0.92);">
+            <i class="fas fa-book-open" style="color:#0284c7;font-size:10px;"></i>
+            <span style="font-size:10.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(0,0,0,0.45);">50+ Guides &bull; Updated Weekly</span>
+        </div>
+
+        <h1 style="font-size:clamp(2.4rem,5vw,3.75rem);font-weight:900;color:#0a0a0a;letter-spacing:-0.03em;line-height:1.05;margin:0 0 20px;">
+            The AI Receptionist<br><span style="color:#0ea5e9;">Knowledge Center</span>
+        </h1>
+        <p style="font-size:1.1rem;color:#424245;line-height:1.65;max-width:580px;margin:0 auto 36px;">
+            Straightforward guides on AI receptionists, voice agents, lead qualification, and business automation — written for owners, not engineers.
+        </p>
+
+        <!-- Search -->
+        <div class="search-wrap max-w-xl mx-auto relative mb-6">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2" style="color:#86868b;font-size:14px;pointer-events:none;"></i>
+            <input type="search" id="kc-search" placeholder="Search guides, FAQs, comparisons…"
+                   class="w-full pl-11 pr-4 py-4 rounded-2xl text-sm font-medium transition-all"
+                   style="border:1.5px solid rgba(0,0,0,0.10);background:#fff;color:#1d1d1f;"
+                   oninput="filterArticles(this.value)">
+        </div>
+
+    </div>
+</section>
+
+<!-- CATEGORY FILTER -->
+<div class="sticky top-16 z-40" style="background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,0.07);padding:12px 0;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 overflow-x-auto" style="scrollbar-width:none;">
+        <button class="nav-cat-btn active flex-shrink-0" onclick="filterCat('all', this)">All Topics</button>
+        <button class="nav-cat-btn flex-shrink-0" onclick="filterCat('fundamentals', this)">Fundamentals</button>
+        <button class="nav-cat-btn flex-shrink-0" onclick="filterCat('real-estate', this)">Real Estate</button>
+        <button class="nav-cat-btn flex-shrink-0" onclick="filterCat('law-firms', this)">Law Firms</button>
+        <button class="nav-cat-btn flex-shrink-0" onclick="filterCat('med-spas', this)">Med Spas</button>
+        <button class="nav-cat-btn flex-shrink-0" onclick="filterCat('insurance', this)">Insurance</button>
+        <button class="nav-cat-btn flex-shrink-0" onclick="filterCat('compare', this)">Comparisons</button>
+        <button class="nav-cat-btn flex-shrink-0" onclick="filterCat('faq', this)">FAQs</button>
+    </div>
+</div>
+
+<!-- FEATURED ARTICLE -->
+<section style="background:#f0f9ff; padding:64px 0 48px;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#0284c7;margin-bottom:16px;">
+            <i class="fas fa-star mr-1.5"></i>Featured Guide
+        </p>
+        <div class="article-card rounded-2xl overflow-hidden" style="display:grid;grid-template-columns:1fr;" onclick="window.location='./what-is-an-ai-receptionist.html'" role="link" style="cursor:pointer;">
+            <div style="padding:40px 40px 36px;">
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="category-chip">Fundamentals</span>
+                    <span style="font-size:12px;color:#86868b;display:flex;align-items:center;gap:5px;"><i class="fas fa-clock text-xs"></i>8 min read</span>
+                </div>
+                <h2 style="font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;color:#0a0a0a;letter-spacing:-0.02em;line-height:1.15;margin:0 0 14px;max-width:640px;">
+                    What Is an AI Receptionist?
+                </h2>
+                <p style="font-size:1rem;color:#424245;line-height:1.65;max-width:640px;margin:0 0 24px;">
+                    An AI receptionist is software that answers calls, qualifies leads, books appointments, and handles routine inquiries — 24/7, without a human. This guide covers how they work, what they cost, and whether one is right for your business.
+                </p>
+                <a href="./what-is-an-ai-receptionist.html" class="inline-flex items-center gap-2 text-sm font-semibold" style="color:#0284c7;">
+                    Read the full guide <i class="fas fa-arrow-right text-xs"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ARTICLE GRID -->
+<section style="padding:56px 0 80px;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div id="article-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- Fundamentals -->
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="fundamentals" data-title="how much does an ai receptionist cost" data-keywords="pricing price cost cheap expensive affordable plans tiers subscription monthly" onclick="window.location='./how-much-does-an-ai-receptionist-cost.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip">Fundamentals</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>5 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">How Much Does an AI Receptionist Cost?</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">Pricing breakdowns from $99 to $1,500+/month — what's included, what drives cost, and what to expect at each tier.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="fundamentals" data-title="ai receptionist vs virtual assistant" data-keywords="va remote employee assistant difference comparison versus basics" onclick="window.location='./ai-receptionist-vs-virtual-assistant.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip">Fundamentals</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>6 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">AI Receptionist vs. Virtual Assistant</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">Two very different services. One handles calls automatically, the other is a remote employee. Here's how to choose.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="fundamentals" data-title="how ai voice agents work" data-keywords="voice agent phone call stt tts llm speech technology latency stack vapi" onclick="window.location='./how-ai-voice-agents-work.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip">Fundamentals</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>7 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">How AI Voice Agents Work</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">Speech-to-text, large language models, text-to-speech — the technology stack behind a modern AI phone agent, explained plainly.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="fundamentals" data-title="can ai schedule appointments" data-keywords="booking calendar scheduling google calendly cal.com appointments book" onclick="window.location='./can-ai-schedule-appointments.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip">Fundamentals</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>5 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">Can AI Schedule Appointments?</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">Yes — and it does it in real time, 24/7. Here's how AI connects to your calendar and books without human intervention.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="fundamentals" data-title="benefits of ai receptionists" data-keywords="advantages pros why use 24/7 availability cost savings crm small business" onclick="window.location='./benefits-of-ai-receptionists.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip">Fundamentals</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>6 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">Benefits of AI Receptionists for Small Businesses</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">From 24/7 availability to consistent lead capture — the concrete advantages of replacing or supplementing a human front desk.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <!-- Real Estate -->
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="real-estate" data-title="best ai receptionist for realtors" data-keywords="realtor agent property homes buyer seller listing mls zillow redfin showing real estate" onclick="window.location='./real-estate/ai-receptionist-for-realtors.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip green">Real Estate</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>9 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">Best AI Receptionist for Real Estate Agents</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">How realtors use AI to respond to every inquiry within seconds, qualify buyer intent, and book showings automatically.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="real-estate" data-title="ai for real estate lead qualification" data-keywords="real estate leads qualify isa buyer seller scoring routing property homes" onclick="window.location='./real-estate/ai-for-real-estate-lead-qualification.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip green">Real Estate</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>7 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">AI for Real Estate Lead Qualification</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">How AI asks qualification questions, scores leads by motivation and timeline, and routes hot prospects to agents instantly.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="real-estate" data-title="ai for apartment leasing" data-keywords="apartment leasing multifamily tenant renter property management yardi appfolio tour rental" onclick="window.location='./real-estate/ai-for-apartment-leasing.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip green">Real Estate</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>6 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">AI Leasing Agent for Apartment Communities</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">How multifamily properties use AI to answer rental inquiries, pre-qualify prospects, and schedule tours 24/7.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <!-- Law Firms -->
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="law-firms" data-title="ai intake for law firms" data-keywords="attorney lawyer legal law counsel intake case consultation personal injury criminal family law firm" onclick="window.location='./law-firms/ai-intake-for-law-firms.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip purple">Law Firms</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>9 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">AI Intake for Law Firms</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">How AI qualifies prospective clients, collects case details, and schedules consultations — without putting an associate on the phone.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="law-firms" data-title="how law firms lose leads" data-keywords="attorney lawyer legal law missed calls after hours voicemail intake case lose clients" onclick="window.location='./law-firms/how-law-firms-lose-leads.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip purple">Law Firms</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>5 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">How Law Firms Lose Leads (And How to Stop It)</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">Slow response times and missed after-hours calls cost law firms thousands per week. Here's the data — and the fix.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <!-- Med Spas -->
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="med-spas" data-title="ai receptionist for med spas" data-keywords="med spa medical spa botox filler laser aesthetic beauty treatment skincare cosmetic medspa" onclick="window.location='./med-spas/ai-receptionist-for-med-spas.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip rose">Med Spas</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>7 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">AI Receptionist for Med Spas</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">How med spas answer every inquiry, capture high-value leads, and fill appointment slots automatically — even after hours.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="med-spas" data-title="reducing no shows with ai" data-keywords="no show no-show reminder sms appointment cancel medspa med spa botox laser beauty" onclick="window.location='./med-spas/reducing-no-shows-with-ai.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip rose">Med Spas</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>5 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">Reducing No-Shows With AI Appointment Reminders</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">Automated confirmations and reminders can cut no-show rates by 30–50%. Here's how the workflow runs.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <!-- Insurance -->
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="insurance" data-title="ai receptionist for insurance agencies" data-keywords="insurance policy coverage premium quote auto home life commercial health agency agent" onclick="window.location='./insurance/ai-receptionist-for-insurance-agencies.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip amber">Insurance</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>7 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">AI Receptionist for Insurance Agencies</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">How insurance agencies use AI to respond to quote requests instantly, qualify prospects by coverage type, and book agent calls.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read guide <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <!-- Comparisons -->
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="compare" data-title="ai receptionist vs human receptionist" data-keywords="compare comparison versus vs human staff employee cost coverage difference" onclick="window.location='./compare/ai-receptionist-vs-human-receptionist.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip" style="background:rgba(100,116,139,0.07);border-color:rgba(100,116,139,0.18);color:#475569;">Compare</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>8 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">AI Receptionist vs. Human Receptionist</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">Side-by-side comparison of cost, coverage, consistency, and capability. When AI wins, when humans win, and when you need both.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read comparison <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+            <article class="article-card rounded-2xl p-7 cursor-pointer" data-cat="compare" data-title="ai receptionist vs answering service" data-keywords="compare comparison versus vs answering service operator cost difference live transfer" onclick="window.location='./compare/ai-receptionist-vs-answering-service.html'">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="category-chip" style="background:rgba(100,116,139,0.07);border-color:rgba(100,116,139,0.18);color:#475569;">Compare</span>
+                    <span style="font-size:11px;color:#86868b;"><i class="fas fa-clock mr-1"></i>7 min</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#0a0a0a;line-height:1.3;margin:0 0 10px;">AI Receptionist vs. Answering Service</h3>
+                <p style="font-size:0.875rem;color:#6e6e73;line-height:1.6;margin:0 0 16px;">Both answer calls. One qualifies, books, and follows up automatically. Here's what separates them — and what each costs.</p>
+                <span style="font-size:13px;font-weight:600;color:#0284c7;">Read comparison <i class="fas fa-arrow-right text-xs ml-1"></i></span>
+            </article>
+
+        </div>
+
+        <!-- No results message -->
+        <div id="no-results" class="hidden text-center py-16">
+            <i class="fas fa-search text-3xl mb-4" style="color:#d1d5db;"></i>
+            <p style="color:#6e6e73;font-size:1rem;">No articles match your search. Try a different term.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- STATS BANNER -->
+<section class="section-gray" style="padding:56px 0;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="text-center">
+                <p style="font-size:2.2rem;font-weight:900;color:#0ea5e9;letter-spacing:-0.03em;margin:0 0 4px;">62%</p>
+                <p style="font-size:0.8rem;color:#6e6e73;font-weight:500;">of callers won't leave a voicemail</p>
+            </div>
+            <div class="text-center">
+                <p style="font-size:2.2rem;font-weight:900;color:#0ea5e9;letter-spacing:-0.03em;margin:0 0 4px;">&lt;2s</p>
+                <p style="font-size:0.8rem;color:#6e6e73;font-weight:500;">AI answer time vs. 4+ rings for humans</p>
+            </div>
+            <div class="text-center">
+                <p style="font-size:2.2rem;font-weight:900;color:#0ea5e9;letter-spacing:-0.03em;margin:0 0 4px;">78%</p>
+                <p style="font-size:0.8rem;color:#6e6e73;font-weight:500;">of leads buy from the first responder</p>
+            </div>
+            <div class="text-center">
+                <p style="font-size:2.2rem;font-weight:900;color:#0ea5e9;letter-spacing:-0.03em;margin:0 0 4px;">$0</p>
+                <p style="font-size:0.8rem;color:#6e6e73;font-weight:500;">cost per call after setup</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section style="background:#020817; padding:72px 0;">
+    <div class="max-w-3xl mx-auto px-4 text-center">
+        <h2 style="font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:800;color:#ffffff;letter-spacing:-0.025em;margin:0 0 16px;">
+            Ready to stop losing leads to missed calls?
+        </h2>
+        <p style="font-size:1rem;color:#94a3b8;margin:0 0 32px;line-height:1.65;">
+            Book a 20-minute demo and hear Topher AI handle a live call in your industry.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="../index.html#contact" class="px-7 py-4 rounded-full font-semibold text-white transition-all btn-glow"
+               style="background:linear-gradient(135deg,#0284c7,#0ea5e9);">Book a Demo</a>
+            <a href="tel:2138986724" class="px-7 py-4 rounded-full font-semibold transition-all"
+               style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#ffffff;">
+                <i class="fas fa-phone text-xs mr-2"></i>Call (213) 898-6724
+            </a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer style="background:#020817; border-top:1px solid rgba(255,255,255,0.06); padding:56px 0 32px;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-10 mb-10">
+            <div class="col-span-2 md:col-span-1">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-lg text-white"
+                         style="background:linear-gradient(135deg,#0ea5e9,#818cf8);">T</div>
+                    <span class="font-bold text-lg" style="color:#ffffff;">Topher AI</span>
+                </div>
+                <p style="color:#64748b;font-size:0.875rem;line-height:1.65;max-width:220px;">Intelligent client response infrastructure for growing businesses.</p>
+            </div>
+            <div>
+                <h4 style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.07em;margin:0 0 16px;">Product</h4>
+                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+                    <li><a href="../index.html#how-it-works" style="font-size:0.875rem;color:#64748b;text-decoration:none;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#64748b'">How It Works</a></li>
+                    <li><a href="../index.html#pricing" style="font-size:0.875rem;color:#64748b;text-decoration:none;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#64748b'">Pricing</a></li>
+                    <li><a href="../index.html#contact" style="font-size:0.875rem;color:#64748b;text-decoration:none;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#64748b'">Book a Demo</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.07em;margin:0 0 16px;">Knowledge</h4>
+                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+                    <li><a href="./what-is-an-ai-receptionist.html" style="font-size:0.875rem;color:#64748b;text-decoration:none;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#64748b'">What Is an AI Receptionist</a></li>
+                    <li><a href="./real-estate/ai-receptionist-for-realtors.html" style="font-size:0.875rem;color:#64748b;text-decoration:none;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#64748b'">AI for Real Estate</a></li>
+                    <li><a href="./law-firms/ai-intake-for-law-firms.html" style="font-size:0.875rem;color:#64748b;text-decoration:none;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#64748b'">AI for Law Firms</a></li>
+                    <li><a href="./compare/ai-receptionist-vs-human-receptionist.html" style="font-size:0.875rem;color:#64748b;text-decoration:none;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#64748b'">AI vs. Human Receptionist</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.07em;margin:0 0 16px;">Contact</h4>
+                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+                    <li><a href="mailto:hello@topherai.com" style="font-size:0.875rem;color:#64748b;text-decoration:none;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#64748b'">hello@topherai.com</a></li>
+                    <li><a href="tel:2138986724" style="font-size:0.875rem;color:#64748b;text-decoration:none;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#64748b'">(213) 898-6724</a></li>
+                </ul>
+            </div>
+        </div>
+        <div style="padding-top:24px;border-top:1px solid rgba(255,255,255,0.05);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
+            <p style="font-size:12px;color:#334155;margin:0;">© 2026 Topher AI. All rights reserved.</p>
+            <div style="display:flex;gap:24px;">
+                <a href="../privacy.html" style="font-size:12px;color:#334155;text-decoration:none;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#334155'">Privacy Policy</a>
+                <a href="../terms.html" style="font-size:12px;color:#334155;text-decoration:none;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#334155'">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+function filterCat(cat, btn) {
+    document.querySelectorAll('.nav-cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#article-grid article').forEach(a => {
+        if (cat === 'all' || a.dataset.cat === cat) {
+            a.style.display = '';
+        } else {
+            a.style.display = 'none';
+        }
+    });
+    checkEmpty();
+    document.getElementById('article-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function filterArticles(q) {
+    const term = q.toLowerCase().trim();
+    document.querySelectorAll('#article-grid article').forEach(a => {
+        const searchable = [
+            a.dataset.title || '',
+            a.dataset.keywords || '',
+            a.dataset.cat || '',
+            a.querySelector('h3')?.textContent || '',
+            a.querySelector('p')?.textContent || ''
+        ].join(' ').toLowerCase();
+        a.style.display = (!term || searchable.includes(term)) ? '' : 'none';
+    });
+    checkEmpty();
+}
+
+function checkEmpty() {
+    const visible = [...document.querySelectorAll('#article-grid article')].filter(a => a.style.display !== 'none');
+    document.getElementById('no-results').classList.toggle('hidden', visible.length > 0);
+}
+</script>
+
+</body>
+</html>

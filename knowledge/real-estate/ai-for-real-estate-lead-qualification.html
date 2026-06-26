@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *{font-family:'Inter',sans-serif}
+    body{background:#f5f5f7;color:#1d1d1f}
+    .glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.6)}
+    .quick-answer{background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08));border:1.5px solid rgba(99,102,241,0.25);border-radius:12px;padding:24px 28px}
+    .faq-btn{width:100%;text-align:left;padding:18px 22px;background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:#1d1d1f;transition:all .2s}
+    .faq-btn:hover{background:rgba(255,255,255,1);border-color:rgba(99,102,241,0.3)}
+    .faq-body{display:none;padding:16px 22px 20px;background:rgba(255,255,255,0.6);border:1px solid rgba(0,0,0,0.06);border-top:none;border-radius:0 0 10px 10px;color:#424245;line-height:1.7}
+    .toc-link{display:block;padding:7px 12px;border-radius:8px;font-size:0.82rem;color:#424245;text-decoration:none;transition:all .2s}
+    .toc-link:hover,.toc-link.active{background:rgba(99,102,241,0.1);color:#4f46e5;font-weight:600}
+    .stat-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px 24px;text-align:center}
+    .step-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0}
+    table{width:100%;border-collapse:collapse}
+    th{padding:12px 16px;text-align:left;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    td{padding:12px 16px;border-bottom:1px solid rgba(0,0,0,0.06);font-size:0.9rem;color:#424245}
+    tr:last-child td{border-bottom:none}
+    .win-ai{color:#059669;font-weight:600}
+    .win-human{color:#dc2626;font-weight:500}
+    .neutral{color:#6b7280}
+    .related-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px;cursor:pointer;transition:all .25s}
+    .related-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+    .breadcrumb a{color:#6b7280;font-size:0.82rem;text-decoration:none}
+    .breadcrumb a:hover{color:#4f46e5}
+    .breadcrumb span{color:#9ca3af;font-size:0.82rem;margin:0 6px}
+    nav{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.06)}
+    footer{background:#1d1d1f}
+  </style>
+</head>
+<title>AI for Real Estate Lead Qualification | Topher AI</title>
+<meta name="description" content="Learn how AI qualifies real estate leads instantly — separating serious buyers and sellers from tire-kickers, 24/7, without an ISA."/>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {"@type":"Article","headline":"AI for Real Estate Lead Qualification","description":"How AI qualifies real estate leads instantly, separating serious buyers and sellers from tire-kickers 24/7.","author":{"@type":"Organization","name":"Topher AI"},"publisher":{"@type":"Organization","name":"Topher AI","url":"https://topherai.com"},"datePublished":"2025-01-01","dateModified":"2025-06-01"},
+    {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Knowledge Center","item":"https://topherai.com/knowledge/"},{"@type":"ListItem","position":2,"name":"Real Estate","item":"https://topherai.com/knowledge/real-estate/"},{"@type":"ListItem","position":3,"name":"AI for Real Estate Lead Qualification"}]},
+    {"@type":"FAQPage","mainEntity":[
+      {"@type":"Question","name":"How does AI qualify real estate leads?","acceptedAnswer":{"@type":"Answer","text":"AI asks conversational questions about timeline, pre-approval status, budget, and motivation — then scores and routes leads based on those answers."}},
+      {"@type":"Question","name":"Can AI replace an ISA for lead qualification?","acceptedAnswer":{"@type":"Answer","text":"AI handles the first-touch qualification that ISAs typically do, 24/7. Many teams use AI to triage leads and only escalate high-quality prospects to human ISAs."}},
+      {"@type":"Question","name":"What questions does AI ask to qualify a buyer?","acceptedAnswer":{"@type":"Answer","text":"Typical questions include: Are you pre-approved? What's your target move-in date? What price range are you considering? Are you currently working with another agent?"}}
+    ]},
+    {"@type":"SpeakableSpecification","cssSelector":["#quick-answer","h2","h3"]}
+  ]
+}
+</script>
+<body>
+<nav class="sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+    <a href="../../index.html" class="flex items-center gap-2 no-underline">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+        <i class="fa-solid fa-headset text-white text-xs"></i>
+      </div>
+      <span class="font-bold text-base" style="color:#1d1d1f">Topher AI</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="../../index.html#features" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Features</a>
+      <a href="../../index.html#industries" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Industries</a>
+      <a href="../../index.html#pricing" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Pricing</a>
+      <a href="../" class="text-sm font-medium transition-colors" style="color:#4f46e5;font-weight:600">Knowledge</a>
+      <a href="../../index.html#contact" class="text-sm font-medium text-white px-4 py-2 rounded-xl transition-opacity hover:opacity-90" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">Get Started</a>
+    </div>
+  </div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 py-12">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb flex items-center gap-1 mb-8">
+    <a href="../">Knowledge Center</a><span>/</span>
+    <a href="../">Real Estate</a><span>/</span>
+    <span class="text-sm" style="color:#1d1d1f">AI for Lead Qualification</span>
+  </div>
+
+  <!-- Header -->
+  <div class="mb-10">
+    <span class="text-xs font-semibold px-3 py-1 rounded-full inline-block mb-4" style="background:#05966922;color:#059669">Real Estate</span>
+    <h1 class="text-4xl font-bold mb-4" style="color:#1d1d1f">AI for Real Estate Lead Qualification</h1>
+    <p class="text-xl" style="color:#424245;max-width:700px">Separate serious buyers and sellers from tire-kickers instantly — without hiring an ISA.</p>
+  </div>
+
+  <div class="grid lg:grid-cols-[1fr_280px] gap-10">
+    <div>
+      <!-- Quick Answer -->
+      <div id="quick-answer" class="quick-answer mb-10">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="fa-solid fa-bolt text-indigo-500"></i>
+          <span class="text-xs font-bold uppercase tracking-wider" style="color:#6366f1">Quick Answer</span>
+        </div>
+        <p class="font-semibold text-lg mb-2" style="color:#1d1d1f">AI qualifies real estate leads by asking the right questions at the exact moment of inquiry.</p>
+        <p style="color:#424245">When a lead comes in, AI engages immediately — asking about pre-approval, timeline, budget, and motivation. It scores each lead and routes hot prospects to agents instantly, while nurturing cold leads via automated follow-up.</p>
+      </div>
+
+      <!-- Stats -->
+      <h2 id="why-qualification-matters" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Why Lead Qualification Matters in Real Estate</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#059669">78%</div><div class="text-sm" style="color:#6b7280">of buyers choose the first agent who responds</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#059669">5min</div><div class="text-sm" style="color:#6b7280">response window before lead interest drops 80%</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#059669">50%</div><div class="text-sm" style="color:#6b7280">of online leads are unqualified on first contact</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#059669">15h</div><div class="text-sm" style="color:#6b7280">average agent response time to new inquiries</div></div>
+      </div>
+
+      <p class="mb-8" style="color:#424245">Without fast qualification, agents waste time on leads who aren't ready to buy — and miss the ones who are.</p>
+
+      <!-- What AI Qualifies -->
+      <h2 id="what-ai-qualifies" class="text-2xl font-bold mb-6" style="color:#1d1d1f">What AI Qualifies in a Real Estate Lead</h2>
+      <div class="glass rounded-2xl p-6 mb-8">
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-bold mb-3" style="color:#059669"><i class="fa-solid fa-house mr-2"></i>Buyer Signals</h3>
+            <ul class="space-y-2 text-sm" style="color:#424245">
+              <li><i class="fa-solid fa-check text-green-500 mr-2"></i>Pre-approval status</li>
+              <li><i class="fa-solid fa-check text-green-500 mr-2"></i>Target move-in timeline</li>
+              <li><i class="fa-solid fa-check text-green-500 mr-2"></i>Price range and neighborhood</li>
+              <li><i class="fa-solid fa-check text-green-500 mr-2"></i>Current agent relationship</li>
+              <li><i class="fa-solid fa-check text-green-500 mr-2"></i>Motivation (job relocation, growing family, etc.)</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-bold mb-3" style="color:#6366f1"><i class="fa-solid fa-sign-hanging mr-2"></i>Seller Signals</h3>
+            <ul class="space-y-2 text-sm" style="color:#424245">
+              <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i>Expected listing timeline</li>
+              <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i>Property type and condition</li>
+              <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i>Already working with an agent?</li>
+              <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i>Reason for selling</li>
+              <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i>Price expectations</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample Conversation -->
+      <h2 id="sample-conversation" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Sample AI Qualification Conversation</h2>
+      <div class="glass rounded-2xl p-6 mb-8 font-mono text-sm">
+        <div class="flex gap-3 mb-4">
+          <span class="text-indigo-500 font-bold">AI:</span>
+          <span style="color:#424245">Hi! I'm the AI assistant for Sunrise Realty. I saw you requested info on 412 Oak Ave — are you looking to buy, or just exploring the market?</span>
+        </div>
+        <div class="flex gap-3 mb-4">
+          <span class="text-green-600 font-bold">Lead:</span>
+          <span style="color:#424245">Looking to buy, probably in the next 3 months.</span>
+        </div>
+        <div class="flex gap-3 mb-4">
+          <span class="text-indigo-500 font-bold">AI:</span>
+          <span style="color:#424245">Great timeline! Have you gotten pre-approved for a mortgage yet?</span>
+        </div>
+        <div class="flex gap-3 mb-4">
+          <span class="text-green-600 font-bold">Lead:</span>
+          <span style="color:#424245">Yes, up to $650k.</span>
+        </div>
+        <div class="flex gap-3 mb-4">
+          <span class="text-indigo-500 font-bold">AI:</span>
+          <span style="color:#424245">Perfect. Are you currently working with a buyer's agent, or are you open to meeting with one of our team members?</span>
+        </div>
+        <div class="flex gap-3">
+          <span class="text-green-600 font-bold">Lead:</span>
+          <span style="color:#424245">No agent yet, open to it.</span>
+        </div>
+        <div class="mt-4 p-3 rounded-lg text-xs font-semibold" style="background:#05966922;color:#059669">
+          <i class="fa-solid fa-fire mr-2"></i>HOT LEAD — Pre-approved, 90-day timeline, no agent — routing to agent now
+        </div>
+      </div>
+
+      <!-- Lead Scoring -->
+      <h2 id="lead-scoring" class="text-2xl font-bold mb-6" style="color:#1d1d1f">AI Lead Scoring Tiers</h2>
+      <div class="glass rounded-2xl overflow-hidden mb-8">
+        <table>
+          <thead><tr style="background:#1d1d1f"><th class="text-white">Tier</th><th class="text-white">Criteria</th><th class="text-white">AI Action</th></tr></thead>
+          <tbody>
+            <tr><td><span class="font-bold" style="color:#dc2626">🔥 Hot</span></td><td>Pre-approved, 0–90 day timeline, no agent</td><td>Immediate agent notification + call booking</td></tr>
+            <tr><td><span class="font-bold" style="color:#d97706">🌤 Warm</span></td><td>Exploring in 3–6 months, not yet pre-approved</td><td>Nurture sequence + re-engage in 30 days</td></tr>
+            <tr><td><span class="font-bold" style="color:#6b7280">❄️ Cold</span></td><td>6+ months out or unclear motivation</td><td>Long-term email drip, low agent priority</td></tr>
+            <tr><td><span class="font-bold" style="color:#9ca3af">Unqualified</span></td><td>Already has agent, not in market, wrong area</td><td>Politely redirect, no agent time spent</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- AI vs ISA -->
+      <h2 id="ai-vs-isa" class="text-2xl font-bold mb-6" style="color:#1d1d1f">AI Qualification vs. Human ISA</h2>
+      <div class="glass rounded-2xl overflow-hidden mb-8">
+        <table>
+          <thead><tr style="background:#1d1d1f"><th class="text-white">Factor</th><th class="text-white" style="color:#a5f3fc">AI</th><th class="text-white" style="color:#fca5a5">Human ISA</th></tr></thead>
+          <tbody>
+            <tr><td>Response Time</td><td class="win-ai">&lt;2 seconds, 24/7</td><td class="win-human">Business hours only</td></tr>
+            <tr><td>Monthly Cost</td><td class="win-ai">$297–$997</td><td class="win-human">$3,000–$5,000+</td></tr>
+            <tr><td>Consistency</td><td class="win-ai">Never deviates from script</td><td class="neutral">Varies by mood/day</td></tr>
+            <tr><td>Simultaneous Leads</td><td class="win-ai">Unlimited</td><td class="win-human">1 at a time</td></tr>
+            <tr><td>Emotional Rapport</td><td class="neutral">Improving with AI</td><td class="win-ai">Human advantage</td></tr>
+            <tr><td>CRM Sync</td><td class="win-ai">Automatic</td><td class="win-human">Manual entry often</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FAQ -->
+      <h2 id="faq" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Frequently Asked Questions</h2>
+      <div class="mb-10">
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(1)">
+        <span>How does AI know which leads are serious?</span>
+        <i id="faq-icon-1" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-1" class="faq-body">AI uses structured qualification logic — pre-approval status, timeline, motivation, and agent relationship — to score leads. It doesn't guess; it asks directly and routes based on the answers.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(2)">
+        <span>Can AI handle objections during qualification?</span>
+        <i id="faq-icon-2" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-2" class="faq-body">Yes. Modern AI voice and chat agents are trained on common real estate objections — 'I'm just browsing,' 'I need to talk to my spouse first' — and respond naturally without being pushy.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(3)">
+        <span>What happens to leads AI can't qualify?</span>
+        <i id="faq-icon-3" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-3" class="faq-body">Unqualified leads enter a long-term nurture sequence. The AI follows up via SMS or email on a drip schedule until the lead re-engages or explicitly opts out.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(4)">
+        <span>Does AI replace my ISA entirely?</span>
+        <i id="faq-icon-4" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-4" class="faq-body">Not always — but it handles the first-touch work ISAs traditionally do, freeing your ISA (if you have one) to focus on warm handoffs and appointment setting rather than cold first-response calls.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(5)">
+        <span>Which CRMs does AI integrate with?</span>
+        <i id="faq-icon-5" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-5" class="faq-body">Topher AI integrates with Follow Up Boss, LionDesk, Salesforce, HubSpot, and most major real estate CRMs via API or Zapier.</div>
+    </div>
+      </div>
+
+      <!-- Related Articles -->
+      <h2 class="text-2xl font-bold mb-6" style="color:#1d1d1f">Related Articles</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        
+    <div class="related-card" onclick="window.location='../real-estate/ai-receptionist-for-realtors.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#05966922;color:#059669">Real Estate</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">AI Receptionist for Realtors</h4>
+      <p class="text-xs" style="color:#6b7280">How AI handles every incoming call for real estate agents.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../real-estate/ai-for-apartment-leasing.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#05966922;color:#059669">Real Estate</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">AI for Apartment Leasing</h4>
+      <p class="text-xs" style="color:#6b7280">Automate tour scheduling and prospect qualification for multifamily.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../what-is-an-ai-receptionist.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Fundamentals</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">What Is an AI Receptionist?</h4>
+      <p class="text-xs" style="color:#6b7280">The complete guide to AI receptionists for any business.</p>
+    </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="hidden lg:block">
+      
+    <div class="space-y-6">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="color:#6b7280">On This Page</h3>
+        <a href="#why-qualification-matters" data-target="why-qualification-matters" class="toc-link">Why It Matters</a>
+<a href="#what-ai-qualifies" data-target="what-ai-qualifies" class="toc-link">What AI Qualifies</a>
+<a href="#sample-conversation" data-target="sample-conversation" class="toc-link">Sample Conversation</a>
+<a href="#lead-scoring" data-target="lead-scoring" class="toc-link">Lead Scoring Tiers</a>
+<a href="#ai-vs-isa" data-target="ai-vs-isa" class="toc-link">AI vs. ISA</a>
+<a href="#faq" data-target="faq" class="toc-link">FAQ</a>
+
+      </div>
+      <div class="rounded-2xl p-6 text-white" style="background:linear-gradient(135deg,#059669,#047857)">
+        <i class="fa-solid fa-house text-2xl mb-3 opacity-90"></i>
+        <h3 class="font-bold text-lg mb-2">Ready to Qualify More Leads?</h3>
+        <p class="text-sm opacity-80 mb-4">See how Topher AI instantly routes hot leads to your agents.</p>
+        <a href="../../index.html#contact" class="block w-full text-center py-2.5 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.2);color:white">Get a Free Demo</a>
+      </div>
+    </div>
+    </aside>
+  </div>
+</main>
+<footer class="py-16 px-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+            <i class="fa-solid fa-headset text-white text-xs"></i>
+          </div>
+          <span class="font-bold text-white">Topher AI</span>
+        </div>
+        <p class="text-sm" style="color:#86868b">AI receptionist &amp; automation for modern businesses.</p>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Product</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#features" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Features</a></li>
+          <li><a href="../../index.html#pricing" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Pricing</a></li>
+          <li><a href="../../index.html#industries" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Industries</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Industries</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#real-estate" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Real Estate</a></li>
+          <li><a href="../../index.html#law-firms" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Law Firms</a></li>
+          <li><a href="../../index.html#med-spas" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Med Spas</a></li>
+          <li><a href="../../index.html#insurance" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Insurance</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Knowledge</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Knowledge Center</a></li>
+          <li><a href="../what-is-an-ai-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">What Is an AI Receptionist</a></li>
+          <li><a href="../real-estate/ai-receptionist-for-realtors.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI for Real Estate</a></li>
+          <li><a href="../compare/ai-receptionist-vs-human-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI vs. Human</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Company</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#contact" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Contact</a></li>
+          <li><a href="../../index.html#demo" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Book a Demo</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t pt-8" style="border-color:rgba(255,255,255,0.1)">
+      <p class="text-sm text-center" style="color:#86868b">© 2025 Topher AI. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+<script>
+function toggleFaq(id){
+  var b=document.getElementById('faq-body-'+id);
+  var i=document.getElementById('faq-icon-'+id);
+  if(b.style.display==='block'){b.style.display='none';i.className='fa-solid fa-chevron-down text-gray-400 text-xs';}
+  else{b.style.display='block';i.className='fa-solid fa-chevron-up text-indigo-500 text-xs';}
+}
+window.addEventListener('scroll',function(){
+  var links=document.querySelectorAll('.toc-link[data-target]');
+  links.forEach(function(l){
+    var t=document.getElementById(l.dataset.target);
+    if(t){var r=t.getBoundingClientRect();if(r.top<=120&&r.bottom>=80){links.forEach(function(x){x.classList.remove('active')});l.classList.add('active');}}
+  });
+});
+</script>
+</body></html>

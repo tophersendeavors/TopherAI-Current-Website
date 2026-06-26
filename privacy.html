@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | Topher AI</title>
+    <meta name="description" content="Privacy Policy for Topher AI — how we collect, use, and protect your data.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        navy: { 950: '#020817', 900: '#050d1f', 800: '#0a1628' },
+                        electric: { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #020817; color: #cbd5e1; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .glass-nav { background: rgba(2, 8, 23, 0.90); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .text-gradient-blue { background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .prose-legal h2 { font-size: 1.25rem; font-weight: 700; color: #f1f5f9; margin-top: 2.5rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .prose-legal h3 { font-size: 1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .prose-legal p { font-size: 0.9375rem; line-height: 1.75; color: #94a3b8; margin-bottom: 1rem; }
+        .prose-legal ul { list-style: none; padding: 0; margin-bottom: 1rem; }
+        .prose-legal ul li { font-size: 0.9375rem; line-height: 1.75; color: #94a3b8; padding-left: 1.25rem; position: relative; margin-bottom: 0.35rem; }
+        .prose-legal ul li::before { content: '—'; position: absolute; left: 0; color: #0ea5e9; font-weight: 600; }
+        .prose-legal a { color: #38bdf8; text-decoration: underline; text-underline-offset: 2px; }
+        .prose-legal a:hover { color: #7dd3fc; }
+        .prose-legal strong { color: #e2e8f0; font-weight: 600; }
+        .tag-pill { background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.25); color: #38bdf8; }
+        .tag-pill-green { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); color: #34d399; }
+        .toc-link { display: block; font-size: 0.875rem; color: #64748b; padding: 0.35rem 0; transition: color 0.15s; }
+        .toc-link:hover { color: #38bdf8; }
+        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 1.25rem; font-size: 0.875rem; }
+        .data-table th { text-align: left; color: #e2e8f0; font-weight: 600; padding: 0.6rem 0.75rem; background: rgba(14,165,233,0.08); border: 1px solid rgba(255,255,255,0.06); }
+        .data-table td { color: #94a3b8; padding: 0.6rem 0.75rem; border: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+        .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020817; }
+        ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="fixed w-full z-50 glass-nav border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+            <a href="index.html" class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-lg text-white"
+                     style="background: linear-gradient(135deg, #0ea5e9, #818cf8);">T</div>
+                <span class="font-bold text-xl text-white tracking-tight">Topher <span class="text-gradient-blue">AI</span></span>
+            </a>
+            <a href="index.html" class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition">
+                <i class="fas fa-arrow-left text-xs"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="pt-28 pb-12 border-b border-white/5" style="background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(14,165,233,0.12) 0%, transparent 70%);">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <div class="inline-flex items-center gap-2 tag-pill rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider mb-5">
+            Legal
+        </div>
+        <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">Privacy Policy</h1>
+        <p class="text-slate-400 text-sm">Effective Date: June 1, 2025 &nbsp;·&nbsp; Last Updated: June 1, 2025</p>
+    </div>
+</div>
+
+<!-- CONTENT -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="grid lg:grid-cols-4 gap-12">
+
+        <!-- Table of Contents -->
+        <aside class="hidden lg:block">
+            <div class="sticky top-28">
+                <p class="text-xs font-bold text-white uppercase tracking-wider mb-4">Contents</p>
+                <nav class="space-y-0.5 border-l border-white/5 pl-4">
+                    <a href="#overview" class="toc-link">1. Overview</a>
+                    <a href="#information-collect" class="toc-link">2. Information We Collect</a>
+                    <a href="#how-use" class="toc-link">3. How We Use Information</a>
+                    <a href="#sharing" class="toc-link">4. Information Sharing</a>
+                    <a href="#third-parties" class="toc-link">5. Third-Party Services</a>
+                    <a href="#call-data" class="toc-link">6. Call &amp; Conversation Data</a>
+                    <a href="#cookies" class="toc-link">7. Cookies &amp; Tracking</a>
+                    <a href="#retention" class="toc-link">8. Data Retention</a>
+                    <a href="#security" class="toc-link">9. Security</a>
+                    <a href="#your-rights" class="toc-link">10. Your Rights</a>
+                    <a href="#ccpa" class="toc-link">11. California Rights (CCPA)</a>
+                    <a href="#children" class="toc-link">12. Children's Privacy</a>
+                    <a href="#international" class="toc-link">13. International Users</a>
+                    <a href="#changes-privacy" class="toc-link">14. Changes to Policy</a>
+                    <a href="#contact-privacy" class="toc-link">15. Contact Us</a>
+                </nav>
+                <div class="mt-8 p-4 rounded-xl border border-white/8" style="background: rgba(10,22,40,0.6);">
+                    <p class="text-xs text-slate-500 leading-relaxed">Privacy questions?</p>
+                    <a href="mailto:hello@topherai.com" class="text-xs text-electric-400 hover:text-electric-300 font-semibold mt-1 block">hello@topherai.com</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="lg:col-span-3 prose-legal">
+
+            <div class="rounded-xl border border-electric-500/20 p-5 mb-10" style="background: rgba(14,165,233,0.05);">
+                <p class="text-sm text-slate-300 leading-relaxed m-0">
+                    At Topher AI, your privacy matters. This policy explains what data we collect, why we collect it, how we use it, and what rights you have. We are committed to being transparent and to handling your data responsibly.
+                </p>
+            </div>
+
+            <section id="overview">
+                <h2>1. Overview</h2>
+                <p>This Privacy Policy describes how Topher AI ("Topher AI," "we," "us," or "our") collects, uses, and discloses information about you when you use our website at topherai.com and our AI receptionist and lead automation services (collectively, the "Services").</p>
+                <p>This policy applies to:</p>
+                <ul>
+                    <li><strong>Clients</strong> — businesses and individuals who subscribe to our Services</li>
+                    <li><strong>End Users</strong> — customers, leads, and callers who interact with our AI on behalf of our clients</li>
+                    <li><strong>Website Visitors</strong> — anyone who visits our website</li>
+                </ul>
+                <p>Our clients act as data controllers for the personal data of their customers and leads processed through our Services. Topher AI acts as a data processor in those contexts, processing data on our clients' behalf according to their instructions and this Privacy Policy.</p>
+            </section>
+
+            <section id="information-collect">
+                <h2>2. Information We Collect</h2>
+
+                <h3>Information You Provide Directly</h3>
+                <p>When you create an account, subscribe to our Services, or contact us, we collect:</p>
+                <ul>
+                    <li>Name, email address, and phone number</li>
+                    <li>Business name, type, and contact information</li>
+                    <li>Billing and payment information (processed securely via our payment processor)</li>
+                    <li>Communications you send to us (emails, support requests, feedback)</li>
+                    <li>Any additional information you choose to provide in your account profile</li>
+                </ul>
+
+                <h3>Information Collected Automatically</h3>
+                <p>When you use our website or Services, we automatically collect:</p>
+                <ul>
+                    <li>IP address, browser type, operating system, and device information</li>
+                    <li>Pages visited, links clicked, and time spent on our website</li>
+                    <li>Referring URLs and search terms</li>
+                    <li>Log data including access times and error logs</li>
+                    <li>Usage patterns and feature interactions within the platform</li>
+                </ul>
+
+                <h3>Call &amp; Conversation Data</h3>
+                <p>When our AI handles calls on your behalf, we collect:</p>
+                <ul>
+                    <li>Caller phone numbers and call metadata (time, duration, direction)</li>
+                    <li>Voice recordings of calls (where legally permitted and disclosed to callers)</li>
+                    <li>Transcripts and summaries of conversations</li>
+                    <li>Lead qualification data extracted from conversations (name, budget, timeline, etc.)</li>
+                    <li>Appointment booking information</li>
+                    <li>SMS and text message content sent and received through our platform</li>
+                </ul>
+
+                <h3>Information from Third Parties</h3>
+                <p>We may receive information about you from third-party services you connect to our platform, such as CRM systems, calendar applications, and real estate databases.</p>
+            </section>
+
+            <section id="how-use">
+                <h2>3. How We Use Your Information</h2>
+                <p>We use the information we collect to:</p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Purpose</th>
+                            <th>Examples</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Provide Services</strong></td>
+                            <td>Answer calls, qualify leads, send alerts, book appointments</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Account Management</strong></td>
+                            <td>Manage your subscription, process payments, send invoices</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Communication</strong></td>
+                            <td>Respond to support requests, send service updates and alerts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Improve Services</strong></td>
+                            <td>Analyze usage patterns, improve AI accuracy and quality</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Safety &amp; Security</strong></td>
+                            <td>Detect fraud, abuse, or violations of our Terms of Service</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Legal Compliance</strong></td>
+                            <td>Comply with applicable laws and respond to legal requests</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Marketing</strong></td>
+                            <td>Send promotional communications (with your consent, where required)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>We do not sell your personal data to third parties for their marketing purposes.</p>
+            </section>
+
+            <section id="sharing">
+                <h2>4. Information Sharing</h2>
+                <p>We do not sell, rent, or trade your personal information. We may share your information in the following limited circumstances:</p>
+
+                <h3>Service Providers</h3>
+                <p>We share information with third-party vendors who help us operate our Services, including cloud hosting providers, payment processors, voice and telephony providers, analytics services, and customer support tools. These providers are contractually obligated to protect your data and use it only as directed by us.</p>
+
+                <h3>Business Transfers</h3>
+                <p>If Topher AI is involved in a merger, acquisition, or sale of assets, your information may be transferred as part of that transaction. We will provide notice before your information is transferred and becomes subject to a different privacy policy.</p>
+
+                <h3>Legal Requirements</h3>
+                <p>We may disclose information if we believe disclosure is required by law, subpoena, court order, or other governmental request, or when we believe in good faith that disclosure is necessary to protect our rights, protect your safety or the safety of others, or investigate fraud.</p>
+
+                <h3>With Your Consent</h3>
+                <p>We may share your information in other ways when you have given us your explicit consent to do so.</p>
+            </section>
+
+            <section id="third-parties">
+                <h2>5. Third-Party Services</h2>
+                <p>Our Services integrate with the following categories of third-party providers. Each has its own privacy practices:</p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Provider Type</th>
+                            <th>Purpose</th>
+                            <th>Data Shared</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Voice AI Platform (e.g., Vapi)</td>
+                            <td>AI voice call processing</td>
+                            <td>Call audio, transcripts, conversation data</td>
+                        </tr>
+                        <tr>
+                            <td>Telephony / SMS (e.g., Telnyx)</td>
+                            <td>Phone &amp; SMS delivery</td>
+                            <td>Phone numbers, message content, call metadata</td>
+                        </tr>
+                        <tr>
+                            <td>Database (e.g., Supabase)</td>
+                            <td>Data storage &amp; management</td>
+                            <td>Lead data, conversation logs, account data</td>
+                        </tr>
+                        <tr>
+                            <td>Automation (e.g., n8n)</td>
+                            <td>Workflow &amp; integration automation</td>
+                            <td>Lead data, trigger events</td>
+                        </tr>
+                        <tr>
+                            <td>Calendar (e.g., Google Calendar, Calendly)</td>
+                            <td>Appointment scheduling</td>
+                            <td>Appointment details, contact information</td>
+                        </tr>
+                        <tr>
+                            <td>Payment (e.g., Stripe)</td>
+                            <td>Subscription billing</td>
+                            <td>Payment method details, billing address</td>
+                        </tr>
+                        <tr>
+                            <td>Analytics</td>
+                            <td>Website &amp; product usage</td>
+                            <td>Usage events, IP address, device info</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>We encourage you to review the privacy policies of these providers to understand how they handle your data.</p>
+            </section>
+
+            <section id="call-data">
+                <h2>6. Call &amp; Conversation Data</h2>
+                <h3>Recordings &amp; Transcripts</h3>
+                <p>Our AI may record and transcribe phone calls to provide our Services. These recordings and transcripts are used to: deliver real-time AI responses, generate lead qualification summaries and alerts, improve our AI models (in anonymized, aggregated form only), and resolve disputes or support requests.</p>
+
+                <h3>Your Disclosure Obligations</h3>
+                <p>If you use our call recording features, you are responsible for disclosing to callers that their call may be recorded, as required by applicable law. Many U.S. states require consent from all parties to a call before recording. Topher AI is not responsible for your compliance with applicable call recording laws.</p>
+
+                <h3>End User Data (Your Customers)</h3>
+                <p>When your customers interact with our AI on your behalf, we process their personal data (names, phone numbers, preferences, budget information, etc.) as your data processor. You are the data controller for this information and are responsible for having appropriate legal bases to collect and process it, and for providing any required notices to your customers.</p>
+            </section>
+
+            <section id="cookies">
+                <h2>7. Cookies &amp; Tracking Technologies</h2>
+                <p>We use cookies, web beacons, and similar tracking technologies on our website to:</p>
+                <ul>
+                    <li>Keep you logged into your account</li>
+                    <li>Remember your preferences and settings</li>
+                    <li>Analyze website traffic and usage patterns</li>
+                    <li>Improve our website's performance and user experience</li>
+                </ul>
+
+                <h3>Types of Cookies We Use</h3>
+                <ul>
+                    <li><strong>Essential cookies:</strong> Required for the website to function. Cannot be disabled.</li>
+                    <li><strong>Analytics cookies:</strong> Help us understand how visitors use our site (e.g., Google Analytics).</li>
+                    <li><strong>Preference cookies:</strong> Remember your settings and choices.</li>
+                </ul>
+
+                <p>You can control cookies through your browser settings. Note that disabling certain cookies may affect the functionality of our website. For more information, see your browser's help documentation.</p>
+            </section>
+
+            <section id="retention">
+                <h2>8. Data Retention</h2>
+                <p>We retain your personal information for as long as necessary to provide our Services and fulfill the purposes described in this policy, or as required by law.</p>
+                <ul>
+                    <li><strong>Account data:</strong> Retained for the duration of your subscription plus 90 days after account closure</li>
+                    <li><strong>Call recordings:</strong> Retained for 90 days by default; clients may configure shorter retention periods</li>
+                    <li><strong>Transcripts and lead data:</strong> Retained for the duration of your subscription</li>
+                    <li><strong>Billing records:</strong> Retained for 7 years as required by applicable tax and accounting laws</li>
+                    <li><strong>Website analytics:</strong> Retained for up to 26 months in aggregated or anonymized form</li>
+                </ul>
+                <p>When data is no longer needed, we delete or anonymize it in a secure manner. You may request earlier deletion of your data by contacting us (see Section 15).</p>
+            </section>
+
+            <section id="security">
+                <h2>9. Security</h2>
+                <p>We implement industry-standard technical, administrative, and physical security measures to protect your information against unauthorized access, disclosure, alteration, and destruction. These measures include:</p>
+                <ul>
+                    <li>Encryption of data in transit (TLS/SSL) and at rest</li>
+                    <li>Access controls and authentication requirements for our systems</li>
+                    <li>Regular security reviews and vulnerability assessments</li>
+                    <li>Employee training on data security and privacy practices</li>
+                    <li>Secure, reputable third-party infrastructure providers</li>
+                </ul>
+                <p>No method of transmission over the internet or electronic storage is 100% secure. While we strive to protect your data, we cannot guarantee its absolute security. If you believe your account has been compromised, contact us immediately at <a href="mailto:hello@topherai.com">hello@topherai.com</a>.</p>
+            </section>
+
+            <section id="your-rights">
+                <h2>10. Your Privacy Rights</h2>
+                <p>Depending on your location, you may have the following rights regarding your personal data:</p>
+
+                <ul>
+                    <li><strong>Access:</strong> Request a copy of the personal information we hold about you</li>
+                    <li><strong>Correction:</strong> Request that we correct inaccurate or incomplete data</li>
+                    <li><strong>Deletion:</strong> Request that we delete your personal data (subject to certain exceptions)</li>
+                    <li><strong>Portability:</strong> Request your data in a machine-readable format</li>
+                    <li><strong>Opt-Out:</strong> Opt out of marketing communications at any time</li>
+                    <li><strong>Restriction:</strong> Request that we restrict certain processing of your data</li>
+                </ul>
+
+                <p>To exercise any of these rights, contact us at <a href="mailto:hello@topherai.com">hello@topherai.com</a>. We will respond within 30 days. We may need to verify your identity before fulfilling your request.</p>
+
+                <h3>Marketing Opt-Out</h3>
+                <p>You can unsubscribe from our marketing emails by clicking the "unsubscribe" link in any marketing email, or by contacting us directly. Note that even if you opt out of marketing emails, we may still send you transactional messages related to your account and Services.</p>
+            </section>
+
+            <section id="ccpa">
+                <h2>11. California Privacy Rights (CCPA/CPRA)</h2>
+                <p>If you are a California resident, you have specific rights under the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA):</p>
+
+                <h3>Right to Know</h3>
+                <p>You have the right to know what personal information we collect, use, disclose, and sell (we do not sell personal information). You may request this information up to twice per 12-month period.</p>
+
+                <h3>Right to Delete</h3>
+                <p>You have the right to request deletion of your personal information, subject to certain exceptions (such as when we need the data to complete a transaction or comply with a legal obligation).</p>
+
+                <h3>Right to Correct</h3>
+                <p>You have the right to request correction of inaccurate personal information we maintain about you.</p>
+
+                <h3>Right to Opt-Out of Sale or Sharing</h3>
+                <p>We do not sell your personal information as defined under the CCPA, nor do we share it for cross-context behavioral advertising purposes.</p>
+
+                <h3>Right to Non-Discrimination</h3>
+                <p>We will not discriminate against you for exercising your CCPA rights.</p>
+
+                <h3>How to Submit a Request</h3>
+                <p>To submit a CCPA request, contact us at <a href="mailto:hello@topherai.com">hello@topherai.com</a> with "California Privacy Request" in the subject line. We will verify your identity and respond within 45 days (extendable by an additional 45 days when necessary).</p>
+            </section>
+
+            <section id="children">
+                <h2>12. Children's Privacy</h2>
+                <p>Our Services are designed for business use and are not directed at children under the age of 13. We do not knowingly collect personal information from children under 13. If we learn we have inadvertently collected such information, we will delete it promptly. If you believe we have collected information from a child under 13, please contact us at <a href="mailto:hello@topherai.com">hello@topherai.com</a>.</p>
+            </section>
+
+            <section id="international">
+                <h2>13. International Users</h2>
+                <p>Topher AI is based in the United States. If you access our Services from outside the United States, your information will be transferred to and processed in the United States, where data protection laws may differ from those in your country.</p>
+                <p>By using our Services, you consent to this transfer. If you are located in the European Economic Area (EEA), United Kingdom, or Switzerland, we will ensure that any such transfers are made in compliance with applicable data protection laws, including through the use of Standard Contractual Clauses where required.</p>
+            </section>
+
+            <section id="changes-privacy">
+                <h2>14. Changes to This Policy</h2>
+                <p>We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. When we make material changes, we will update the "Last Updated" date at the top of this page and, where appropriate, notify you by email or through a notice on our website.</p>
+                <p>Your continued use of our Services after any changes to this Privacy Policy constitutes your acceptance of the updated policy.</p>
+            </section>
+
+            <section id="contact-privacy">
+                <h2>15. Contact Us</h2>
+                <p>If you have questions, concerns, or requests related to this Privacy Policy or our data practices, please contact us:</p>
+                <div class="rounded-xl border border-white/8 p-5 mt-4" style="background: rgba(10,22,40,0.6);">
+                    <p class="font-semibold text-white !text-sm !mb-1">Topher AI — Privacy Team</p>
+                    <p class="!text-sm !mb-1">Email: <a href="mailto:hello@topherai.com">hello@topherai.com</a></p>
+                    <p class="!text-sm !mb-1">Phone: <a href="tel:2135000605">(213) 500-0605</a></p>
+                    <p class="!text-sm !mb-0">Hours: Monday–Friday, 9am–6pm PST</p>
+                </div>
+                <p class="mt-4">We take privacy inquiries seriously and will respond to your request within 30 days.</p>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="border-t border-white/5 py-8 mt-8" style="background: rgba(2,8,23,0.98);">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm text-white"
+                 style="background: linear-gradient(135deg, #0ea5e9, #818cf8);">T</div>
+            <span class="font-bold text-white">Topher AI</span>
+        </div>
+        <p class="text-xs text-slate-700">© 2025 Topher AI. All rights reserved.</p>
+        <div class="flex gap-6">
+            <a href="privacy.html" class="text-xs text-slate-400 hover:text-slate-300 transition font-medium">Privacy Policy</a>
+            <a href="terms.html" class="text-xs text-slate-500 hover:text-slate-300 transition">Terms of Service</a>
+            <a href="index.html" class="text-xs text-slate-500 hover:text-slate-300 transition">Home</a>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

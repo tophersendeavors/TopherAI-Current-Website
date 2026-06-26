@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es-CO" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Términos de Servicio | Topher AI</title>
+    <meta name="description" content="Términos de Servicio de Topher AI — servicios de recepcionista con IA y automatización de leads.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        navy: { 950: '#020817', 900: '#050d1f', 800: '#0a1628' },
+                        electric: { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #020817; color: #cbd5e1; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .glass-nav { background: rgba(2, 8, 23, 0.90); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .text-gradient-blue { background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .prose-legal h2 { font-size: 1.25rem; font-weight: 700; color: #f1f5f9; margin-top: 2.5rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .prose-legal h3 { font-size: 1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .prose-legal p { font-size: 0.9375rem; line-height: 1.75; color: #94a3b8; margin-bottom: 1rem; }
+        .prose-legal ul { list-style: none; padding: 0; margin-bottom: 1rem; }
+        .prose-legal ul li { font-size: 0.9375rem; line-height: 1.75; color: #94a3b8; padding-left: 1.25rem; position: relative; margin-bottom: 0.35rem; }
+        .prose-legal ul li::before { content: '—'; position: absolute; left: 0; color: #0ea5e9; font-weight: 600; }
+        .prose-legal a { color: #38bdf8; text-decoration: underline; text-underline-offset: 2px; }
+        .prose-legal a:hover { color: #7dd3fc; }
+        .prose-legal strong { color: #e2e8f0; font-weight: 600; }
+        .tag-pill { background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.25); color: #38bdf8; }
+        .toc-link { display: block; font-size: 0.875rem; color: #64748b; padding: 0.35rem 0; transition: color 0.15s; }
+        .toc-link:hover { color: #38bdf8; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020817; }
+        ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="fixed w-full z-50 glass-nav border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+            <a href="index.html" class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-lg text-white"
+                     style="background: linear-gradient(135deg, #0ea5e9, #818cf8);">T</div>
+                <span class="font-bold text-xl text-white tracking-tight">Topher <span class="text-gradient-blue">AI</span></span>
+            </a>
+            <a href="index.html" class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition">
+                <i class="fas fa-arrow-left text-xs"></i> Volver al inicio
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="pt-28 pb-12 border-b border-white/5" style="background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(14,165,233,0.12) 0%, transparent 70%);">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <div class="inline-flex items-center gap-2 tag-pill rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider mb-5">
+            Legal
+        </div>
+        <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">Términos de Servicio</h1>
+        <p class="text-slate-400 text-sm">Fecha de vigencia: 1 de junio de 2025 &nbsp;·&nbsp; Última actualización: 1 de junio de 2025</p>
+    </div>
+</div>
+
+<!-- CONTENT -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="grid lg:grid-cols-4 gap-12">
+
+        <!-- Table of Contents (sticky sidebar) -->
+        <aside class="hidden lg:block">
+            <div class="sticky top-28">
+                <p class="text-xs font-bold text-white uppercase tracking-wider mb-4">Contenido</p>
+                <nav class="space-y-0.5 border-l border-white/5 pl-4">
+                    <a href="#acceptance" class="toc-link">1. Aceptación de los Términos</a>
+                    <a href="#services" class="toc-link">2. Descripción de los Servicios</a>
+                    <a href="#eligibility" class="toc-link">3. Requisitos de Elegibilidad</a>
+                    <a href="#account" class="toc-link">4. Registro de Cuenta</a>
+                    <a href="#use" class="toc-link">5. Uso Aceptable</a>
+                    <a href="#payment" class="toc-link">6. Pagos y Facturación</a>
+                    <a href="#ip" class="toc-link">7. Propiedad Intelectual</a>
+                    <a href="#ai" class="toc-link">8. Servicios de IA y Voz</a>
+                    <a href="#data" class="toc-link">9. Datos y Privacidad</a>
+                    <a href="#disclaimer" class="toc-link">10. Descargos de Responsabilidad</a>
+                    <a href="#liability" class="toc-link">11. Limitación de Responsabilidad</a>
+                    <a href="#indemnification" class="toc-link">12. Indemnización</a>
+                    <a href="#termination" class="toc-link">13. Terminación</a>
+                    <a href="#governing" class="toc-link">14. Ley Aplicable</a>
+                    <a href="#changes" class="toc-link">15. Cambios a los Términos</a>
+                    <a href="#contact-legal" class="toc-link">16. Contacto</a>
+                </nav>
+                <div class="mt-8 p-4 rounded-xl border border-white/8" style="background: rgba(10,22,40,0.6);">
+                    <p class="text-xs text-slate-500 leading-relaxed">¿Tiene preguntas sobre estos términos?</p>
+                    <a href="mailto:hello@topherai.com" class="text-xs text-electric-400 hover:text-electric-300 font-semibold mt-1 block">hello@topherai.com</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="lg:col-span-3 prose-legal">
+
+            <div class="rounded-xl border border-amber-500/20 p-5 mb-10" style="background: rgba(245,158,11,0.06);">
+                <p class="text-sm text-amber-200/70 leading-relaxed m-0">
+                    <strong class="text-amber-300">Por favor, lea con atención.</strong> Estos Términos de Servicio ("Términos") constituyen un acuerdo legalmente vinculante entre usted y Topher AI. Al acceder a nuestros servicios o utilizarlos, usted acepta quedar sujeto a estos Términos.
+                </p>
+            </div>
+
+            <section id="acceptance">
+                <h2>1. Aceptación de los Términos</h2>
+                <p>Estos Términos de Servicio ("Términos") regulan su acceso y uso de los servicios, software, aplicaciones y sitio web (en conjunto, los "Servicios") proporcionados por Topher AI ("Topher AI", "nosotros" o "nuestro"). Al crear una cuenta, suscribirse a un plan o utilizar cualquier parte de nuestros Servicios, usted acepta quedar sujeto a estos Términos y a nuestra Política de Privacidad.</p>
+                <p>Si acepta estos Términos en nombre de una empresa u otra entidad legal, declara y garantiza que tiene la autoridad para vincular a dicha entidad con estos Términos. En ese caso, "usted" hace referencia a esa entidad.</p>
+                <p>Si no está de acuerdo con estos Términos, no acceda ni utilice nuestros Servicios.</p>
+            </section>
+
+            <section id="services">
+                <h2>2. Descripción de los Servicios</h2>
+                <p>Topher AI ofrece servicios de recepcionista con inteligencia artificial, calificación de leads y automatización de comunicaciones, diseñados principalmente para profesionales del sector inmobiliario y empresas de servicios. Nuestros Servicios incluyen, entre otros:</p>
+                <ul>
+                    <li>Recepcionista de voz con IA que atiende, enruta y califica llamadas entrantes</li>
+                    <li>Mensajes de texto automáticos en respuesta a llamadas perdidas</li>
+                    <li>Calificación y puntuación de leads basada en el análisis de conversaciones</li>
+                    <li>Agendamiento de citas e integración con calendarios</li>
+                    <li>Alertas de leads calientes enviadas por SMS a los destinatarios designados</li>
+                    <li>Registro e integración de datos en CRM</li>
+                    <li>Soporte de conversaciones bilingüe (inglés y español)</li>
+                    <li>Panel de control en línea para gestionar conversaciones y leads</li>
+                </ul>
+                <p>Nos reservamos el derecho de modificar, suspender o descontinuar cualquier aspecto de los Servicios en cualquier momento, con previo aviso razonable cuando sea posible.</p>
+            </section>
+
+            <section id="eligibility">
+                <h2>3. Requisitos de Elegibilidad</h2>
+                <p>Para utilizar nuestros Servicios, debe tener al menos 18 años de edad y capacidad legal para celebrar contratos vinculantes. Nuestros Servicios están destinados exclusivamente al uso empresarial — no están diseñados para uso personal, familiar o doméstico.</p>
+                <p>Al utilizar nuestros Servicios, usted declara y garantiza que:</p>
+                <ul>
+                    <li>Tiene al menos 18 años de edad</li>
+                    <li>Utiliza los Servicios con fines empresariales legales</li>
+                    <li>Su uso de los Servicios cumplirá con todas las leyes y normativas aplicables</li>
+                    <li>Está autorizado para proporcionar los números de teléfono, contactos o datos que envíe a los Servicios</li>
+                </ul>
+            </section>
+
+            <section id="account">
+                <h2>4. Registro de Cuenta</h2>
+                <p>Para acceder a la mayoría de las funciones de nuestros Servicios, deberá registrar una cuenta. Usted se compromete a proporcionar información precisa, actualizada y completa durante el registro, y a mantener dicha información al día.</p>
+                <p>Usted es responsable de:</p>
+                <ul>
+                    <li>Mantener la confidencialidad de las credenciales de su cuenta</li>
+                    <li>Todas las actividades que ocurran bajo su cuenta</li>
+                    <li>Notificarnos de inmediato sobre cualquier uso no autorizado de su cuenta a <a href="mailto:hello@topherai.com">hello@topherai.com</a></li>
+                </ul>
+                <p>Nos reservamos el derecho de suspender o cancelar cuentas que infrinjan estos Términos o que consideremos razonablemente comprometidas.</p>
+            </section>
+
+            <section id="use">
+                <h2>5. Uso Aceptable</h2>
+                <h3>Usos Permitidos</h3>
+                <p>Usted podrá utilizar nuestros Servicios únicamente con fines empresariales legales, de conformidad con estos Términos y todas las leyes aplicables, incluidas, entre otras, las leyes federales y estatales sobre telemarketing, comunicaciones y protección al consumidor.</p>
+
+                <h3>Usos Prohibidos</h3>
+                <p>Usted se compromete a no utilizar nuestros Servicios para:</p>
+                <ul>
+                    <li>Contactar a personas que no hayan dado su consentimiento para recibir llamadas o mensajes de su parte o de su empresa</li>
+                    <li>Violar la Ley de Protección al Consumidor Telefónico (TCPA), la Ley CAN-SPAM o cualquier ley de telecomunicaciones aplicable</li>
+                    <li>Participar en conductas engañosas, fraudulentas o que induzcan a error</li>
+                    <li>Acosar, amenazar o perjudicar a cualquier persona</li>
+                    <li>Enviar correo no deseado, mensajes no solicitados o comunicaciones comerciales masivas</li>
+                    <li>Hacerse pasar por cualquier persona o entidad, o tergiversar su afiliación</li>
+                    <li>Recopilar o extraer datos personales de transcripciones o registros de llamadas sin la debida autorización</li>
+                    <li>Realizar ingeniería inversa, descompilar o intentar extraer el código fuente de nuestra plataforma</li>
+                    <li>Interferir con el funcionamiento o el rendimiento de los Servicios</li>
+                    <li>Utilizar los Servicios para almacenar o transmitir código malicioso</li>
+                    <li>Revender o sublicenciar nuestros Servicios sin nuestro consentimiento previo y por escrito</li>
+                </ul>
+
+                <h3>Cumplimiento de la TCPA</h3>
+                <p>Usted es el único responsable de garantizar que su uso de las funciones de SMS y llamadas cumpla con la Ley de Protección al Consumidor Telefónico (TCPA) y todas las normativas relacionadas. Esto incluye obtener el consentimiento escrito adecuado de las personas antes de enviar mensajes automatizados y mantener mecanismos apropiados para darse de baja. Topher AI no es responsable de sus obligaciones de cumplimiento.</p>
+            </section>
+
+            <section id="payment">
+                <h2>6. Pagos y Facturación</h2>
+                <h3>Planes de Suscripción</h3>
+                <p>Topher AI ofrece planes de precios por suscripción según se muestran en nuestro sitio web. Todos los cobros se realizan en dólares estadounidenses. Al suscribirse, usted nos autoriza a cargar su método de pago de forma recurrente (mensual o anual, según su plan).</p>
+
+                <h3>Período de Prueba Gratuito</h3>
+                <p>Es posible que ofrezcamos un período de prueba gratuito para nuevos suscriptores. Al finalizar dicho período, su suscripción se convertirá automáticamente al plan de pago seleccionado, a menos que cancele antes de que concluya la prueba. Nos reservamos el derecho de modificar o descontinuar las ofertas de prueba gratuita en cualquier momento.</p>
+
+                <h3>Ciclo de Facturación</h3>
+                <p>Las tarifas de suscripción se cobran por adelantado de forma mensual o anual. Su ciclo de facturación comienza en la fecha en que se suscribe y se renueva en la misma fecha cada mes o año.</p>
+
+                <h3>Cancelación y Reembolsos</h3>
+                <p>Puede cancelar su suscripción en cualquier momento desde el panel de control de su cuenta o contactándonos en <a href="mailto:hello@topherai.com">hello@topherai.com</a>. La cancelación toma efecto al final de su período de facturación vigente. No realizamos reembolsos prorrateados por períodos de facturación parciales. Si considera que se le realizó un cobro por error, comuníquese con nosotros dentro de los 30 días siguientes al cargo.</p>
+
+                <h3>Cargos por Uso</h3>
+                <p>Ciertas funciones (como los cargos por minuto de llamada o las tarifas de SMS) pueden generar costos adicionales por uso además de su tarifa de suscripción. Dichos cargos se detallarán en la descripción de su plan y se facturarán de la manera correspondiente.</p>
+
+                <h3>Cambios de Precios</h3>
+                <p>Nos reservamos el derecho de modificar nuestros precios en cualquier momento. Notificaremos a los suscriptores existentes con al menos 30 días de anticipación sobre cualquier aumento de precios antes de que entre en vigencia.</p>
+            </section>
+
+            <section id="ip">
+                <h2>7. Propiedad Intelectual</h2>
+                <h3>Propiedad de Topher AI</h3>
+                <p>Todos los derechos, títulos e intereses sobre los Servicios —incluidos todo el software, la tecnología, los textos, los gráficos, las interfaces y demás contenidos— son y seguirán siendo propiedad exclusiva de Topher AI y sus licenciantes. Nada en estos Términos le otorga el derecho de usar nuestras marcas comerciales, logotipos o elementos de marca sin nuestro consentimiento previo y por escrito.</p>
+
+                <h3>Su Contenido</h3>
+                <p>Usted conserva la titularidad de los datos, contenidos o información que envíe a través de los Servicios ("Su Contenido"), incluidas las grabaciones de llamadas, los datos de clientes y la información de leads. Al enviar Su Contenido, usted otorga a Topher AI una licencia no exclusiva, mundial y libre de regalías para usar, procesar y almacenar Su Contenido únicamente en la medida necesaria para prestarle los Servicios.</p>
+
+                <h3>Comentarios y Sugerencias</h3>
+                <p>Si nos proporciona comentarios, sugerencias o ideas sobre nuestros Servicios, nos otorga el derecho de utilizarlos sin restricciones ni compensación alguna para usted.</p>
+            </section>
+
+            <section id="ai">
+                <h2>8. Servicios de IA y Voz</h2>
+                <h3>Limitaciones de la IA</h3>
+                <p>Nuestros servicios con inteligencia artificial utilizan aprendizaje automático y procesamiento de lenguaje natural para llevar a cabo conversaciones, calificar leads y automatizar comunicaciones. Usted reconoce que:</p>
+                <ul>
+                    <li>Las respuestas de la IA pueden no ser siempre precisas, completas o adecuadas para cada situación</li>
+                    <li>La IA no es un agente inmobiliario licenciado, asesor financiero ni profesional legal</li>
+                    <li>Usted es responsable de revisar y verificar la información recopilada por la IA antes de actuar con base en ella</li>
+                    <li>Las llamadas de voz con IA deben ser divulgadas como automatizadas cuando así lo exija la ley aplicable</li>
+                </ul>
+
+                <h3>Grabación y Transcripción de Llamadas</h3>
+                <p>Nuestros Servicios pueden grabar y transcribir llamadas con fines de control de calidad, calificación de leads y prestación de servicios. Usted es responsable de cumplir con todas las leyes de consentimiento para grabación de llamadas vigentes en su jurisdicción (incluidos los requisitos de consentimiento de todas las partes en determinados estados). Al utilizar nuestros servicios de llamadas, usted declara haber obtenido todos los consentimientos necesarios de los participantes.</p>
+
+                <h3>Infraestructura de Voz y Mensajería de Terceros</h3>
+                <p>Nuestros Servicios dependen de proveedores externos para la infraestructura de voz con IA, telefonía y mensajería (incluidos, entre otros, Vapi, Telnyx y operadores relacionados). No somos responsables de interrupciones del servicio, problemas de calidad o incumplimientos atribuibles a estos proveedores externos.</p>
+            </section>
+
+            <section id="data">
+                <h2>9. Datos y Privacidad</h2>
+                <p>El uso de nuestros Servicios también está regulado por nuestra <a href="privacy.html">Política de Privacidad</a>, la cual se incorpora a estos Términos por referencia. Al utilizar los Servicios, usted acepta nuestras prácticas de manejo de datos según lo descrito en la Política de Privacidad.</p>
+                <p>Usted es responsable de la legalidad de cualquier dato personal que nos proporcione o que procese a través de nuestros Servicios, incluyendo garantizar que cuenta con las bases legales apropiadas para compartir la información personal de sus clientes con nosotros.</p>
+            </section>
+
+            <section id="disclaimer">
+                <h2>10. Descargos de Responsabilidad</h2>
+                <p>LOS SERVICIOS SE PROPORCIONAN "TAL COMO ESTÁN" Y "SEGÚN DISPONIBILIDAD", SIN GARANTÍAS DE NINGÚN TIPO, YA SEAN EXPRESAS O IMPLÍCITAS. EN LA MÁXIMA MEDIDA PERMITIDA POR LA LEY, TOPHER AI RENUNCIA A TODAS LAS GARANTÍAS, INCLUIDAS, ENTRE OTRAS:</p>
+                <ul>
+                    <li>Las garantías implícitas de comerciabilidad, idoneidad para un propósito particular y no infracción</li>
+                    <li>Cualquier garantía de que los Servicios serán ininterrumpidos, libres de errores o de virus u otros componentes dañinos</li>
+                    <li>Cualquier garantía sobre la precisión, confiabilidad o integridad del contenido generado por IA</li>
+                    <li>Cualquier garantía sobre los resultados o beneficios obtenidos mediante el uso de los Servicios</li>
+                </ul>
+                <p>No garantizamos que los Servicios satisfagan sus requisitos comerciales específicos ni que cualquier calificación de leads, agendamiento de citas o resultado de comunicación se traduzca en ingresos reales para su negocio.</p>
+            </section>
+
+            <section id="liability">
+                <h2>11. Limitación de Responsabilidad</h2>
+                <p>EN LA MÁXIMA MEDIDA PERMITIDA POR LA LEY APLICABLE, EN NINGÚN CASO TOPHER AI, SUS DIRECTIVOS, DIRECTORES, EMPLEADOS, AGENTES O LICENCIANTES SERÁN RESPONSABLES POR:</p>
+                <ul>
+                    <li>Daños indirectos, incidentales, especiales, consecuentes o punitivos</li>
+                    <li>Pérdida de ganancias, ingresos, datos, oportunidades de negocio o reputación comercial</li>
+                    <li>Daños derivados de leads perdidos, llamadas fallidas o interrupciones del servicio</li>
+                    <li>Daños derivados del acceso no autorizado o la alteración de sus datos</li>
+                </ul>
+                <p>EN CUALQUIER CASO, LA RESPONSABILIDAD TOTAL DE TOPHER AI POR RECLAMACIONES DERIVADAS DE O RELACIONADAS CON ESTOS TÉRMINOS O LOS SERVICIOS NO EXCEDERÁ EL MAYOR DE (A) EL MONTO QUE NOS HAYA PAGADO EN LOS DOCE MESES ANTERIORES A LA RECLAMACIÓN, O (B) CIEN DÓLARES ESTADOUNIDENSES ($100).</p>
+                <p>Algunas jurisdicciones no permiten la exclusión o limitación de daños incidentales o consecuentes, por lo que es posible que las limitaciones anteriores no apliquen en su caso.</p>
+            </section>
+
+            <section id="indemnification">
+                <h2>12. Indemnización</h2>
+                <p>Usted se compromete a indemnizar, defender y eximir de responsabilidad a Topher AI y a sus directivos, directores, empleados y agentes frente a cualquier reclamación, responsabilidad, daño, pérdida y gasto (incluidos los honorarios razonables de abogados) que surja de o esté relacionado con:</p>
+                <ul>
+                    <li>Su uso de los Servicios o la infracción de estos Términos</li>
+                    <li>Su incumplimiento de cualquier ley o normativa aplicable, incluida la TCPA</li>
+                    <li>Su Contenido o cualquier dato que envíe a través de los Servicios</li>
+                    <li>Sus interacciones con clientes o leads facilitadas por los Servicios</li>
+                    <li>Cualquier reclamación de que su uso de los Servicios infringe los derechos de un tercero</li>
+                </ul>
+            </section>
+
+            <section id="termination">
+                <h2>13. Terminación</h2>
+                <p>Cualquiera de las partes puede dar por terminados estos Términos en cualquier momento. Usted puede hacerlo cancelando su cuenta y dejando de utilizar los Servicios. Podemos suspender o cancelar su acceso a los Servicios de forma inmediata y sin previo aviso si:</p>
+                <ul>
+                    <li>Usted incumple materialmente estos Términos</li>
+                    <li>Estamos legalmente obligados a hacerlo por una autoridad regulatoria</li>
+                    <li>Determinamos, a nuestro criterio razonable, que su uso representa un riesgo para nosotros, otros usuarios o terceros</li>
+                    <li>Usted no paga las tarifas aplicables después de haber sido notificado</li>
+                </ul>
+                <p>Tras la terminación, su derecho a acceder y utilizar los Servicios cesará de inmediato. Las secciones que por su naturaleza deban subsistir a la terminación (incluidas Propiedad Intelectual, Descargos de Responsabilidad, Limitación de Responsabilidad, Indemnización y Ley Aplicable) continuarán vigentes.</p>
+                <p>Conservaremos sus datos durante un período razonable después de la terminación para que pueda recuperarlos; posteriormente, podrán eliminarse de conformidad con nuestra Política de Privacidad.</p>
+            </section>
+
+            <section id="governing">
+                <h2>14. Ley Aplicable y Resolución de Disputas</h2>
+                <p>Estos Términos se rigen por las leyes del Estado de California, sin tener en cuenta sus disposiciones sobre conflictos de leyes. Cualquier disputa que surja en virtud de estos Términos estará sujeta a la jurisdicción exclusiva de los tribunales estatales y federales ubicados en el Condado de Los Ángeles, California.</p>
+                <p>Antes de iniciar cualquier acción legal, usted se compromete a contactarnos en <a href="mailto:hello@topherai.com">hello@topherai.com</a> y a intentar resolver la disputa de manera informal durante al menos 30 días.</p>
+                <p><strong>Renuncia a Acciones Colectivas:</strong> En la medida en que lo permita la ley aplicable, usted acepta resolver las disputas con nosotros de forma individual y renuncia a cualquier derecho de iniciar o participar en acciones colectivas, grupales o representativas.</p>
+            </section>
+
+            <section id="changes">
+                <h2>15. Cambios a estos Términos</h2>
+                <p>Nos reservamos el derecho de modificar estos Términos en cualquier momento. Cuando realicemos cambios materiales, lo notificaremos actualizando la fecha de "Última actualización" indicada arriba y, cuando corresponda, enviándole un aviso por correo electrónico o a través de los Servicios.</p>
+                <p>El uso continuado de los Servicios después de que los cambios entren en vigencia constituye su aceptación de los Términos revisados. Si no está de acuerdo con los Términos actualizados, debe dejar de utilizar los Servicios y cancelar su suscripción.</p>
+            </section>
+
+            <section id="contact-legal">
+                <h2>16. Información de Contacto</h2>
+                <p>Si tiene preguntas sobre estos Términos de Servicio, comuníquese con nosotros:</p>
+                <div class="rounded-xl border border-white/8 p-5 mt-4" style="background: rgba(10,22,40,0.6);">
+                    <p class="font-semibold text-white mb-2 !text-sm !mb-1">Topher AI</p>
+                    <p class="!text-sm !mb-1">Correo electrónico: <a href="mailto:hello@topherai.com">hello@topherai.com</a></p>
+                    <p class="!text-sm !mb-1">Teléfono: <a href="tel:2135000605">(213) 500-0605</a></p>
+                    <p class="!text-sm !mb-0">Horario: Lunes a viernes, 9 a.m. – 6 p.m. (Hora del Pacífico)</p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="border-t border-white/5 py-8 mt-8" style="background: rgba(2,8,23,0.98);">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm text-white"
+                 style="background: linear-gradient(135deg, #0ea5e9, #818cf8);">T</div>
+            <span class="font-bold text-white">Topher AI</span>
+        </div>
+        <p class="text-xs text-slate-700">© 2025 Topher AI. Todos los derechos reservados.</p>
+        <div class="flex gap-6">
+            <a href="privacy.html" class="text-xs text-slate-500 hover:text-slate-300 transition">Política de Privacidad</a>
+            <a href="terms.html" class="text-xs text-slate-400 hover:text-slate-300 transition font-medium">Términos de Servicio</a>
+            <a href="index.html" class="text-xs text-slate-500 hover:text-slate-300 transition">Inicio</a>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,283 @@
+{
+  "name": "Topher AI — SMS Drip Sequence",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "2c5565fd-e22f-42a2-82fc-9eec062248d9",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.item.json;\n\nconst firstName = (body.firstName || body.name || '').split(' ')[0].trim() || 'there';\nconst phone     = (body.phone || '').trim();\nconst email     = (body.email || '').trim();\n\nif (!phone) {\n  // No phone — skip drip silently\n  return [];\n}\n\nreturn [{ json: { firstName, phone, email } }];"
+      },
+      "id": "ac92d117-e4aa-477b-80c0-bbf0c69527fa",
+      "name": "Parse Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2272,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 4
+      },
+      "id": "a86761fd-b428-431f-bc3e-bd25b5924966",
+      "name": "Wait 4 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        2496,
+        -192
+      ],
+      "webhookId": "wait-4hr"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SMS_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $('Parse Input').item.json.phone, \"text\": \"Hey \" + $('Parse Input').item.json.firstName + \"! Just checking in — did you get a chance to see my email? If you want to skip the wait and grab a time that works for you, here's my calendar: https://cal.com/christopher-wrgldt/topher-ai-demo-call — Chris\" } }}",
+        "options": {}
+      },
+      "id": "1f8ae445-637e-4fae-b94f-18b2fdadcf6f",
+      "name": "Send Follow-Up SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        2720,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/sms_messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"to_number\": $('Parse Input').item.json.phone, \"from_number\": $vars.SMS_FROM_NUMBER, \"message\": \"Hey \" + $('Parse Input').item.json.firstName + \"! Just checking in — did you get a chance to see my email? If you want to skip the wait and grab a time that works for you, here's my calendar: https://cal.com/christopher-wrgldt/topher-ai-demo-call — Chris\", \"direction\": \"outbound\", \"message_type\": \"drip_followup_4hr\", \"status\": \"sent\" } }}",
+        "options": {}
+      },
+      "id": "e376b12d-ee19-4945-a2e5-1254337fe9e6",
+      "name": "Log Follow-Up to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        2928,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 20
+      },
+      "id": "38763416-79c5-4193-bbfa-5c9886e4d0ea",
+      "name": "Wait 20 More Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        3152,
+        -192
+      ],
+      "webhookId": "wait-20hr"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SMS_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $('Parse Input').item.json.phone, \"text\": \"Hey \" + $('Parse Input').item.json.firstName + \", last one from me — if you ever want to see Topher AI in action, my calendar is always open: https://cal.com/christopher-wrgldt/topher-ai-demo-call. No pressure at all. — Chris\" } }}",
+        "options": {}
+      },
+      "id": "0a6d285e-8f06-4992-a1e5-b6807dc2b04e",
+      "name": "Send Final SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        3376,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/sms_messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"to_number\": $('Parse Input').item.json.phone, \"from_number\": $vars.SMS_FROM_NUMBER, \"message\": \"Hey \" + $('Parse Input').item.json.firstName + \", last one from me — if you ever want to see Topher AI in action, my calendar is always open: https://cal.com/christopher-wrgldt/topher-ai-demo-call. No pressure at all. — Chris\", \"direction\": \"outbound\", \"message_type\": \"drip_final_24hr\", \"status\": \"sent\" } }}",
+        "options": {}
+      },
+      "id": "c1682a72-a967-4a06-9f74-2b8a6e8157e7",
+      "name": "Log Final SMS to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        3600,
+        -192
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Input": {
+      "main": [
+        [
+          {
+            "node": "Wait 4 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 4 Hours": {
+      "main": [
+        [
+          {
+            "node": "Send Follow-Up SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Follow-Up SMS": {
+      "main": [
+        [
+          {
+            "node": "Log Follow-Up to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Follow-Up to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Wait 20 More Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 20 More Hours": {
+      "main": [
+        [
+          {
+            "node": "Send Final SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Final SMS": {
+      "main": [
+        [
+          {
+            "node": "Log Final SMS to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "a7a1095b-74cd-47f8-aae7-48555d0d2667",
+  "meta": {
+    "instanceId": "57d0131561cd8e704494b6c3a013d895c007284d2bb85831b19e2b772ee29e9d"
+  },
+  "id": "LitXJNB8Fv0gp13K",
+  "tags": []
+}

@@ -1,0 +1,127 @@
+{
+  "name": "Topher AI — Post-Call Booking SMS",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "topherai-post-call-sms",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "d6d21484-3514-42d5-a94e-7a66d8874830",
+      "name": "Post Call Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        144
+      ],
+      "webhookId": "post-call-sms"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "90ab42fe-8116-4bfa-9179-ff4e21db7032",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.item.json.body || $input.item.json;\n\n// Vapi sends call data in the message object\nconst message = body.message || body;\nconst call    = message.call || message;\n\nconst customerPhone = call.customer?.number || '';\nconst customerName  = call.customer?.name  || 'there';\nconst firstName     = customerName.split(' ')[0] || customerName;\n\n// Only send SMS if customer answered (not no-answer/voicemail)\nconst endedReason = call.endedReason || message.endedReason || '';\nconst answered = !['no-answer','busy','failed','voicemail'].includes(endedReason);\n\nif (!customerPhone || !answered) {\n  return [];\n}\n\nreturn [{ json: { customerPhone, firstName, endedReason } }];"
+      },
+      "id": "8aeeb23e-1cd8-47c4-ba01-f85dd2e28b37",
+      "name": "Parse Call Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SMS_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $json.customerPhone, \"text\": \"Hey \" + $json.firstName + \"! It was great chatting with you. Here's the link to grab a time with Chris:\\n\\nhttps://cal.com/christopher-wrgldt/topher-ai-demo-call\\n\\nTakes 2 minutes to book. Talk soon! — Topher AI\" } }}",
+        "options": {}
+      },
+      "id": "d9312f2d-e671-4f3f-b0c5-e6263faef5e1",
+      "name": "Send Booking Link SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        240,
+        272
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Post Call Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Parse Call Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Call Data": {
+      "main": [
+        [
+          {
+            "node": "Send Booking Link SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "613c1e0a-7ccb-4d5f-b2c5-7d669df1ff63",
+  "meta": {
+    "instanceId": "57d0131561cd8e704494b6c3a013d895c007284d2bb85831b19e2b772ee29e9d"
+  },
+  "id": "FnuD35tratdmCeFI",
+  "tags": []
+}

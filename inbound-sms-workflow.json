@@ -1,0 +1,205 @@
+{
+  "name": "Topher AI — Inbound SMS Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "topherai-inbound-sms",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "inbound-webhook",
+      "name": "Inbound SMS Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "inbound-sms-intake"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true } }}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "respond-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [480, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.item.json.body || $input.item.json;\n\n// Telnyx wraps data in body.data or root level\nconst data    = body.data || body;\nconst payload = data.payload || data;\n\nconst from    = payload.from?.phone_number || payload.from || '';\nconst to      = payload.to?.[0]?.phone_number || payload.to || '';\nconst text    = payload.text || payload.body || payload.message || '';\nconst msgId   = payload.id || data.id || '';\n\n// Normalize to E.164\nlet fromNorm = from.trim();\nif (fromNorm && !fromNorm.startsWith('+')) {\n  const d = fromNorm.replace(/\\D/g,'');\n  fromNorm = d.length === 10 ? '+1' + d : '+' + d;\n}\n\nif (!fromNorm || !text) {\n  // Still return a passthrough so downstream nodes can see what came in\n  return [{ json: { from: fromNorm || 'unknown', to, text: text || '', msgId, receivedAt: new Date().toISOString(), parseError: true } }];\n}\n\nreturn [{ json: { from: fromNorm, to, text, msgId, receivedAt: new Date().toISOString(), parseError: false } }];"
+      },
+      "id": "parse-inbound",
+      "name": "Parse Inbound SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 500]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "no-parse-error",
+              "leftValue": "={{ $json.parseError }}",
+              "rightValue": false,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-parsed",
+      "name": "Has Valid Message?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 500]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/contacts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey",        "value": "={{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "phone",  "value": "=eq.{{ $json.from }}" },
+            { "name": "select", "value": "name,email,urgency,lead_status" },
+            { "name": "limit",  "value": "1" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "lookup-contact",
+      "name": "Lookup Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "const inbound  = $('Parse Inbound SMS').item.json;\nconst contacts = $input.item.json;\n\n// contacts is an array from Supabase\nconst arr     = Array.isArray(contacts) ? contacts : [];\nconst contact = arr[0] || null;\n\nconst name       = contact?.name || 'Unknown Lead';\nconst email      = contact?.email || '';\nconst urgency    = contact?.urgency || 'unknown';\nconst leadStatus = contact?.lead_status || 'unknown';\n\nconst urgencyEmoji = urgency === 'hot' ? '🔥' : urgency === 'warm' ? '⚡' : urgency === 'cold' ? '❄️' : '💬';\n\nconst alertText = `${urgencyEmoji} INBOUND REPLY\\n\\nFrom: ${name}\\nPhone: ${inbound.from}\\nStatus: ${leadStatus}\\n\\nMessage:\\n\"${inbound.text}\"`;\n\nreturn [{ json: {\n  ...inbound,\n  name,\n  email,\n  urgency,\n  leadStatus,\n  urgencyEmoji,\n  alertText\n} }];"
+      },
+      "id": "build-alert",
+      "name": "Build Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1180, 420]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/sms_messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey",        "value": "={{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"to_number\": $json.to, \"from_number\": $json.from, \"message\": $json.text, \"direction\": \"inbound\", \"message_type\": \"lead_reply\", \"status\": \"received\" } }}",
+        "options": {}
+      },
+      "id": "log-inbound",
+      "name": "Log Inbound to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1400, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SMS_API_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $vars.ADMIN_PHONE, \"text\": $json.alertText } }}",
+        "options": {}
+      },
+      "id": "alert-admin-sms",
+      "name": "Alert Admin SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1400, 460]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/contacts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey",        "value": "={{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"lead_status\": \"contacted\", \"updated_at\": new Date().toISOString() } }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "phone",       "value": "=eq.{{ $('Parse Inbound SMS').item.json.from }}" },
+            { "name": "lead_status", "value": "=eq.new" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "update-lead-status",
+      "name": "Update Lead to Contacted",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1400, 620]
+    }
+  ],
+  "connections": {
+    "Inbound SMS Webhook": {
+      "main": [[
+        { "node": "Respond OK",        "type": "main", "index": 0 },
+        { "node": "Parse Inbound SMS", "type": "main", "index": 0 }
+      ]]
+    },
+    "Parse Inbound SMS": {
+      "main": [[{ "node": "Has Valid Message?", "type": "main", "index": 0 }]]
+    },
+    "Has Valid Message?": {
+      "main": [
+        [{ "node": "Lookup Contact", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Lookup Contact": {
+      "main": [[{ "node": "Build Alert", "type": "main", "index": 0 }]]
+    },
+    "Build Alert": {
+      "main": [[
+        { "node": "Log Inbound to Supabase",  "type": "main", "index": 0 },
+        { "node": "Alert Admin SMS",           "type": "main", "index": 0 },
+        { "node": "Update Lead to Contacted",  "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

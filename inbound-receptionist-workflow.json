@@ -1,0 +1,530 @@
+{
+  "name": "Topher AI — Inbound Receptionist",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vapi-topher",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "vapi-webhook",
+      "name": "Vapi Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 400],
+      "webhookId": "vapi-topher"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true } }}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "respond-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [480, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.item.json.body || $input.item.json;\nconst message = body.message || body;\nconst call    = message.call || message;\n\nconst customerPhone = call.customer?.number || call.phoneNumber || '';\nconst customerName  = call.customer?.name  || '';\nconst artifact      = message.artifact || {};\nconst transcript    = artifact.transcript || message.transcript || call.transcript || '';\nconst endedReason   = call.endedReason || message.endedReason || '';\nconst callId        = call.id || message.callId || '';\nconst duration      = call.duration || artifact.duration || 0;\n\nconst eventType  = (message.type || body.type || '').toLowerCase();\nconst isEndEvent = ['end-of-call-report','call-end','end-of-call','hang'].some(t => eventType.includes(t));\n\nif (!isEndEvent && eventType !== '') {\n  return [];\n}\n\nconst missedReasons = ['no-answer','busy','voicemail','missed','failed'];\nconst isMissed = missedReasons.includes(endedReason) || !transcript || transcript.trim().length < 30;\nconst callType = (isMissed && customerPhone) ? 'missed' : 'answered';\n\nreturn [{ json: { customerPhone, customerName, transcript, endedReason, callId, duration, callType } }];"
+      },
+      "id": "extract-call-data",
+      "name": "Extract Call Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "missed-check",
+              "leftValue": "={{ $json.callType }}",
+              "rightValue": "missed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route-call-type",
+      "name": "Missed or Answered?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 400]
+    },
+
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/sms_messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey",        "value": "={{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "to",         "value": "=eq.{{ $json.customerPhone }}" },
+            { "name": "direction",  "value": "eq.outbound" },
+            { "name": "created_at", "value": "=gte.{{ new Date(Date.now() - 86400000).toISOString() }}" },
+            { "name": "select",     "value": "id,created_at" },
+            { "name": "limit",      "value": "1" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-duplicate-sms",
+      "name": "Check Duplicate SMS (24hr)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 260]
+    },
+    {
+      "parameters": {
+        "jsCode": "const smsList = Array.isArray($input.item.json) ? $input.item.json : [];\nif (smsList.length > 0) {\n  return [];\n}\nconst callData = $('Extract Call Data').item.json;\nreturn [{ json: callData }];"
+      },
+      "id": "already-texted",
+      "name": "Already Texted < 24hr?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 260]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/contacts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey",        "value": "={{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "phone",  "value": "=eq.{{ $json.customerPhone }}" },
+            { "name": "select", "value": "phone,opted_out" },
+            { "name": "limit",  "value": "1" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-optout",
+      "name": "Check STOP / Opt-Out",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1440, 260]
+    },
+    {
+      "parameters": {
+        "jsCode": "const contacts = Array.isArray($input.item.json) ? $input.item.json : [];\nconst contact = contacts[0] || {};\nif (contact.opted_out === true) {\n  return [];\n}\nconst callData = $('Already Texted < 24hr?').item.json;\nreturn [{ json: callData }];"
+      },
+      "id": "caller-opted-out",
+      "name": "Caller Opted Out?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1680, 260]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SMS_API_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"from\": $vars.SMS_FROM_NUMBER,\n  \"to\":   $json.customerPhone,\n  \"text\": \"Hey\" + ($json.customerName ? \" \" + $json.customerName.split(' ')[0] : '') + \"! You just called Topher AI but we missed you. We'd love to connect — grab a quick time with Chris here:\\n\\nhttps://cal.com/christopher-wrgldt/topher-ai-demo-call\\n\\nOr just reply to this text. — Topher AI\"\n} }}",
+        "options": {}
+      },
+      "id": "send-missed-textback",
+      "name": "Send Missed-Call Text-Back",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1920, 260]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/sms_messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey",        "value": "={{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" },
+            { "name": "Prefer",        "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"to\":        $('Caller Opted Out?').item.json.customerPhone,\n  \"from\":      $vars.SMS_FROM_NUMBER,\n  \"body\":      \"Missed call text-back sent\",\n  \"direction\": \"outbound\",\n  \"type\":      \"missed_call\",\n  \"created_at\": new Date().toISOString()\n} }}",
+        "options": {}
+      },
+      "id": "log-missed-sms",
+      "name": "Log Missed-Call SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2160, 260]
+    },
+
+    {
+      "parameters": {
+        "jsCode": "const { customerPhone, customerName, transcript, callId, duration } = $input.item.json;\n\nconst systemPrompt = `You are a lead intelligence assistant for Topher AI, an AI receptionist platform.\n\nAnalyze this call transcript and return ONLY valid JSON with these exact fields:\n{\n  \"name\": \"caller full name or empty string\",\n  \"phone\": \"phone number mentioned during call, or empty string\",\n  \"email\": \"email address mentioned during call, or empty string\",\n  \"industry\": \"one of: Real Estate, Med Spa, Legal, Contractor, Insurance, Home Services, Other\",\n  \"inquiry\": \"one concise sentence describing what the caller wants\",\n  \"urgency\": \"hot, warm, or cold\",\n  \"score_reason\": \"one sentence explaining why this urgency score was assigned\",\n  \"booked\": true or false,\n  \"sentiment\": \"positive, neutral, or negative\"\n}\n\nScoring criteria:\n- hot: clear buying intent, mentioned budget/timeline, said yes to booking, urgent need\n- warm: interested but vague, exploring options, no clear timeline\n- cold: just browsing, no real need expressed, wrong number, very short call\n\nReturn empty string for any field not found in the transcript. Never return null.`;\n\nreturn [{ json: { customerPhone, customerName, transcript, callId, duration, systemPrompt } }];"
+      },
+      "id": "build-openai-payload",
+      "name": "Build OpenAI Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 540]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.OPENAI_API_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"gpt-4o\",\n  \"temperature\": 0,\n  \"messages\": [\n    { \"role\": \"system\", \"content\": $json.systemPrompt },\n    { \"role\": \"user\",   \"content\": \"Call transcript:\\n\\n\" + $json.transcript }\n  ]\n} }}",
+        "options": {}
+      },
+      "id": "classify-with-openai",
+      "name": "Classify with OpenAI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 540]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.item.json.choices?.[0]?.message?.content || '{}';\nlet parsed;\ntry {\n  const clean = raw.replace(/```json\\n?/gi,'').replace(/```/gi,'').trim();\n  parsed = JSON.parse(clean);\n} catch(e) {\n  parsed = { name:'', phone:'', email:'', industry:'Other', inquiry:'Inbound call', urgency:'cold', score_reason:'Could not parse transcript', booked:false, sentiment:'neutral' };\n}\n\nconst callData = $('Build OpenAI Payload').item.json;\nconst resolvedPhone = callData.customerPhone || parsed.phone || '';\nconst resolvedName  = callData.customerName  || parsed.name  || '';\n\nreturn [{ json: {\n  ...parsed,\n  name:          resolvedName,\n  phone:         resolvedPhone,\n  transcript:    callData.transcript,\n  callId:        callData.callId,\n  duration:      callData.duration,\n  customerPhone: resolvedPhone,\n  customerName:  resolvedName,\n  source:        'inbound_call'\n} }];"
+      },
+      "id": "parse-ai-response",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, 540]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/calls",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey",        "value": "={{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" },
+            { "name": "Prefer",        "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"call_id\":    $json.callId,\n  \"phone\":      $json.customerPhone,\n  \"name\":       $json.name,\n  \"transcript\": $json.transcript,\n  \"duration\":   $json.duration,\n  \"urgency\":    $json.urgency,\n  \"inquiry\":    $json.inquiry,\n  \"industry\":   $json.industry,\n  \"booked\":     $json.booked,\n  \"sentiment\":  $json.sentiment,\n  \"source\":     \"inbound_call\",\n  \"created_at\": new Date().toISOString()\n} }}",
+        "options": {}
+      },
+      "id": "save-call-supabase",
+      "name": "Save Call to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1680, 540]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/contacts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey",        "value": "={{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" },
+            { "name": "Prefer",        "value": "resolution=merge-duplicates,return=minimal" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "on_conflict", "value": "phone" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"phone\":     $('Parse AI Response').item.json.customerPhone,\n  \"name\":      $('Parse AI Response').item.json.name,\n  \"email\":     $('Parse AI Response').item.json.email,\n  \"industry\":  $('Parse AI Response').item.json.industry,\n  \"urgency\":   $('Parse AI Response').item.json.urgency,\n  \"last_call\": new Date().toISOString(),\n  \"opted_out\": false\n} }}",
+        "options": {}
+      },
+      "id": "upsert-contact",
+      "name": "Upsert Contact in Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1920, 540]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [
+                  {
+                    "id": "hot-rule",
+                    "leftValue": "={{ $('Parse AI Response').item.json.urgency }}",
+                    "rightValue": "hot",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Hot"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [
+                  {
+                    "id": "warm-rule",
+                    "leftValue": "={{ $('Parse AI Response').item.json.urgency }}",
+                    "rightValue": "warm",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Warm"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "route-urgency",
+      "name": "Hot, Warm, or Cold?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [2160, 540]
+    },
+
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Parse AI Response').item.json;\nconst name     = lead.name     || 'Unknown';\nconst phone    = lead.customerPhone || 'N/A';\nconst email    = lead.email    || 'N/A';\nconst industry = lead.industry || 'N/A';\nconst inquiry  = lead.inquiry  || 'N/A';\nconst reason   = lead.score_reason || '';\nconst booked   = lead.booked ? 'YES ✅' : 'No';\nconst dur      = Math.floor((lead.duration||0)/60) + 'm ' + ((lead.duration||0)%60) + 's';\n\nconst adminSmsBody = `🔥 HOT LEAD — Inbound Call\\n\\nName: ${name}\\nPhone: ${phone}\\nEmail: ${email}\\nIndustry: ${industry}\\nInquiry: ${inquiry}\\nReason: ${reason}\\nBooked: ${booked}\\nDuration: ${dur}`;\n\nconst adminEmailHtml = `<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto\"><div style=\"background:#dc2626;padding:20px 24px;border-radius:10px 10px 0 0\"><h1 style=\"color:#fff;margin:0;font-size:20px\">🔥 Hot Lead — Inbound Call</h1></div><div style=\"background:#fff;padding:24px;border:1px solid #e2e8f0;border-radius:0 0 10px 10px\"><table style=\"width:100%;border-collapse:collapse\"><tr><td style=\"padding:8px 0;color:#64748b;width:100px\">Name</td><td style=\"padding:8px 0;font-weight:600\">${name}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Phone</td><td style=\"padding:8px 0\">${phone}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Email</td><td style=\"padding:8px 0\">${email}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Industry</td><td style=\"padding:8px 0\">${industry}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Inquiry</td><td style=\"padding:8px 0\">${inquiry}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Score</td><td style=\"padding:8px 0;color:#dc2626;font-weight:700\">HOT 🔥</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Reason</td><td style=\"padding:8px 0\">${reason}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Booked</td><td style=\"padding:8px 0\">${booked}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Duration</td><td style=\"padding:8px 0\">${dur}</td></tr></table><div style=\"margin-top:20px;padding:16px;background:#f8fafc;border-radius:8px\"><p style=\"margin:0 0 6px;font-weight:600;color:#334155\">Transcript</p><p style=\"margin:0;font-size:12px;color:#64748b;white-space:pre-wrap;line-height:1.6\">${(lead.transcript||'').slice(0,1000)}</p></div><a href=\"https://topherai.com/leads-dashboard.html\" style=\"display:inline-block;margin-top:20px;background:#0284c7;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600\">View Dashboard →</a></div></div>`;\n\nreturn [{ json: { ...lead, adminSmsBody, adminEmailHtml } }];"
+      },
+      "id": "build-hot-alert",
+      "name": "Build Hot Alert Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2400, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Parse AI Response').item.json;\nconst name     = lead.name     || 'Unknown';\nconst phone    = lead.customerPhone || 'N/A';\nconst industry = lead.industry || 'N/A';\nconst inquiry  = lead.inquiry  || 'N/A';\nconst reason   = lead.score_reason || '';\n\nconst adminSmsBody = `🌡️ WARM LEAD — Inbound Call\\n\\nName: ${name}\\nPhone: ${phone}\\nIndustry: ${industry}\\nInquiry: ${inquiry}\\nReason: ${reason}`;\n\nconst adminEmailHtml = `<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto\"><div style=\"background:#d97706;padding:20px 24px;border-radius:10px 10px 0 0\"><h1 style=\"color:#fff;margin:0;font-size:20px\">🌡️ Warm Lead — Inbound Call</h1></div><div style=\"background:#fff;padding:24px;border:1px solid #e2e8f0;border-radius:0 0 10px 10px\"><table style=\"width:100%;border-collapse:collapse\"><tr><td style=\"padding:8px 0;color:#64748b;width:100px\">Name</td><td style=\"padding:8px 0;font-weight:600\">${name}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Phone</td><td style=\"padding:8px 0\">${phone}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Industry</td><td style=\"padding:8px 0\">${industry}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Inquiry</td><td style=\"padding:8px 0\">${inquiry}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Score</td><td style=\"padding:8px 0;color:#d97706;font-weight:700\">WARM 🌡️</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Reason</td><td style=\"padding:8px 0\">${reason}</td></tr></table><a href=\"https://topherai.com/leads-dashboard.html\" style=\"display:inline-block;margin-top:20px;background:#0284c7;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600\">View Dashboard →</a></div></div>`;\n\nreturn [{ json: { ...lead, adminSmsBody, adminEmailHtml } }];"
+      },
+      "id": "build-warm-alert",
+      "name": "Build Warm Alert Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2400, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SMS_API_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $vars.ADMIN_PHONE, \"text\": $json.adminSmsBody } }}",
+        "options": {}
+      },
+      "id": "send-admin-sms",
+      "name": "Send Admin SMS Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2640, 420]
+    },
+    {
+      "parameters": {
+        "fromEmail": "alerts@topherai.com",
+        "toEmail": "=christophermaretich@gmail.com",
+        "subject": "={{ $json.urgency === 'hot' ? '🔥 Hot Lead' : '🌡️ Warm Lead' }} — {{ $json.name || 'Inbound Call' }}",
+        "emailType": "html",
+        "html": "={{ $json.adminEmailHtml }}",
+        "options": {}
+      },
+      "id": "send-admin-email",
+      "name": "Send Admin Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [2640, 580]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/sms_messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey",        "value": "={{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" },
+            { "name": "Prefer",        "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"to\":        $vars.ADMIN_PHONE,\n  \"from\":      $vars.SMS_FROM_NUMBER,\n  \"body\":      $json.adminSmsBody,\n  \"direction\": \"outbound\",\n  \"type\":      \"admin_alert\",\n  \"created_at\": new Date().toISOString()\n} }}",
+        "options": {}
+      },
+      "id": "log-admin-sms",
+      "name": "Log Admin SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2880, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Parse AI Response').item.json;\nconst phone = lead.customerPhone || '';\nif (!phone || lead.booked) return [];\nreturn [{ json: lead }];"
+      },
+      "id": "has-phone-for-sms",
+      "name": "Has Phone? (Lead SMS)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2880, 620]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SMS_API_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"from\": $vars.SMS_FROM_NUMBER,\n  \"to\":   $json.customerPhone,\n  \"text\": \"Hey \" + ($json.name ? $json.name.split(' ')[0] : 'there') + \"! Great chatting with you. Here's that link to book a quick call with Chris:\\n\\nhttps://cal.com/christopher-wrgldt/topher-ai-demo-call\\n\\nTakes 2 minutes. Talk soon! — Topher AI\"\n} }}",
+        "options": {}
+      },
+      "id": "send-lead-booking-sms",
+      "name": "Send Lead Booking SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [3120, 620]
+    }
+  ],
+  "connections": {
+    "Vapi Webhook": {
+      "main": [[
+        { "node": "Respond OK",        "type": "main", "index": 0 },
+        { "node": "Extract Call Data", "type": "main", "index": 0 }
+      ]]
+    },
+    "Extract Call Data": {
+      "main": [[{ "node": "Missed or Answered?", "type": "main", "index": 0 }]]
+    },
+    "Missed or Answered?": {
+      "main": [
+        [{ "node": "Check Duplicate SMS (24hr)", "type": "main", "index": 0 }],
+        [{ "node": "Build OpenAI Payload",       "type": "main", "index": 0 }]
+      ]
+    },
+    "Check Duplicate SMS (24hr)": {
+      "main": [[{ "node": "Already Texted < 24hr?", "type": "main", "index": 0 }]]
+    },
+    "Already Texted < 24hr?": {
+      "main": [[{ "node": "Check STOP / Opt-Out", "type": "main", "index": 0 }]]
+    },
+    "Check STOP / Opt-Out": {
+      "main": [[{ "node": "Caller Opted Out?", "type": "main", "index": 0 }]]
+    },
+    "Caller Opted Out?": {
+      "main": [[{ "node": "Send Missed-Call Text-Back", "type": "main", "index": 0 }]]
+    },
+    "Send Missed-Call Text-Back": {
+      "main": [[{ "node": "Log Missed-Call SMS", "type": "main", "index": 0 }]]
+    },
+    "Build OpenAI Payload": {
+      "main": [[{ "node": "Classify with OpenAI", "type": "main", "index": 0 }]]
+    },
+    "Classify with OpenAI": {
+      "main": [[{ "node": "Parse AI Response", "type": "main", "index": 0 }]]
+    },
+    "Parse AI Response": {
+      "main": [[{ "node": "Save Call to Supabase", "type": "main", "index": 0 }]]
+    },
+    "Save Call to Supabase": {
+      "main": [[{ "node": "Upsert Contact in Supabase", "type": "main", "index": 0 }]]
+    },
+    "Upsert Contact in Supabase": {
+      "main": [[{ "node": "Hot, Warm, or Cold?", "type": "main", "index": 0 }]]
+    },
+    "Hot, Warm, or Cold?": {
+      "main": [
+        [{ "node": "Build Hot Alert Message",  "type": "main", "index": 0 }],
+        [{ "node": "Build Warm Alert Message", "type": "main", "index": 0 }],
+        [{ "node": "Has Phone? (Lead SMS)",    "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Hot Alert Message": {
+      "main": [[
+        { "node": "Send Admin SMS Alert",   "type": "main", "index": 0 },
+        { "node": "Send Admin Email Alert", "type": "main", "index": 0 }
+      ]]
+    },
+    "Build Warm Alert Message": {
+      "main": [[
+        { "node": "Send Admin SMS Alert",   "type": "main", "index": 0 },
+        { "node": "Send Admin Email Alert", "type": "main", "index": 0 }
+      ]]
+    },
+    "Send Admin SMS Alert": {
+      "main": [[{ "node": "Log Admin SMS", "type": "main", "index": 0 }]]
+    },
+    "Send Admin Email Alert": {
+      "main": [[{ "node": "Has Phone? (Lead SMS)", "type": "main", "index": 0 }]]
+    },
+    "Has Phone? (Lead SMS)": {
+      "main": [[{ "node": "Send Lead Booking SMS", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

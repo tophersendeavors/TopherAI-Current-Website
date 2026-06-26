@@ -1,0 +1,886 @@
+{
+  "name": "Topher AI \u2014 Web Lead Intake",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "web-lead",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "30e213e9-7b5f-446d-8017-2c7c5c098eed",
+      "name": "Web Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -3440,
+        1456
+      ],
+      "webhookId": "web-lead-intake"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.item.json.body || $input.item.json;\n\nconst roleLabels = {\n  'real-estate-solo': 'Solo Real Estate Agent',\n  'real-estate-team': 'Team Lead / Broker',\n  'med-spa':          'Med Spa / Aesthetic Clinic',\n  'legal':            'Legal / Law Firm',\n  'contractor':       'Contractor / Home Services',\n  'insurance':        'Insurance Agent',\n  'other':            'Other'\n};\n\nconst role = body.role || body.industry || '';\nconst industryLabel = roleLabels[role] || role || 'Not specified';\n\nconst name   = (body.name  || '').trim();\nconst email  = (body.email || '').trim();\nconst phone  = (body.phone || '').trim().replace(/[^\\d+]/g, '') || null;\nconst source = body.source || 'website_form';\n\nlet normalizedPhone = phone;\nif (phone && !phone.startsWith('+')) {\n  const digits = phone.replace(/\\D/g, '');\n  normalizedPhone = digits.length === 10 ? '+1' + digits : '+' + digits;\n}\n\nconst firstName = name.split(' ')[0] || name;\n\nreturn [{ json: {\n  name, firstName, email,\n  phone: normalizedPhone,\n  industry: industryLabel,\n  industryKey: role,\n  source,\n  leadStatus: 'new',\n  serviceInterest: 'AI receptionist consultation',\n  createdAt: new Date().toISOString()\n} }];"
+      },
+      "id": "cb49e74d-4ecc-458c-ad81-531aca488bc7",
+      "name": "Extract Lead Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3216,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.OPENAI_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"gpt-4o-mini\",\n  \"temperature\": 0.3,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a lead qualification assistant for Topher AI. Score leads and write personalized outreach. Respond ONLY with valid JSON.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Score this lead.\\n\\nName: \" + $json.name + \"\\nIndustry: \" + $json.industry + \"\\nSource: website contact form\\n\\nScoring guide:\\n- hot: high-value industry (Team Lead/Broker, Med Spa, Legal, Insurance), clear business fit\\n- warm: Solo Agent, Contractor, or general interest\\n- cold: vague, low fit, or likely spam\\n\\nRespond with: {\\\"urgency\\\": \\\"hot|warm|cold\\\", \\\"outreach\\\": \\\"one sentence opening line\\\", \\\"reason\\\": \\\"one line scoring reason\\\"}\"\n    }\n  ]\n} }}",
+        "options": {}
+      },
+      "id": "33aba9b8-a969-4413-9e87-e3d3d673ea31",
+      "name": "Score Lead with GPT-4o",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -2992,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Extract Lead Data').item.json;\nconst gptRaw = $input.item.json;\n\nlet urgency = 'warm', outreach = '', reason = '';\ntry {\n  const content = gptRaw.choices?.[0]?.message?.content || '{}';\n  const cleaned = content.replace(/```json\\n?/g,'').replace(/```\\n?/g,'').trim();\n  const parsed = JSON.parse(cleaned);\n  urgency  = ['hot','warm','cold'].includes(parsed.urgency) ? parsed.urgency : 'warm';\n  outreach = parsed.outreach || '';\n  reason   = parsed.reason   || '';\n} catch(e) {}\n\nreturn [{ json: { ...lead, urgency, outreach, reason } }];"
+      },
+      "id": "09ec2577-557e-4b0c-bc2d-55dd7def0671",
+      "name": "Parse GPT Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2784,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/contacts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "=eq.{{ $json.phone }}"
+            },
+            {
+              "name": "select",
+              "value": "id,phone,name,created_at"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-existing-contact",
+      "name": "Check Existing Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -2560,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.item.json;\nconst contacts = Array.isArray(response) ? response : [];\nconst isReturning = contacts.length > 0;\nconst existingContact = contacts[0] || null;\nconst leadData = $('Parse GPT Score').item.json;\nreturn [{ json: {\n  ...leadData,\n  isReturning,\n  existingContact,\n  firstSeenAt: existingContact?.created_at || null\n} }];"
+      },
+      "id": "is-new-or-returning",
+      "name": "New or Returning?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2336,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "returning-check",
+              "leftValue": "={{ $json.isReturning }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route-new-returning",
+      "name": "Returning or New?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -2112,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/contacts?phone=eq.{{ $json.phone }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"urgency\": $json.urgency, \"industry\": $json.industry, \"updated_at\": new Date().toISOString() } }}",
+        "options": {}
+      },
+      "id": "update-contact-returning",
+      "name": "Update Returning Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -1888,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Returning or New?').item.json;\nconst firstName = lead.name ? lead.name.split(' ')[0] : 'there';\nconst industry = lead.industry || 'your business';\nconst firstSeen = lead.firstSeenAt ? new Date(lead.firstSeenAt).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : 'recently';\n\nconst leadSms = `Hey ${firstName}! Looks like you checked out Topher AI again \u2014 glad you\\'re still interested. Chris has time this week to show you exactly how the AI receptionist would work for ${industry}. Want me to send you the booking link? \u2014 Topher AI`;\n\nconst adminSms = `\ud83d\udd04 RETURNING LEAD\\n\\nName: ${lead.name || 'Unknown'}\\nPhone: ${lead.phone || 'N/A'}\\nEmail: ${lead.email || 'N/A'}\\nIndustry: ${lead.industry || 'N/A'}\\nScore: ${(lead.urgency||'warm').toUpperCase()}\\nFirst seen: ${firstSeen}\\nReason: ${lead.reason || ''}`;\n\nreturn [{ json: { ...lead, leadSms, adminSms } }];"
+      },
+      "id": "build-reengagement",
+      "name": "Build Re-engagement Messages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1664,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SMS_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $vars.ADMIN_PHONE, \"text\": $json.adminSms } }}",
+        "options": {}
+      },
+      "id": "send-returning-admin-sms",
+      "name": "Send Returning Admin Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -1440,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Build Re-engagement Messages').item.json;\nif (!lead.phone) return [];\nreturn [{ json: lead }];"
+      },
+      "id": "has-phone-returning",
+      "name": "Has Phone? (Returning)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1440,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SMS_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $json.phone, \"text\": $json.leadSms } }}",
+        "options": {}
+      },
+      "id": "send-reengagement-sms",
+      "name": "Send Re-engagement SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -1216,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/contacts",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "on_conflict",
+              "value": "phone"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"name\": $json.name, \"email\": $json.email, \"phone\": $json.phone, \"industry\": $json.industry, \"service_interest\": $json.serviceInterest, \"urgency\": $json.urgency, \"lead_status\": $json.leadStatus, \"updated_at\": $json.createdAt } }}",
+        "options": {}
+      },
+      "id": "c4f2050a-f8a1-46a9-a3da-2b44c227bcc6",
+      "name": "Save to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -1888,
+        1632
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/sms_messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"to_number\": $vars.ADMIN_PHONE, \"from_number\": $vars.SMS_FROM_NUMBER, \"body\": \"WEB LEAD: \" + $('Parse GPT Score').item.json.name, \"direction\": \"outbound\", \"message_type\": \"web_lead_alert\", \"status\": \"sent\" } }}",
+        "options": {}
+      },
+      "id": "9e672426-d704-4633-aa42-4aac5b39bbaa",
+      "name": "Log SMS to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -1664,
+        1520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SMS_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $vars.ADMIN_PHONE, \"text\": ($('Parse GPT Score').item.json.urgency === 'hot' ? '\ud83d\udd25' : $('Parse GPT Score').item.json.urgency === 'warm' ? '\u26a1' : '\u2744\ufe0f') + \" \" + $('Parse GPT Score').item.json.urgency.toUpperCase() + \" WEB LEAD\\n\\nName: \" + $('Parse GPT Score').item.json.name + \"\\nEmail: \" + $('Parse GPT Score').item.json.email + \"\\nPhone: \" + ($('Parse GPT Score').item.json.phone || 'N/A') + \"\\nIndustry: \" + $('Parse GPT Score').item.json.industry + \"\\n\\nOpener:\\n\\\"\" + $('Parse GPT Score').item.json.outreach + \"\\\"\" } }}",
+        "options": {}
+      },
+      "id": "1663531b-029e-4ee6-9deb-3aa8bdea1364",
+      "name": "Send Admin SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -1664,
+        1632
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $vars.SMTP_FROM_EMAIL }}",
+        "toEmail": "chris@topherai.com",
+        "subject": "={{ ($('Parse GPT Score').item.json.urgency === 'hot' ? '\ud83d\udd25' : $('Parse GPT Score').item.json.urgency === 'warm' ? '\u26a1' : '\u2744\ufe0f') + ' ' + $('Parse GPT Score').item.json.urgency.toUpperCase() + ' Lead: ' + $('Parse GPT Score').item.json.name + ' \u2014 ' + $('Parse GPT Score').item.json.industry }}",
+        "html": "=<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto\"><div style=\"background:linear-gradient(135deg,#0284c7,#0ea5e9);padding:32px;text-align:center\"><h1 style=\"color:#fff;margin:0;font-size:22px\">{{ $('Parse GPT Score').item.json.urgency.toUpperCase() }} Web Lead \u2014 {{ $('Parse GPT Score').item.json.name }}</h1></div><div style=\"padding:24px;background:#fff;border:1px solid #e2e8f0\"><table style=\"width:100%;border-collapse:collapse\"><tr><td style=\"padding:8px 0;color:#64748b;width:100px\">Name</td><td style=\"font-weight:600\">{{ $('Parse GPT Score').item.json.name }}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Email</td><td>{{ $('Parse GPT Score').item.json.email }}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Phone</td><td>{{ $('Parse GPT Score').item.json.phone || 'Not provided' }}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Industry</td><td>{{ $('Parse GPT Score').item.json.industry }}</td></tr><tr><td style=\"padding:8px 0;color:#64748b\">Score</td><td style=\"font-weight:700\">{{ $('Parse GPT Score').item.json.urgency.toUpperCase() }} \u2014 {{ $('Parse GPT Score').item.json.reason }}</td></tr></table><div style=\"margin-top:20px;padding:16px;background:#f0fdf4;border-radius:8px;border-left:4px solid #22c55e\"><p style=\"margin:0 0 6px;font-size:12px;color:#6b7280\">Suggested opener</p><p style=\"margin:0;font-style:italic\">\"{{ $('Parse GPT Score').item.json.outreach }}\"</p></div><div style=\"margin-top:20px;text-align:center\"><a href=\"https://cal.com/christopher-wrgldt/topher-ai-demo-call\" style=\"background:#0284c7;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600\">Book Demo \u2192</a></div></div></div>",
+        "options": {}
+      },
+      "id": "e528408b-f135-410f-a6a7-8334e112e395",
+      "name": "Send Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -1664,
+        1744
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "g6lDQtpneiofB51E",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Parse GPT Score').item.json.phone }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "a706c2ca-b1db-41d4-bb98-48d32d8a2b9f",
+      "name": "Has Phone?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1664,
+        1856
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SMS_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $('Parse GPT Score').item.json.phone, \"text\": \"Hey \" + $('Parse GPT Score').item.json.firstName + \"! Thanks for reaching out to Topher AI. Chris will be in touch within the hour. In the meantime, grab a demo time here:\\n\\nhttps://cal.com/christopher-wrgldt/topher-ai-demo-call\\n\\n\u2014 Topher AI\" } }}",
+        "options": {}
+      },
+      "id": "a276d078-78b2-4ca7-8415-0fa1fad3b91d",
+      "name": "Send Lead SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -1440,
+        1792
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $vars.SMTP_FROM_EMAIL }}",
+        "toEmail": "={{ $('Parse GPT Score').item.json.email }}",
+        "subject": "=Thanks for reaching out, {{ $('Parse GPT Score').item.json.firstName }}!",
+        "html": "=<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto\"><div style=\"background:linear-gradient(135deg,#0284c7,#0ea5e9);padding:40px 32px;text-align:center\"><h1 style=\"color:#fff;margin:0\">We got your message!</h1></div><div style=\"padding:36px 32px\"><p style=\"font-size:16px\">Hey {{ $('Parse GPT Score').item.json.firstName }},</p><p>Thanks for your interest in Topher AI. Chris will personally reach out within the hour.</p><div style=\"text-align:center;margin:28px 0\"><a href=\"https://cal.com/christopher-wrgldt/topher-ai-demo-call\" style=\"background:#0284c7;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700\">Book a Demo Call \u2192</a></div><p style=\"font-weight:700\">Chris</p><p style=\"color:#9ca3af;font-size:13px\">Founder, Topher AI</p></div></div>",
+        "options": {}
+      },
+      "id": "7698de04-74ef-43ba-a752-fa7ee9059a66",
+      "name": "Send Lead Confirmation Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -1216,
+        1856
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "g6lDQtpneiofB51E",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": "LitXJNB8Fv0gp13K",
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "id": "e314564e-be0a-4592-84b1-094b7a8d367f",
+      "name": "Trigger Drip Sequence",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        -992,
+        1856
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Lead received\" } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "169a3ed6-723d-4a48-9b0b-22b2a77633c7",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -768,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Parse GPT Score').item.json;\nconst urgency = lead.urgency || '';\nconst phone   = lead.phone   || '';\nif (urgency === 'hot' && phone) {\n  return [{ json: { urgency, phone, name: lead.name } }];\n}\nreturn [];"
+      },
+      "id": "6777b772-127f-45cf-8b43-033cc5a961bb",
+      "name": "Route Hot Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1664,
+        1968
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 30,
+        "unit": "seconds"
+      },
+      "id": "d0d1b5ea-3661-4cd4-ae6f-04b4ea3a44e2",
+      "name": "Wait 30 Seconds",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        1968
+      ],
+      "webhookId": "be1cab66-143d-4a9e-8368-d032f35e4c88"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vapi.ai/call/phone",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.VAPI_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"assistantId\": \"2a57c285-43bb-49a2-b920-fdce976e552e\", \"phoneNumberId\": \"18b63c79-4421-47f4-969a-1283ac6380e2\", \"customer\": { \"number\": $json.phone, \"name\": $json.name } } }}",
+        "options": {}
+      },
+      "id": "37d7d054-73b2-4326-beb3-8e0592432b9d",
+      "name": "Trigger Vapi Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -1216,
+        1968
+      ]
+    }
+  ],
+  "connections": {
+    "Web Lead Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Score Lead with GPT-4o",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Lead with GPT-4o": {
+      "main": [
+        [
+          {
+            "node": "Parse GPT Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse GPT Score": {
+      "main": [
+        [
+          {
+            "node": "Check Existing Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing Contact": {
+      "main": [
+        [
+          {
+            "node": "New or Returning?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New or Returning?": {
+      "main": [
+        [
+          {
+            "node": "Returning or New?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Returning or New?": {
+      "main": [
+        [
+          {
+            "node": "Update Returning Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Returning Contact": {
+      "main": [
+        [
+          {
+            "node": "Build Re-engagement Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Re-engagement Messages": {
+      "main": [
+        [
+          {
+            "node": "Send Returning Admin Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Has Phone? (Returning)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Phone? (Returning)": {
+      "main": [
+        [
+          {
+            "node": "Send Re-engagement SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Returning Admin Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Re-engagement SMS": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Log SMS to Supabase",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Admin SMS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Email Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Has Phone?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Route Hot Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log SMS to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Admin SMS": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Phone?": {
+      "main": [
+        [
+          {
+            "node": "Send Lead SMS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Lead Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Lead SMS": {
+      "main": [
+        [
+          {
+            "node": "Send Lead Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Lead Confirmation Email": {
+      "main": [
+        [
+          {
+            "node": "Trigger Drip Sequence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Drip Sequence": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Hot Lead": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 Seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30 Seconds": {
+      "main": [
+        [
+          {
+            "node": "Trigger Vapi Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": true
+}

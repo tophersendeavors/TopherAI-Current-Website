@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *{font-family:'Inter',sans-serif}
+    body{background:#f5f5f7;color:#1d1d1f}
+    .glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.6)}
+    .quick-answer{background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08));border:1.5px solid rgba(99,102,241,0.25);border-radius:12px;padding:24px 28px}
+    .faq-btn{width:100%;text-align:left;padding:18px 22px;background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:#1d1d1f;transition:all .2s}
+    .faq-btn:hover{background:rgba(255,255,255,1);border-color:rgba(99,102,241,0.3)}
+    .faq-body{display:none;padding:16px 22px 20px;background:rgba(255,255,255,0.6);border:1px solid rgba(0,0,0,0.06);border-top:none;border-radius:0 0 10px 10px;color:#424245;line-height:1.7}
+    .toc-link{display:block;padding:7px 12px;border-radius:8px;font-size:0.82rem;color:#424245;text-decoration:none;transition:all .2s}
+    .toc-link:hover,.toc-link.active{background:rgba(99,102,241,0.1);color:#4f46e5;font-weight:600}
+    .stat-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px 24px;text-align:center}
+    .step-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0}
+    table{width:100%;border-collapse:collapse}
+    th{padding:12px 16px;text-align:left;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    td{padding:12px 16px;border-bottom:1px solid rgba(0,0,0,0.06);font-size:0.9rem;color:#424245}
+    tr:last-child td{border-bottom:none}
+    .win-ai{color:#059669;font-weight:600}
+    .win-human{color:#dc2626;font-weight:500}
+    .neutral{color:#6b7280}
+    .related-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px;cursor:pointer;transition:all .25s}
+    .related-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+    .breadcrumb a{color:#6b7280;font-size:0.82rem;text-decoration:none}
+    .breadcrumb a:hover{color:#4f46e5}
+    .breadcrumb span{color:#9ca3af;font-size:0.82rem;margin:0 6px}
+    nav{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.06)}
+    footer{background:#1d1d1f}
+  </style>
+</head>
+<title>How Law Firms Lose Leads (And How to Stop It) | Topher AI</title>
+<meta name="description" content="Law firms lose 42% of potential clients to missed calls and slow follow-up. Learn the 5 ways firms lose leads and how AI intake fixes each one."/>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {"@type":"Article","headline":"How Law Firms Lose Leads — And How to Stop It","description":"The 5 most common ways law firms lose potential clients, and how AI intake automation fixes each one.","author":{"@type":"Organization","name":"Topher AI"},"publisher":{"@type":"Organization","name":"Topher AI","url":"https://topherai.com"},"datePublished":"2025-01-01","dateModified":"2025-06-01"},
+    {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Knowledge Center","item":"https://topherai.com/knowledge/"},{"@type":"ListItem","position":2,"name":"Law Firms","item":"https://topherai.com/knowledge/law-firms/"},{"@type":"ListItem","position":3,"name":"How Law Firms Lose Leads"}]},
+    {"@type":"FAQPage","mainEntity":[
+      {"@type":"Question","name":"What percentage of law firm calls go unanswered?","acceptedAnswer":{"@type":"Answer","text":"Studies show 42% of legal inquiries arrive outside business hours. Without 24/7 coverage, these calls go unanswered and the prospect calls the next firm on Google."}},
+      {"@type":"Question","name":"How quickly do potential legal clients move on?","acceptedAnswer":{"@type":"Answer","text":"Research shows that 50% of potential clients hire the first attorney who responds to their inquiry. Delays of even a few hours can mean losing the case permanently."}},
+      {"@type":"Question","name":"How can AI prevent law firms from losing leads?","acceptedAnswer":{"@type":"Answer","text":"AI answers every call 24/7, qualifies the prospect in under 5 minutes, books a consultation automatically, and syncs intake data to the firm's case management system — eliminating all five common lead-loss points."}}
+    ]},
+    {"@type":"SpeakableSpecification","cssSelector":["#quick-answer","h2","h3"]}
+  ]
+}
+</script>
+<body>
+<nav class="sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+    <a href="../../index.html" class="flex items-center gap-2 no-underline">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+        <i class="fa-solid fa-headset text-white text-xs"></i>
+      </div>
+      <span class="font-bold text-base" style="color:#1d1d1f">Topher AI</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="../../index.html#features" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Features</a>
+      <a href="../../index.html#industries" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Industries</a>
+      <a href="../../index.html#pricing" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Pricing</a>
+      <a href="../" class="text-sm font-medium transition-colors" style="color:#4f46e5;font-weight:600">Knowledge</a>
+      <a href="../../index.html#contact" class="text-sm font-medium text-white px-4 py-2 rounded-xl transition-opacity hover:opacity-90" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">Get Started</a>
+    </div>
+  </div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 py-12">
+  <div class="breadcrumb flex items-center gap-1 mb-8">
+    <a href="../">Knowledge Center</a><span>/</span>
+    <a href="../">Law Firms</a><span>/</span>
+    <span class="text-sm" style="color:#1d1d1f">How Law Firms Lose Leads</span>
+  </div>
+
+  <div class="mb-10">
+    <span class="text-xs font-semibold px-3 py-1 rounded-full inline-block mb-4" style="background:#6366f122;color:#6366f1">Law Firms</span>
+    <h1 class="text-4xl font-bold mb-4" style="color:#1d1d1f">How Law Firms Lose Leads (And How to Stop It)</h1>
+    <p class="text-xl" style="color:#424245;max-width:700px">Five silent revenue killers — and the AI systems that eliminate each one.</p>
+  </div>
+
+  <div class="grid lg:grid-cols-[1fr_280px] gap-10">
+    <div>
+      <div id="quick-answer" class="quick-answer mb-10">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="fa-solid fa-bolt text-indigo-500"></i>
+          <span class="text-xs font-bold uppercase tracking-wider" style="color:#6366f1">Quick Answer</span>
+        </div>
+        <p class="font-semibold text-lg mb-2" style="color:#1d1d1f">Law firms lose most leads through missed calls, slow response, and broken intake processes — not lack of marketing.</p>
+        <p style="color:#424245">The five most common failure points: unanswered calls after hours, voicemails that never get returned, long intake forms, slow consultation scheduling, and no follow-up with prospects who didn't immediately convert.</p>
+      </div>
+
+      <h2 id="the-numbers" class="text-2xl font-bold mb-6" style="color:#1d1d1f">The Numbers That Cost Firms Cases</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#6366f1">50%</div><div class="text-sm" style="color:#6b7280">hire the first firm that responds</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#6366f1">42%</div><div class="text-sm" style="color:#6b7280">of inquiries arrive after hours</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#6366f1">27min</div><div class="text-sm" style="color:#6b7280">average human intake time</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#6366f1">$8,000</div><div class="text-sm" style="color:#6b7280">avg value of a lost retained case</div></div>
+      </div>
+
+      <h2 id="five-ways" class="text-2xl font-bold mb-6" style="color:#1d1d1f">5 Ways Law Firms Lose Leads</h2>
+
+      <div class="space-y-6 mb-10">
+        <div class="glass rounded-2xl p-6">
+          <div class="flex gap-4">
+            <div class="step-num" style="background:#fee2e2;color:#dc2626;font-size:1.1rem">1</div>
+            <div>
+              <h3 class="font-bold text-lg mb-2" style="color:#dc2626">Unanswered After-Hours Calls</h3>
+              <p class="mb-3" style="color:#424245">42% of legal inquiries come in after 5pm or on weekends. Legal emergencies — accidents, arrests, custody situations — don't happen on a 9-to-5 schedule. Every unanswered call is a prospect who calls the next firm on Google.</p>
+              <div class="text-sm font-semibold p-3 rounded-lg" style="background:#05966922;color:#059669"><i class="fa-solid fa-robot mr-2"></i><strong>AI Fix:</strong> Answers every call in under 2 seconds, 24/7/365 — no exceptions.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <div class="flex gap-4">
+            <div class="step-num" style="background:#fee2e2;color:#dc2626;font-size:1.1rem">2</div>
+            <div>
+              <h3 class="font-bold text-lg mb-2" style="color:#dc2626">Voicemails That Never Convert</h3>
+              <p class="mb-3" style="color:#424245">Potential clients in distress want to talk to a human, not a voicemail box. Research shows 62% of callers won't leave a voicemail — and those who do often don't pick up when you call back hours later.</p>
+              <div class="text-sm font-semibold p-3 rounded-lg" style="background:#05966922;color:#059669"><i class="fa-solid fa-robot mr-2"></i><strong>AI Fix:</strong> AI conducts a full intake conversation instead of routing to voicemail — capturing lead info in real time.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <div class="flex gap-4">
+            <div class="step-num" style="background:#fee2e2;color:#dc2626;font-size:1.1rem">3</div>
+            <div>
+              <h3 class="font-bold text-lg mb-2" style="color:#dc2626">Slow or Intimidating Intake Forms</h3>
+              <p class="mb-3" style="color:#424245">Online intake forms with 20+ fields — especially ones that ask for Social Security numbers, case details, or employment history — have abandonment rates above 70%. A person in crisis won't fill out a long form.</p>
+              <div class="text-sm font-semibold p-3 rounded-lg" style="background:#05966922;color:#059669"><i class="fa-solid fa-robot mr-2"></i><strong>AI Fix:</strong> AI collects intake data conversationally — name, situation, urgency, contact info — in a natural back-and-forth.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <div class="flex gap-4">
+            <div class="step-num" style="background:#fee2e2;color:#dc2626;font-size:1.1rem">4</div>
+            <div>
+              <h3 class="font-bold text-lg mb-2" style="color:#dc2626">No Immediate Consultation Booking</h3>
+              <p class="mb-3" style="color:#424245">Telling a prospect "someone will call you back to schedule" adds another step and another opportunity to lose them. Every hour between contact and confirmed booking increases the chance they retain a competitor.</p>
+              <div class="text-sm font-semibold p-3 rounded-lg" style="background:#05966922;color:#059669"><i class="fa-solid fa-robot mr-2"></i><strong>AI Fix:</strong> AI books consultations in real time — checking attorney availability and confirming the appointment before the call ends.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <div class="flex gap-4">
+            <div class="step-num" style="background:#fee2e2;color:#dc2626;font-size:1.1rem">5</div>
+            <div>
+              <h3 class="font-bold text-lg mb-2" style="color:#dc2626">Zero Follow-Up With Non-Converters</h3>
+              <p class="mb-3" style="color:#424245">Most firms only track leads who immediately retained. Prospects who said "I need to think about it" or "let me talk to my spouse" are often never contacted again — even though many convert within 7–30 days.</p>
+              <div class="text-sm font-semibold p-3 rounded-lg" style="background:#05966922;color:#059669"><i class="fa-solid fa-robot mr-2"></i><strong>AI Fix:</strong> Automated SMS and email drip sequences follow up with non-converters at 24h, 3-day, and 7-day intervals.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="faq" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Frequently Asked Questions</h2>
+      <div class="mb-10">
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(1)">
+        <span>How many leads does an average law firm lose per month?</span>
+        <i id="faq-icon-1" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-1" class="faq-body">It depends on call volume, but firms answering fewer than 80% of calls and lacking after-hours coverage can easily lose 20–40% of inbound leads — often without realizing it.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(2)">
+        <span>Is it worth adding AI if I already have a receptionist?</span>
+        <i id="faq-icon-2" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-2" class="faq-body">Yes. Receptionists work business hours; AI covers nights, weekends, and overflow. Together they ensure no inquiry is ever missed.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(3)">
+        <span>Will AI work for my practice area?</span>
+        <i id="faq-icon-3" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-3" class="faq-body">AI intake has been deployed for personal injury, family law, criminal defense, immigration, estate planning, and business litigation — it adapts to any intake conversation.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(4)">
+        <span>How does AI handle sensitive legal conversations?</span>
+        <i id="faq-icon-4" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-4" class="faq-body">AI gathers intake information — name, situation, urgency, contact info — without dispensing legal advice. It's clear that it's an AI scheduling system, not an attorney.</div>
+    </div>
+      </div>
+
+      <h2 class="text-2xl font-bold mb-6" style="color:#1d1d1f">Related Articles</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        
+    <div class="related-card" onclick="window.location='../law-firms/ai-intake-for-law-firms.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Law Firms</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">AI Intake for Law Firms</h4>
+      <p class="text-xs" style="color:#6b7280">The complete guide to AI-powered legal intake.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../can-ai-schedule-appointments.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Fundamentals</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">Can AI Schedule Appointments?</h4>
+      <p class="text-xs" style="color:#6b7280">How AI books consultations automatically.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../compare/ai-receptionist-vs-human-receptionist.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Compare</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">AI vs. Human Receptionist</h4>
+      <p class="text-xs" style="color:#6b7280">Full cost and coverage comparison.</p>
+    </div>
+      </div>
+    </div>
+    <aside class="hidden lg:block">
+      
+    <div class="space-y-6">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="color:#6b7280">On This Page</h3>
+        <a href="#the-numbers" data-target="the-numbers" class="toc-link">The Numbers</a>
+<a href="#five-ways" data-target="five-ways" class="toc-link">5 Ways Firms Lose Leads</a>
+<a href="#faq" data-target="faq" class="toc-link">FAQ</a>
+
+      </div>
+      <div class="rounded-2xl p-6 text-white" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+        <i class="fa-solid fa-scale-balanced text-2xl mb-3 opacity-90"></i>
+        <h3 class="font-bold text-lg mb-2">Stop Losing Cases to Missed Calls</h3>
+        <p class="text-sm opacity-80 mb-4">AI intake captures every lead — nights, weekends, and overflow.</p>
+        <a href="../../index.html#contact" class="block w-full text-center py-2.5 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.2);color:white">Get a Free Demo</a>
+      </div>
+    </div>
+    </aside>
+  </div>
+</main>
+<footer class="py-16 px-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+            <i class="fa-solid fa-headset text-white text-xs"></i>
+          </div>
+          <span class="font-bold text-white">Topher AI</span>
+        </div>
+        <p class="text-sm" style="color:#86868b">AI receptionist &amp; automation for modern businesses.</p>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Product</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#features" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Features</a></li>
+          <li><a href="../../index.html#pricing" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Pricing</a></li>
+          <li><a href="../../index.html#industries" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Industries</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Industries</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#real-estate" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Real Estate</a></li>
+          <li><a href="../../index.html#law-firms" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Law Firms</a></li>
+          <li><a href="../../index.html#med-spas" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Med Spas</a></li>
+          <li><a href="../../index.html#insurance" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Insurance</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Knowledge</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Knowledge Center</a></li>
+          <li><a href="../what-is-an-ai-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">What Is an AI Receptionist</a></li>
+          <li><a href="../real-estate/ai-receptionist-for-realtors.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI for Real Estate</a></li>
+          <li><a href="../compare/ai-receptionist-vs-human-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI vs. Human</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Company</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#contact" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Contact</a></li>
+          <li><a href="../../index.html#demo" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Book a Demo</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t pt-8" style="border-color:rgba(255,255,255,0.1)">
+      <p class="text-sm text-center" style="color:#86868b">© 2025 Topher AI. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+<script>
+function toggleFaq(id){
+  var b=document.getElementById('faq-body-'+id);
+  var i=document.getElementById('faq-icon-'+id);
+  if(b.style.display==='block'){b.style.display='none';i.className='fa-solid fa-chevron-down text-gray-400 text-xs';}
+  else{b.style.display='block';i.className='fa-solid fa-chevron-up text-indigo-500 text-xs';}
+}
+window.addEventListener('scroll',function(){
+  var links=document.querySelectorAll('.toc-link[data-target]');
+  links.forEach(function(l){
+    var t=document.getElementById(l.dataset.target);
+    if(t){var r=t.getBoundingClientRect();if(r.top<=120&&r.bottom>=80){links.forEach(function(x){x.classList.remove('active')});l.classList.add('active');}}
+  });
+});
+</script>
+</body></html>

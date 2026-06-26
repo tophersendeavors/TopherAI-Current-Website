@@ -1,0 +1,167 @@
+{
+  "name": "Vapi — Confirmed Phone Number Capture",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vapi-confirmed-number",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-e5f6-7890-abcd-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "vapi-confirmed-number"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f0000001",
+              "name": "call_id",
+              "value": "={{ $json.call.id }}",
+              "type": "string"
+            },
+            {
+              "id": "f0000002",
+              "name": "phone",
+              "value": "={{ $json.message.toolCallList[0].function.arguments.phone_number }}",
+              "type": "string"
+            },
+            {
+              "id": "f0000003",
+              "name": "caller_name",
+              "value": "={{ $json.message.toolCallList[0].function.arguments.caller_name ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f0000004",
+              "name": "tool_call_id",
+              "value": "={{ $json.message.toolCallList[0].id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-e5f6-7890-abcd-000000000002",
+      "name": "Extract Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/confirmed_numbers?on_conflict=call_id",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "call_id",
+              "value": "={{ $node['Extract Fields'].json.call_id }}"
+            },
+            {
+              "name": "phone",
+              "value": "={{ $node['Extract Fields'].json.phone }}"
+            },
+            {
+              "name": "name",
+              "value": "={{ $node['Extract Fields'].json.caller_name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-e5f6-7890-abcd-000000000003",
+      "name": "Store in Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ results: [{ toolCallId: $node['Extract Fields'].json.tool_call_id, result: 'Phone number captured successfully.' }] }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "a1b2c3d4-e5f6-7890-abcd-000000000004",
+      "name": "Respond to Vapi",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Fields": {
+      "main": [
+        [
+          {
+            "node": "Store in Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store in Supabase": {
+      "main": [
+        [
+          {
+            "node": "Respond to Vapi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "vapi-confirmed-phone-capture",
+  "tags": []
+}

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *{font-family:'Inter',sans-serif}
+    body{background:#f5f5f7;color:#1d1d1f}
+    .glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.6)}
+    .quick-answer{background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08));border:1.5px solid rgba(99,102,241,0.25);border-radius:12px;padding:24px 28px}
+    .faq-btn{width:100%;text-align:left;padding:18px 22px;background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:#1d1d1f;transition:all .2s}
+    .faq-btn:hover{background:rgba(255,255,255,1);border-color:rgba(99,102,241,0.3)}
+    .faq-body{display:none;padding:16px 22px 20px;background:rgba(255,255,255,0.6);border:1px solid rgba(0,0,0,0.06);border-top:none;border-radius:0 0 10px 10px;color:#424245;line-height:1.7}
+    .toc-link{display:block;padding:7px 12px;border-radius:8px;font-size:0.82rem;color:#424245;text-decoration:none;transition:all .2s}
+    .toc-link:hover,.toc-link.active{background:rgba(99,102,241,0.1);color:#4f46e5;font-weight:600}
+    .stat-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px 24px;text-align:center}
+    .step-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0}
+    table{width:100%;border-collapse:collapse}
+    th{padding:12px 16px;text-align:left;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    td{padding:12px 16px;border-bottom:1px solid rgba(0,0,0,0.06);font-size:0.9rem;color:#424245}
+    tr:last-child td{border-bottom:none}
+    .win-ai{color:#059669;font-weight:600}
+    .win-human{color:#dc2626;font-weight:500}
+    .neutral{color:#6b7280}
+    .related-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px;cursor:pointer;transition:all .25s}
+    .related-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+    .breadcrumb a{color:#6b7280;font-size:0.82rem;text-decoration:none}
+    .breadcrumb a:hover{color:#4f46e5}
+    .breadcrumb span{color:#9ca3af;font-size:0.82rem;margin:0 6px}
+    nav{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.06)}
+    footer{background:#1d1d1f}
+  </style>
+</head>
+<title>Reducing No-Shows with AI | Topher AI</title>
+<meta name="description" content="AI reminder sequences reduce appointment no-shows by 30–50%. Learn the exact reminder timing, channels, and messages that work for med spas, law firms, and service businesses."/>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {"@type":"Article","headline":"Reducing No-Shows with AI","description":"How automated AI reminder sequences reduce appointment no-shows by 30–50% for med spas, law firms, and service businesses.","author":{"@type":"Organization","name":"Topher AI"},"publisher":{"@type":"Organization","name":"Topher AI","url":"https://topherai.com"},"datePublished":"2025-01-01","dateModified":"2025-06-01"},
+    {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Knowledge Center","item":"https://topherai.com/knowledge/"},{"@type":"ListItem","position":2,"name":"Med Spas","item":"https://topherai.com/knowledge/med-spas/"},{"@type":"ListItem","position":3,"name":"Reducing No-Shows with AI"}]},
+    {"@type":"FAQPage","mainEntity":[
+      {"@type":"Question","name":"What is the best way to reduce appointment no-shows?","acceptedAnswer":{"@type":"Answer","text":"The most effective approach is a multi-channel reminder sequence: confirmation immediately after booking, reminder 24 hours before, and a day-of reminder 2 hours before. Adding a cancellation option and rescheduling link reduces no-shows without just ghosting."}},
+      {"@type":"Question","name":"How much do AI reminders reduce no-shows?","acceptedAnswer":{"@type":"Answer","text":"Businesses using automated reminder sequences typically reduce no-show rates by 30–50%, depending on industry, sequence timing, and whether easy rescheduling is offered."}},
+      {"@type":"Question","name":"What channels work best for appointment reminders?","acceptedAnswer":{"@type":"Answer","text":"SMS has the highest open and response rate for appointment reminders — typically 98% open rate vs. 20% for email. A combined SMS + email sequence is most effective for high-value appointments."}}
+    ]},
+    {"@type":"SpeakableSpecification","cssSelector":["#quick-answer","h2","h3"]}
+  ]
+}
+</script>
+<body>
+<nav class="sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+    <a href="../../index.html" class="flex items-center gap-2 no-underline">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+        <i class="fa-solid fa-headset text-white text-xs"></i>
+      </div>
+      <span class="font-bold text-base" style="color:#1d1d1f">Topher AI</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="../../index.html#features" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Features</a>
+      <a href="../../index.html#industries" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Industries</a>
+      <a href="../../index.html#pricing" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Pricing</a>
+      <a href="../" class="text-sm font-medium transition-colors" style="color:#4f46e5;font-weight:600">Knowledge</a>
+      <a href="../../index.html#contact" class="text-sm font-medium text-white px-4 py-2 rounded-xl transition-opacity hover:opacity-90" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">Get Started</a>
+    </div>
+  </div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 py-12">
+  <div class="breadcrumb flex items-center gap-1 mb-8">
+    <a href="../">Knowledge Center</a><span>/</span>
+    <a href="../">Med Spas</a><span>/</span>
+    <span class="text-sm" style="color:#1d1d1f">Reducing No-Shows with AI</span>
+  </div>
+
+  <div class="mb-10">
+    <span class="text-xs font-semibold px-3 py-1 rounded-full inline-block mb-4" style="background:#ec489922;color:#ec4899">Med Spas</span>
+    <h1 class="text-4xl font-bold mb-4" style="color:#1d1d1f">Reducing No-Shows with AI</h1>
+    <p class="text-xl" style="color:#424245;max-width:700px">The exact reminder sequences, channels, and timing that cut no-show rates by 30–50%.</p>
+  </div>
+
+  <div class="grid lg:grid-cols-[1fr_280px] gap-10">
+    <div>
+      <div id="quick-answer" class="quick-answer mb-10">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="fa-solid fa-bolt text-indigo-500"></i>
+          <span class="text-xs font-bold uppercase tracking-wider" style="color:#6366f1">Quick Answer</span>
+        </div>
+        <p class="font-semibold text-lg mb-2" style="color:#1d1d1f">Automated AI reminder sequences reduce no-shows by 30–50% by sending timely, personalized messages with easy rescheduling options.</p>
+        <p style="color:#424245">The formula: instant booking confirmation + 24-hour reminder + 2-hour day-of reminder — all via SMS, all automated, all with a one-tap reschedule link.</p>
+      </div>
+
+      <h2 id="cost-of-no-shows" class="text-2xl font-bold mb-6" style="color:#1d1d1f">The Real Cost of No-Shows</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#ec4899">$250</div><div class="text-sm" style="color:#6b7280">average revenue lost per no-show</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#ec4899">35%</div><div class="text-sm" style="color:#6b7280">no-show rate without reminders</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#ec4899">50%</div><div class="text-sm" style="color:#6b7280">reduction with AI reminder sequences</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#ec4899">$75k</div><div class="text-sm" style="color:#6b7280">annual recovery for a 10-chair med spa</div></div>
+      </div>
+
+      <h2 id="reminder-sequence" class="text-2xl font-bold mb-6" style="color:#1d1d1f">The Optimal Reminder Sequence</h2>
+      <div class="space-y-4 mb-8">
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#ec489922;color:#ec4899">1</div>
+          <div>
+            <h3 class="font-bold mb-1" style="color:#1d1d1f">Instant Booking Confirmation</h3>
+            <p class="text-sm mb-2" style="color:#424245">Sent immediately when appointment is booked. Sets expectations and captures commitment.</p>
+            <div class="text-xs p-3 rounded-lg font-mono" style="background:#f3f4f6;color:#374151">
+              "Hi [Name]! Your [Treatment] appointment at [Spa] is confirmed for [Date] at [Time]. Reply C to confirm or R to reschedule. See you then! 💆"
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#ec489922;color:#ec4899">2</div>
+          <div>
+            <h3 class="font-bold mb-1" style="color:#1d1d1f">24-Hour Reminder</h3>
+            <p class="text-sm mb-2" style="color:#424245">Sent the day before. Highest impact reminder — this is where most no-shows are prevented.</p>
+            <div class="text-xs p-3 rounded-lg font-mono" style="background:#f3f4f6;color:#374151">
+              "Reminder: You have a [Treatment] appointment tomorrow at [Time] with [Provider]. Need to reschedule? Reply R or call [Number]. We look forward to seeing you!"
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#ec489922;color:#ec4899">3</div>
+          <div>
+            <h3 class="font-bold mb-1" style="color:#1d1d1f">Day-Of Reminder (2 Hours Before)</h3>
+            <p class="text-sm mb-2" style="color:#424245">Catches last-minute cancellations early enough to fill the slot from a waitlist.</p>
+            <div class="text-xs p-3 rounded-lg font-mono" style="background:#f3f4f6;color:#374151">
+              "See you in 2 hours, [Name]! Your [Treatment] appointment is at [Time]. Parking is [Location]. Can't make it? Reply CANCEL so we can offer your spot to another client."
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#ec489922;color:#ec4899">4</div>
+          <div>
+            <h3 class="font-bold mb-1" style="color:#1d1d1f">No-Show Recovery (If Missed)</h3>
+            <p class="text-sm mb-2" style="color:#424245">Sent 30 minutes after a missed appointment. Offers easy rebooking without judgment.</p>
+            <div class="text-xs p-3 rounded-lg font-mono" style="background:#f3f4f6;color:#374151">
+              "Hi [Name], we missed you today! Life happens — no worries. Would you like to reschedule your [Treatment]? Reply YES and we'll find a new time for you."
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="channels" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Which Channel Works Best</h2>
+      <div class="glass rounded-2xl overflow-hidden mb-8">
+        <table>
+          <thead><tr style="background:#1d1d1f"><th class="text-white">Channel</th><th class="text-white">Open Rate</th><th class="text-white">Response Rate</th><th class="text-white">Best For</th></tr></thead>
+          <tbody>
+            <tr><td><strong>SMS</strong></td><td class="win-ai">98%</td><td class="win-ai">45%</td><td>All reminders — primary channel</td></tr>
+            <tr><td><strong>Email</strong></td><td class="neutral">20–25%</td><td class="neutral">10–15%</td><td>Booking confirmation with details</td></tr>
+            <tr><td><strong>Voice Call</strong></td><td class="neutral">30–40%</td><td class="neutral">25%</td><td>High-value or first-time appointments</td></tr>
+            <tr><td><strong>Push Notification</strong></td><td class="neutral">40–60%</td><td class="neutral">15%</td><td>App-based booking systems</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="faq" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Frequently Asked Questions</h2>
+      <div class="mb-10">
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(1)">
+        <span>Won't sending too many reminders annoy clients?</span>
+        <i id="faq-icon-1" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-1" class="faq-body">When reminders are spaced appropriately (confirmation, 24h, 2h) and include easy rescheduling options, clients appreciate them. The tone matters — it should feel caring, not robotic.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(2)">
+        <span>What if a client cancels? Can AI fill the slot?</span>
+        <i id="faq-icon-2" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-2" class="faq-body">Yes. AI can maintain a waitlist and automatically text the next person on the list when a cancellation opens up — filling slots that would otherwise go empty.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(3)">
+        <span>Do reminders work for high-end medical procedures?</span>
+        <i id="faq-icon-3" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-3" class="faq-body">Yes — especially for procedures with pre-care requirements. Reminders that include pre-care instructions (stop blood thinners, arrive with clean skin, etc.) simultaneously reduce no-shows and improve treatment outcomes.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(4)">
+        <span>How are reminders compliant with SMS marketing laws?</span>
+        <i id="faq-icon-4" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-4" class="faq-body">Appointment reminders are classified as transactional messages (not marketing) under TCPA guidelines and require only basic consent captured at booking. Your implementation should be reviewed by counsel.</div>
+    </div>
+      </div>
+
+      <h2 class="text-2xl font-bold mb-6" style="color:#1d1d1f">Related Articles</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        
+    <div class="related-card" onclick="window.location='../med-spas/ai-receptionist-for-med-spas.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#ec489922;color:#ec4899">Med Spas</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">AI Receptionist for Med Spas</h4>
+      <p class="text-xs" style="color:#6b7280">How AI handles the full med spa client journey.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../can-ai-schedule-appointments.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Fundamentals</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">Can AI Schedule Appointments?</h4>
+      <p class="text-xs" style="color:#6b7280">How AI booking integrations work.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../benefits-of-ai-receptionists.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Fundamentals</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">Benefits of AI Receptionists</h4>
+      <p class="text-xs" style="color:#6b7280">8 ways AI improves business operations.</p>
+    </div>
+      </div>
+    </div>
+    <aside class="hidden lg:block">
+      
+    <div class="space-y-6">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="color:#6b7280">On This Page</h3>
+        <a href="#cost-of-no-shows" data-target="cost-of-no-shows" class="toc-link">Cost of No-Shows</a>
+<a href="#reminder-sequence" data-target="reminder-sequence" class="toc-link">Reminder Sequence</a>
+<a href="#channels" data-target="channels" class="toc-link">Best Channels</a>
+<a href="#faq" data-target="faq" class="toc-link">FAQ</a>
+
+      </div>
+      <div class="rounded-2xl p-6 text-white" style="background:linear-gradient(135deg,#ec4899,#db2777)">
+        <i class="fa-solid fa-bell text-2xl mb-3 opacity-90"></i>
+        <h3 class="font-bold text-lg mb-2">Cut Your No-Show Rate Today</h3>
+        <p class="text-sm opacity-80 mb-4">Automated reminders start working from day one.</p>
+        <a href="../../index.html#contact" class="block w-full text-center py-2.5 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.2);color:white">Get a Free Demo</a>
+      </div>
+    </div>
+    </aside>
+  </div>
+</main>
+<footer class="py-16 px-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+            <i class="fa-solid fa-headset text-white text-xs"></i>
+          </div>
+          <span class="font-bold text-white">Topher AI</span>
+        </div>
+        <p class="text-sm" style="color:#86868b">AI receptionist &amp; automation for modern businesses.</p>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Product</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#features" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Features</a></li>
+          <li><a href="../../index.html#pricing" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Pricing</a></li>
+          <li><a href="../../index.html#industries" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Industries</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Industries</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#real-estate" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Real Estate</a></li>
+          <li><a href="../../index.html#law-firms" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Law Firms</a></li>
+          <li><a href="../../index.html#med-spas" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Med Spas</a></li>
+          <li><a href="../../index.html#insurance" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Insurance</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Knowledge</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Knowledge Center</a></li>
+          <li><a href="../what-is-an-ai-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">What Is an AI Receptionist</a></li>
+          <li><a href="../real-estate/ai-receptionist-for-realtors.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI for Real Estate</a></li>
+          <li><a href="../compare/ai-receptionist-vs-human-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI vs. Human</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Company</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#contact" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Contact</a></li>
+          <li><a href="../../index.html#demo" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Book a Demo</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t pt-8" style="border-color:rgba(255,255,255,0.1)">
+      <p class="text-sm text-center" style="color:#86868b">© 2025 Topher AI. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+<script>
+function toggleFaq(id){
+  var b=document.getElementById('faq-body-'+id);
+  var i=document.getElementById('faq-icon-'+id);
+  if(b.style.display==='block'){b.style.display='none';i.className='fa-solid fa-chevron-down text-gray-400 text-xs';}
+  else{b.style.display='block';i.className='fa-solid fa-chevron-up text-indigo-500 text-xs';}
+}
+window.addEventListener('scroll',function(){
+  var links=document.querySelectorAll('.toc-link[data-target]');
+  links.forEach(function(l){
+    var t=document.getElementById(l.dataset.target);
+    if(t){var r=t.getBoundingClientRect();if(r.top<=120&&r.bottom>=80){links.forEach(function(x){x.classList.remove('active')});l.classList.add('active');}}
+  });
+});
+</script>
+</body></html>

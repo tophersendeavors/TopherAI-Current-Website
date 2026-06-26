@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thank You | Topher AI</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <meta name="theme-color" content="#0ea5e9">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sky: #0ea5e9;
+      --sky-dark: #0284c7;
+      --bg: #07070f;
+      --bg-card: #0d0d1a;
+      --border: rgba(255,255,255,0.08);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Background glow ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(14,165,233,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 80%, rgba(99,102,241,0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Grid overlay ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(7,7,15,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--sky);
+      box-shadow: 0 0 12px var(--sky);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    /* ── Main layout ── */
+    main {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 24px 80px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(14,165,233,0.08);
+      animation: slideUp 0.6s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Check animation ── */
+    .check-wrap {
+      padding: 48px 40px 36px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(14,165,233,0.06) 0%, transparent 100%);
+    }
+
+    .check-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(14,165,233,0.2), rgba(2,132,199,0.1));
+      border: 1px solid rgba(14,165,233,0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      animation: popIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.3s both;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.5); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .check-circle svg {
+      width: 36px; height: 36px;
+      stroke: var(--sky);
+      stroke-width: 2.5;
+      stroke-dasharray: 60;
+      stroke-dashoffset: 60;
+      animation: drawCheck 0.5s ease 0.6s forwards;
+    }
+
+    @keyframes drawCheck {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .card-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .card-subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── Steps ── */
+    .steps {
+      padding: 32px 40px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+      animation: fadeIn 0.4s ease both;
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step:nth-child(1) { animation-delay: 0.4s; }
+    .step:nth-child(2) { animation-delay: 0.55s; }
+    .step:nth-child(3) { animation-delay: 0.7s; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .step-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(14,165,233,0.1);
+      border: 1px solid rgba(14,165,233,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+
+    .step-text strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .step-text span {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── CTA ── */
+    .cta-wrap {
+      padding: 32px 40px;
+      text-align: center;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, var(--sky-dark), var(--sky));
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 12px;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 4px 24px rgba(14,165,233,0.3);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 32px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      width: 100%;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .btn-secondary:hover {
+      color: var(--text);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    /* ── Demo callout ── */
+    .demo-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(14,165,233,0.08);
+      border: 1px solid rgba(14,165,233,0.2);
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--sky);
+      margin-bottom: 20px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .demo-pill:hover { background: rgba(14,165,233,0.14); }
+
+    .demo-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--sky);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--sky); }
+
+    @media (max-width: 600px) {
+      nav { padding: 16px 20px; }
+      .check-wrap, .steps, .cta-wrap { padding-left: 24px; padding-right: 24px; }
+      .card-title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <a href="/" class="logo">
+      <span class="logo-dot"></span>
+      Topher AI
+    </a>
+  </nav>
+
+  <main>
+    <div class="card">
+
+      <!-- Check + Heading -->
+      <div class="check-wrap">
+        <div class="check-circle">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="4,12 9,17 20,6"></polyline>
+          </svg>
+        </div>
+        <h1 class="card-title">You're all set!</h1>
+        <p class="card-subtitle">Your message was received. Check your phone and email — we already sent a confirmation your way.</p>
+      </div>
+
+      <!-- What happens next -->
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon">📬</div>
+          <div class="step-text">
+            <strong>Confirmation sent</strong>
+            <span>Check your inbox and texts — we sent you a confirmation right away.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-icon">📞</div>
+          <div class="step-text">
+            <strong>Expect a call within the hour</strong>
+            <span>Chris will personally reach out to learn about your business and walk you through a live demo.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-icon">🤖</div>
+          <div class="step-text">
+            <strong>Live AI demo — on your terms</strong>
+            <span>We'll show you exactly how Topher AI handles your calls, qualifies leads, and books appointments automatically.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-wrap">
+        <a href="tel:+12135000605" class="demo-pill">
+          <span class="demo-dot"></span>
+          Try the AI receptionist live right now
+        </a>
+        <a href="https://cal.com/christopher-wrgldt/topher-ai-demo-call" target="_blank" class="btn-primary">
+          📅 &nbsp;Book a demo call →
+        </a>
+        <a href="/" class="btn-secondary">
+          ← Back to topherai.com
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Topher AI &nbsp;·&nbsp; <a href="mailto:chris@topherai.com">chris@topherai.com</a> &nbsp;·&nbsp; <a href="tel:+12135000605">(213) 500-0605</a></p>
+  </footer>
+
+</body>
+</html>

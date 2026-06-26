@@ -1,0 +1,855 @@
+{
+  "name": "Topher AI — Vapi Call Writeback",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "topherai-vapi-writeback",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "91d040ed-6ebe-4001-ace1-de7485662a49",
+      "name": "Vapi End-of-Call Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -6384,
+        4976
+      ],
+      "webhookId": "231d0e0b-3b98-4e98-bba4-ec12d609353b"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "844279f2-a8c4-40a9-b391-42aea916adaa",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -6160,
+        4880
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Helper: normalize string \"null\" / empty / undefined to actual null\nconst norm = (v) => {\n  if (v === null || v === undefined) return null;\n  if (typeof v !== 'string') return v;\n  const t = v.trim().toLowerCase();\n  if (t === '' || t === 'null' || t === 'undefined' || t === 'n/a' || t === 'none') return null;\n  return v;\n};\n\nconst body = $input.item.json.body || $input.item.json;\nconst msg = body.message || body;\n\nconst eventType = msg.type || '';\nif (eventType && eventType !== 'end-of-call-report') {\n  return [{ json: { skip: true, reason: 'not end-of-call event: ' + eventType } }];\n}\n\nconst call = msg.call || {};\nconst customer = call.customer || {};\nconst analysis = msg.analysis || {};\nconst structured = analysis.structuredData || {};\n\nconst callId = call.id || msg.callId || '';\nconst customerPhone = customer.number || msg.customer?.number || '';\nconst customerName = customer.name || msg.customer?.name || '';\n\nconst callMetadata = call.metadata || msg.metadata || {};\nconst webSource = callMetadata.source || '';\nconst SOFIA_ID = 'a91daf92-a477-46ed-b4cf-3e8df3a92699';\nconst RILEY_ID = '6e9f5b0d-bb8b-4409-974a-557f78f62172';\n\nconst assistantId = call.assistantId \n  || msg.assistantId \n  || msg.assistant?.id \n  || call.assistant?.id \n  || '';\n\nconst artifact = msg.artifact || call.artifact || {};\nconst messages = artifact.messagesOpenAIFormatted || artifact.messages || msg.messages || [];\n\nconst lastFew = (Array.isArray(messages) ? messages : []).slice(-5);\nconst recentText = lastFew.map(m => (m.content || m.message || '')).join(' ').toLowerCase();\nconst transcriptLower = (msg.transcript || '').toLowerCase();\n\n// Language is determined ONLY by which assistant handled the call.\n// Sofia (SOFIA_ID) = Spanish. Everyone else = English.\n// The previous hasSpanishContent keyword check was causing false positives:\n// Riley's own system prompt and handoff phrases contain 'en español',\n// which caused English calls to be misclassified as Spanish.\nlet language = 'en';\nif (assistantId === SOFIA_ID) {\n  language = 'es';\n}\n\nconst webPage = callMetadata.page || '';\nconst isWebCall = webSource.startsWith('website_');\nconst startedAt = call.startedAt || msg.startedAt || null;\nconst endedAt = call.endedAt || msg.endedAt || null;\nconst endedReason = call.endedReason || msg.endedReason || '';\nconst durationSec = Math.round(msg.durationSeconds || (startedAt && endedAt ? (new Date(endedAt) - new Date(startedAt)) / 1000 : 0));\nconst transcript = msg.transcript || analysis.transcript || '';\nconst summary = analysis.summary || msg.summary || '';\nconst recordingUrl = msg.recordingUrl || call.recordingUrl || '';\nconst successEval = analysis.successEvaluation || '';\nconst cost = msg.cost || 0;\n\nconst noAnswerReasons = ['no-answer','busy','failed','customer-did-not-answer','voicemail','customer-busy','customer-ended-call-quickly'];\nconst wasAnswered = !noAnswerReasons.some(r => endedReason.toLowerCase().includes(r)) && durationSec > 10;\n\nlet normalizedPhone = (customerPhone || '').trim();\nif (normalizedPhone && !normalizedPhone.startsWith('+')) {\n  const digits = normalizedPhone.replace(/\\D/g,'');\n  normalizedPhone = digits.length === 10 ? '+1' + digits : '+' + digits;\n}\nif (!normalizedPhone && isWebCall) {\n  normalizedPhone = 'web:' + callId.slice(0, 12);\n}\n\nconst extracted = {\n  business_name: norm(structured.business_name || structured.businessName),\n  industry: norm(structured.industry),\n  pain_point: norm(structured.pain_point || structured.painPoint),\n  service_interest: norm(structured.service_interest || structured.serviceInterest),\n  budget: norm(structured.budget),\n  timeline: norm(structured.timeline),\n  num_locations: norm(structured.num_locations || structured.locations),\n  weekly_missed: norm(structured.weekly_missed || structured.weeklyMissed),\n  current_setup: norm(structured.current_setup || structured.currentSetup),\n  booked: structured.booked === true || structured.booked === 'true',\n  qualified: structured.qualified === true || structured.qualified === 'true',\n  escalate: structured.escalate === true || structured.escalate === 'true',\n  escalate_reason: norm(structured.escalate_reason || structured.escalateReason) || '',\n  sentiment: norm(structured.sentiment || analysis.sentiment) || 'neutral',\n  next_action: norm(structured.next_action || structured.nextAction) || ''\n};\n\nreturn [{ json: {\n  skip: false,\n  callId,\n  customerPhone: normalizedPhone,\n  customerName,\n  firstName: (customerName || '').split(' ')[0] || '',\n  startedAt,\n  endedAt,\n  endedReason,\n  durationSec,\n  transcript,\n  summary,\n  recordingUrl,\n  successEval,\n  cost,\n  wasAnswered,\n  extracted,\n  isWebCall,\n  webSource,\n  webPage,\n  assistantId,\n  language\n} }];"
+      },
+      "id": "852b831e-163b-4e3f-a346-b1e5069b8eb5",
+      "name": "Parse Vapi Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -6160,
+        5072
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "not-skip",
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e69b9597-c9a2-45ff-8620-e3d95d197e8a",
+      "name": "Valid Event?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -5936,
+        5072
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/calls",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"call_id\": $json.callId,\n  \"caller_phone\": $json.customerPhone,\n  \"caller_name\": $json.customerName,\n  \"started_at\": $json.startedAt,\n  \"ended_at\": $json.endedAt,\n  \"duration_seconds\": $json.durationSec,\n  \"ended_reason\": $json.endedReason,\n  \"call_status\": $json.wasAnswered ? \"answered\" : \"no_answer\",\n  \"call_type\": \"inbound\",\n  \"urgency\": $json.extracted.qualified || $json.extracted.booked ? \"hot\" : ($json.extracted.sentiment === \"negative\" ? \"cold\" : \"warm\"),\n  \"transcript\": $json.transcript,\n  \"summary\": $json.summary,\n  \"recording_url\": $json.recordingUrl,\n  \"language\": \"en\",\n  \"sentiment\": $json.extracted.sentiment,\n  \"booked\": $json.extracted.booked,\n  \"inquiry\": $json.extracted.service_interest,\n  \"source\": $json.isWebCall ? (\"vapi_web:\" + ($json.webSource || \"unknown\").replace(\"website_\", \"\")) : \"vapi_phone\"\n} }}",
+        "options": {}
+      },
+      "id": "ae3c2202-4fb9-48c7-976f-9d8c9a900beb",
+      "name": "Log Call to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -5712,
+        4976
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/contacts",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "=eq.{{ $json.customerPhone }}"
+            },
+            {
+              "name": "select",
+              "value": "id,name,phone,business_name,industry,pain_point,urgency,lead_status,call_count"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8a7a9dfd-307f-4e7f-8372-b84e92d73c34",
+      "name": "Fetch Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -5712,
+        5168
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const callData = $('Parse Vapi Payload').item.json;\nconst isAnonymousWeb = callData.isWebCall && callData.customerPhone.startsWith('web:');\nconst contactsArr = $input.item.json;\nconst existingContact = (Array.isArray(contactsArr) && contactsArr.length > 0) ? contactsArr[0] : null;\nconst ex = callData.extracted;\n\nlet urgency = 'warm';\nif (ex.booked) { urgency = 'hot'; }\nelse if (ex.qualified) { urgency = 'hot'; }\nelse if (ex.escalate) { urgency = 'hot'; }\nelse if (!callData.wasAnswered) { urgency = existingContact?.urgency || 'warm'; }\nelse if (ex.sentiment === 'negative') { urgency = 'cold'; }\n\nlet leadStatus = 'contacted';\nif (ex.booked) { leadStatus = 'demo_scheduled'; }\nelse if (ex.qualified) { leadStatus = 'qualified'; }\nelse if (!callData.wasAnswered) { leadStatus = 'attempted'; }\nelse if (ex.sentiment === 'negative' || ex.next_action === 'dead') { leadStatus = 'dead'; }\nelse { leadStatus = 'contacted'; }\n\nconst contactUpdate = {\n  urgency,\n  lead_status: leadStatus,\n  last_call_at: callData.endedAt || new Date().toISOString(),\n  last_call: callData.endedAt || new Date().toISOString(),\n  call_count: (existingContact?.call_count || 0) + 1,\n  updated_at: new Date().toISOString()\n};\nif (callData.customerName)  contactUpdate.name = callData.customerName;\nif (ex.business_name)       contactUpdate.business_name = ex.business_name;\nif (ex.industry)            contactUpdate.industry = ex.industry;\nif (ex.pain_point)          contactUpdate.pain_point = ex.pain_point;\nif (ex.service_interest)    contactUpdate.service_interest = ex.service_interest;\nif (ex.budget)              contactUpdate.budget = ex.budget;\nif (ex.timeline)            contactUpdate.timeline = ex.timeline;\nif (callData.language)      contactUpdate.language = callData.language;\n\nlet branch = 'nurture';\nif (!callData.wasAnswered)              branch = 'no_answer';\nelse if (ex.booked)                     branch = 'booked';\nelse if (ex.escalate)                   branch = 'escalate';\nelse if (ex.qualified)                  branch = 'qualified_no_book';\nelse if (leadStatus === 'dead')         branch = 'dead';\nelse                                     branch = 'nurture';\n\nreturn [{ json: {\n  ...callData,\n  existingContact,\n  contactExists: !!existingContact,\n  contactUpdate,\n  branch,\n  urgency,\n  leadStatus\n} }];"
+      },
+      "id": "17939dbe-f1d3-4903-aaa8-2c13732e1db5",
+      "name": "Decide Outcome",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -5488,
+        5168
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "23b3857a-23c5-42ab-9f95-7544fd9b7d4f",
+              "leftValue": "={{ $json.existingContact?.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0272e1c8-e0ec-4b24-b769-12903820ff35",
+      "name": "Contact Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -5264,
+        5168
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/contacts?phone=eq.{{ encodeURIComponent($json.customerPhone) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ Object.assign({ phone: $json.customerPhone }, $json.contactUpdate) }}",
+        "options": {}
+      },
+      "id": "cd1c1cb5-c49d-41aa-9b67-e05bba95c01a",
+      "name": "Update Existing Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -5040,
+        5120
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/contacts?on_conflict=phone",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ Object.assign({ phone: $json.customerPhone }, $json.contactUpdate) }}",
+        "options": {}
+      },
+      "id": "34f711a2-d949-44c4-abbd-c12be0c35890",
+      "name": "Insert New Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -5040,
+        5312
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "branch-booked",
+                    "leftValue": "={{ $('Decide Outcome').item.json.branch }}",
+                    "rightValue": "booked",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "booked"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "branch-escalate",
+                    "leftValue": "={{ $('Decide Outcome').item.json.branch }}",
+                    "rightValue": "escalate",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "escalate"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "branch-qualified",
+                    "leftValue": "={{ $('Decide Outcome').item.json.branch }}",
+                    "rightValue": "qualified_no_book",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "qualified_no_book"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "branch-no-answer",
+                    "leftValue": "={{ $('Decide Outcome').item.json.branch }}",
+                    "rightValue": "no_answer",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "no_answer"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "nurture_or_dead"
+        }
+      },
+      "id": "8991f467-89ac-4056-9c2a-91c0b65356bf",
+      "name": "Route by Outcome",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -4816,
+        5264
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Decide Outcome').item.json;\nconst first = d.firstName || 'there';\nconst firstEs = d.firstName || 'amigo';\nconst sumShort = (d.summary || '').slice(0, 200);\nconst biz = d.extracted.business_name || (d.extracted.industry ? d.extracted.industry.replace(/_/g, ' ') + ' (name not given)' : 'Unknown');\nconst langTag = d.language === 'es' ? '🇪🇸 SPANISH CALL — ' : '';\nconst alertText = `🎯 ${langTag}BOOKED ON CALL\\n\\n${d.customerName || 'Unknown'}\\n${d.customerPhone}\\nBiz: ${biz}\\nPain: ${d.extracted.pain_point || 'Unknown'}\\nDuration: ${d.durationSec}s\\n\\n${sumShort}`.slice(0, 1400);\nlet leadSms;\nif (d.language === 'es') { leadSms = `hola ${firstEs} — ¡qué chévere hablar contigo! aquí está el link de agendamiento para que asegures tu hora:\\n\\nhttps://cal.com/christopher-wrgldt/topher-ai-demo-call\\n\\nchristopher va a ver tu reserva y te contactará. ¡hablamos pronto! 🎯`; } else { leadSms = `hey ${first} — great chatting just now! sending the booking link so you can lock in a time:\\n\\nhttps://cal.com/christopher-wrgldt/topher-ai-demo-call\\n\\nchris will see your booking and reach out. talk soon 🎯`; }\nreturn [{ json: { ...d, alertText, leadSms } }];"
+      },
+      "id": "82650da0-d855-4890-90ce-691d2eda0f15",
+      "name": "Build Booked Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4592,
+        4832
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Decide Outcome').item.json;\nconst first = d.firstName || 'there';\nconst firstEs = d.firstName || 'amigo';\nconst reason = (d.extracted.escalate_reason || 'flagged for human follow-up').slice(0, 150);\nconst sumShort = (d.summary || '').slice(0, 200);\nconst biz = d.extracted.business_name || (d.extracted.industry ? d.extracted.industry.replace(/_/g, ' ') + ' (name not given)' : 'Unknown');\nconst langTag = d.language === 'es' ? '🇪🇸 SPANISH CALL — ' : '';\nconst alertText = `🔥 ${langTag}CALL NEEDS YOU\\n\\n${d.customerName || 'Unknown'}\\n${d.customerPhone}\\nBiz: ${biz}\\nLocations: ${d.extracted.num_locations || '?'}\\n\\nReason: ${reason}\\n\\nSummary: ${sumShort}\\n\\nDuration: ${d.durationSec}s\\n${d.recordingUrl ? 'Recording: ' + d.recordingUrl : ''}`.slice(0, 1400);\nlet leadSms;\nif (d.language === 'es') { leadSms = `hola ${firstEs} — gracias por la llamada. christopher te va a contactar directamente dentro de la próxima hora para conversar más. ¡hablamos pronto! 👋`; } else { leadSms = `hey ${first} — appreciate the call. chris will reach out to you directly within the hour to dig in. talk soon 👋`; }\nreturn [{ json: { ...d, alertText, leadSms } }];"
+      },
+      "id": "2a9c05bd-59a6-47f0-b95b-357f83d6a4fa",
+      "name": "Build Escalation Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4592,
+        5072
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Decide Outcome').item.json;\nconst first = d.firstName || 'there';\nconst firstEs = d.firstName || 'amigo';\nconst sumShort = (d.summary || '').slice(0, 200);\nconst biz = d.extracted.business_name || (d.extracted.industry ? d.extracted.industry.replace(/_/g, ' ') + ' (name not given)' : 'Unknown');\nconst langTag = d.language === 'es' ? '🇪🇸 SPANISH CALL — ' : '';\nconst alertText = `⚡ ${langTag}QUALIFIED — NO BOOK\\n\\n${d.customerName || 'Unknown'}\\n${d.customerPhone}\\nBiz: ${biz}\\nPain: ${d.extracted.pain_point || 'Unknown'}\\nDuration: ${d.durationSec}s\\n\\n${sumShort}\\n\\nCal.com link sent automatically.`.slice(0, 1400);\nlet leadSms;\nif (d.language === 'es') { leadSms = `hola ${firstEs} — qué bueno hablar contigo. aquí está el link para agendar una hora con christopher cuando estés listo:\\n\\nhttps://cal.com/christopher-wrgldt/topher-ai-demo-call\\n\\nsin apuros, son 2 minutos para reservar 🎯`; } else { leadSms = `hey ${first} — great chat. here's the link to grab a time with chris when you're ready:\\n\\nhttps://cal.com/christopher-wrgldt/topher-ai-demo-call\\n\\nno rush, takes 2 min to book 🎯`; }\nreturn [{ json: { ...d, alertText, leadSms } }];"
+      },
+      "id": "4cf83039-f386-491e-a5de-fa40a84a98c7",
+      "name": "Build Qualified Followup",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4592,
+        5312
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Decide Outcome').item.json;\nconst first = d.firstName || 'there';\nconst firstEs = d.firstName || 'amigo';\nconst langTag = d.language === 'es' ? '🇪🇸 SPANISH CALL — ' : '';\nconst alertText = `❄️ ${langTag}NO ANSWER\\n\\n${d.customerName || 'Unknown'}\\n${d.customerPhone}\\nEnded: ${d.endedReason}\\nDuration: ${d.durationSec}s`.slice(0, 1400);\nlet leadSms;\nif (d.language === 'es') { leadSms = `hola ${firstEs} — sofía aquí de topher AI, te llamé hace un momento. tranquilo, puedes responder este mensaje cuando quieras o agendar una llamada rápida con christopher: https://cal.com/christopher-wrgldt/topher-ai-demo-call`; } else { leadSms = `hey ${first} — riley from topher AI here, just tried you. no worries, text me back anytime or grab a quick call with chris: https://cal.com/christopher-wrgldt/topher-ai-demo-call`; }\nreturn [{ json: { ...d, alertText, leadSms } }];"
+      },
+      "id": "67684d8e-ca22-458b-8bf8-90b318eba7c6",
+      "name": "Build No-Answer Followup",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4592,
+        5504
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Decide Outcome').item.json;\nconst first = d.firstName || 'there';\nconst firstEs = d.firstName || 'amigo';\nconst sumShort = (d.summary || '').slice(0, 200);\nconst biz = d.extracted.business_name || (d.extracted.industry ? d.extracted.industry.replace(/_/g, ' ') + ' (name not given)' : 'Unknown');\nconst langTag = d.language === 'es' ? '🇪🇸 SPANISH CALL — ' : '';\nconst alertText = `💬 ${langTag}CALL COMPLETED — NURTURE\\n\\n${d.customerName || 'Unknown'}\\n${d.customerPhone}\\nBiz: ${biz}\\nStatus: ${d.leadStatus}\\nDuration: ${d.durationSec}s\\n\\n${sumShort}`.slice(0, 1400);\nlet leadSms;\nif (d.language === 'es') { leadSms = `hola ${firstEs} — gracias por la llamada. aquí está un link de demo + agendamiento cuando estés listo:\\n\\nhttps://cal.com/christopher-wrgldt/topher-ai-demo-call\\n\\nsin presión, puedes responder este mensaje cuando quieras 👋`; } else { leadSms = `hey ${first} — thanks for the call. here's a quick demo + booking link whenever you're ready:\\n\\nhttps://cal.com/christopher-wrgldt/topher-ai-demo-call\\n\\nno pressure, text this number anytime 👋`; }\nreturn [{ json: { ...d, alertText, leadSms } }];"
+      },
+      "id": "ab2a8dfd-0f10-4ffe-99d2-15de6b7aecfe",
+      "name": "Build Nurture Followup",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4592,
+        5696
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SMS_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $vars.ADMIN_PHONE, \"text\": $json.alertText } }}",
+        "options": {}
+      },
+      "id": "d9035926-0966-42b1-9210-fd35d6081496",
+      "name": "Alert Christopher",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -4368,
+        5312
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.item.json;\nconst phone = data.customerPhone || '';\nif (!phone || phone.startsWith('web:') || phone.startsWith('unknown')) {\n  console.log('[Phone Guard] Skipping SMS — web call or no phone:', phone);\n  return [];\n}\nconst digits = phone.replace(/\\D/g, '');\nif (digits.length < 10) {\n  console.log('[Phone Guard] Skipping SMS — invalid phone:', phone);\n  return [];\n}\nconsole.log('[Phone Guard] Valid phone, proceeding with SMS:', phone);\nreturn [{ json: data }];"
+      },
+      "id": "c2fc5a5d-bd40-44b6-8f87-67b7423a7a43",
+      "name": "Phone Valid for SMS?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4368,
+        5504
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SMS_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $json.customerPhone, \"text\": $json.leadSms } }}",
+        "options": {}
+      },
+      "id": "3af66a6f-1ec1-4475-b105-afd3ec2a5f03",
+      "name": "Send Lead Followup SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -4144,
+        5504
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/sms_messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"to_number\": $('Decide Outcome').item.json.customerPhone,\n  \"from_number\": $vars.SMS_FROM_NUMBER,\n  \"message\": ($if($('Build Booked Alert').isExecuted, $('Build Booked Alert').item.json.leadSms, '')) || ($if($('Build Escalation Alert').isExecuted, $('Build Escalation Alert').item.json.leadSms, '')) || ($if($('Build Qualified Followup').isExecuted, $('Build Qualified Followup').item.json.leadSms, '')) || ($if($('Build No-Answer Followup').isExecuted, $('Build No-Answer Followup').item.json.leadSms, '')) || ($if($('Build Nurture Followup').isExecuted, $('Build Nurture Followup').item.json.leadSms, '')) || 'message not captured',\n  \"direction\": \"outbound\",\n  \"message_type\": \"post_call_followup\",\n  \"status\": \"sent\",\n  \"call_id\": $('Decide Outcome').item.json.callId\n} }}",
+        "options": {}
+      },
+      "id": "4a27844d-1a8d-441b-84ef-cbc80fe9049f",
+      "name": "Log Lead SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3920,
+        5504
+      ],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Vapi End-of-Call Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Parse Vapi Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Vapi Payload": {
+      "main": [
+        [
+          {
+            "node": "Valid Event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid Event?": {
+      "main": [
+        [
+          {
+            "node": "Log Call to Supabase",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Contact": {
+      "main": [
+        [
+          {
+            "node": "Decide Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide Outcome": {
+      "main": [
+        [
+          {
+            "node": "Contact Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact Exists?": {
+      "main": [
+        [
+          {
+            "node": "Update Existing Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert New Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Existing Contact": {
+      "main": [
+        [
+          {
+            "node": "Route by Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert New Contact": {
+      "main": [
+        [
+          {
+            "node": "Route by Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Outcome": {
+      "main": [
+        [
+          {
+            "node": "Build Booked Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Escalation Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Qualified Followup",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build No-Answer Followup",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Nurture Followup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Booked Alert": {
+      "main": [
+        [
+          {
+            "node": "Alert Christopher",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Phone Valid for SMS?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Escalation Alert": {
+      "main": [
+        [
+          {
+            "node": "Alert Christopher",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Phone Valid for SMS?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Qualified Followup": {
+      "main": [
+        [
+          {
+            "node": "Alert Christopher",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Phone Valid for SMS?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build No-Answer Followup": {
+      "main": [
+        [
+          {
+            "node": "Alert Christopher",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Phone Valid for SMS?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Nurture Followup": {
+      "main": [
+        [
+          {
+            "node": "Alert Christopher",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Phone Valid for SMS?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Phone Valid for SMS?": {
+      "main": [
+        [
+          {
+            "node": "Send Lead Followup SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Lead Followup SMS": {
+      "main": [
+        [
+          {
+            "node": "Log Lead SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "a2a0bccc-362d-42ed-8be0-b7898bacea89",
+  "meta": {
+    "instanceId": "57d0131561cd8e704494b6c3a013d895c007284d2bb85831b19e2b772ee29e9d"
+  },
+  "id": "ESLaHmQEvtfUE1MP",
+  "tags": []
+}

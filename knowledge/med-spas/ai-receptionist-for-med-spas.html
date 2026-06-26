@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *{font-family:'Inter',sans-serif}
+    body{background:#f5f5f7;color:#1d1d1f}
+    .glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.6)}
+    .quick-answer{background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08));border:1.5px solid rgba(99,102,241,0.25);border-radius:12px;padding:24px 28px}
+    .faq-btn{width:100%;text-align:left;padding:18px 22px;background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:#1d1d1f;transition:all .2s}
+    .faq-btn:hover{background:rgba(255,255,255,1);border-color:rgba(99,102,241,0.3)}
+    .faq-body{display:none;padding:16px 22px 20px;background:rgba(255,255,255,0.6);border:1px solid rgba(0,0,0,0.06);border-top:none;border-radius:0 0 10px 10px;color:#424245;line-height:1.7}
+    .toc-link{display:block;padding:7px 12px;border-radius:8px;font-size:0.82rem;color:#424245;text-decoration:none;transition:all .2s}
+    .toc-link:hover,.toc-link.active{background:rgba(99,102,241,0.1);color:#4f46e5;font-weight:600}
+    .stat-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px 24px;text-align:center}
+    .step-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0}
+    table{width:100%;border-collapse:collapse}
+    th{padding:12px 16px;text-align:left;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    td{padding:12px 16px;border-bottom:1px solid rgba(0,0,0,0.06);font-size:0.9rem;color:#424245}
+    tr:last-child td{border-bottom:none}
+    .win-ai{color:#059669;font-weight:600}
+    .win-human{color:#dc2626;font-weight:500}
+    .neutral{color:#6b7280}
+    .related-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px;cursor:pointer;transition:all .25s}
+    .related-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+    .breadcrumb a{color:#6b7280;font-size:0.82rem;text-decoration:none}
+    .breadcrumb a:hover{color:#4f46e5}
+    .breadcrumb span{color:#9ca3af;font-size:0.82rem;margin:0 6px}
+    nav{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.06)}
+    footer{background:#1d1d1f}
+  </style>
+</head>
+<title>AI Receptionist for Med Spas | Topher AI</title>
+<meta name="description" content="AI receptionists handle med spa appointment booking, treatment FAQs, and follow-up — reducing no-shows and converting more inquiries into paying clients."/>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {"@type":"Article","headline":"AI Receptionist for Med Spas","description":"How AI handles med spa appointment booking, treatment FAQs, and follow-up to reduce no-shows and increase revenue.","author":{"@type":"Organization","name":"Topher AI"},"publisher":{"@type":"Organization","name":"Topher AI","url":"https://topherai.com"},"datePublished":"2025-01-01","dateModified":"2025-06-01"},
+    {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Knowledge Center","item":"https://topherai.com/knowledge/"},{"@type":"ListItem","position":2,"name":"Med Spas","item":"https://topherai.com/knowledge/med-spas/"},{"@type":"ListItem","position":3,"name":"AI Receptionist for Med Spas"}]},
+    {"@type":"FAQPage","mainEntity":[
+      {"@type":"Question","name":"What can an AI receptionist do for a med spa?","acceptedAnswer":{"@type":"Answer","text":"AI can answer treatment questions, book appointments, send pre-care reminders, follow up after visits, and handle after-hours inquiries — without a front desk staff member being available."}},
+      {"@type":"Question","name":"Can AI answer questions about Botox and fillers?","acceptedAnswer":{"@type":"Answer","text":"AI can answer general treatment FAQs — what treatments are available, general pricing, what to expect, recovery time. For medical-specific advice, it directs prospects to consult with a provider."}},
+      {"@type":"Question","name":"How much can AI reduce med spa no-shows?","acceptedAnswer":{"@type":"Answer","text":"Automated reminder sequences (24h, 2h, day-of) reduce no-show rates by 30–50% depending on implementation. This directly recovers lost treatment chair time."}}
+    ]},
+    {"@type":"SpeakableSpecification","cssSelector":["#quick-answer","h2","h3"]}
+  ]
+}
+</script>
+<body>
+<nav class="sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+    <a href="../../index.html" class="flex items-center gap-2 no-underline">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+        <i class="fa-solid fa-headset text-white text-xs"></i>
+      </div>
+      <span class="font-bold text-base" style="color:#1d1d1f">Topher AI</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="../../index.html#features" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Features</a>
+      <a href="../../index.html#industries" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Industries</a>
+      <a href="../../index.html#pricing" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Pricing</a>
+      <a href="../" class="text-sm font-medium transition-colors" style="color:#4f46e5;font-weight:600">Knowledge</a>
+      <a href="../../index.html#contact" class="text-sm font-medium text-white px-4 py-2 rounded-xl transition-opacity hover:opacity-90" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">Get Started</a>
+    </div>
+  </div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 py-12">
+  <div class="breadcrumb flex items-center gap-1 mb-8">
+    <a href="../">Knowledge Center</a><span>/</span>
+    <a href="../">Med Spas</a><span>/</span>
+    <span class="text-sm" style="color:#1d1d1f">AI Receptionist for Med Spas</span>
+  </div>
+
+  <div class="mb-10">
+    <span class="text-xs font-semibold px-3 py-1 rounded-full inline-block mb-4" style="background:#ec489922;color:#ec4899">Med Spas</span>
+    <h1 class="text-4xl font-bold mb-4" style="color:#1d1d1f">AI Receptionist for Med Spas</h1>
+    <p class="text-xl" style="color:#424245;max-width:700px">Convert more inquiries, reduce no-shows, and delight clients — without overloading your front desk.</p>
+  </div>
+
+  <div class="grid lg:grid-cols-[1fr_280px] gap-10">
+    <div>
+      <div id="quick-answer" class="quick-answer mb-10">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="fa-solid fa-bolt text-indigo-500"></i>
+          <span class="text-xs font-bold uppercase tracking-wider" style="color:#6366f1">Quick Answer</span>
+        </div>
+        <p class="font-semibold text-lg mb-2" style="color:#1d1d1f">AI handles the full med spa client journey — from first inquiry to post-treatment follow-up — without adding front desk hours.</p>
+        <p style="color:#424245">When a prospect contacts your med spa, AI answers immediately, answers treatment FAQs, books the appointment, sends pre-care instructions, and follows up after the visit to drive rebooking.</p>
+      </div>
+
+      <h2 id="the-problem" class="text-2xl font-bold mb-6" style="color:#1d1d1f">The Med Spa Front Desk Problem</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#ec4899">60%</div><div class="text-sm" style="color:#6b7280">of inquiries go unanswered within 1 hour</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#ec4899">35%</div><div class="text-sm" style="color:#6b7280">no-show rate without reminders</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#ec4899">$250</div><div class="text-sm" style="color:#6b7280">avg revenue lost per no-show appointment</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#ec4899">3x</div><div class="text-sm" style="color:#6b7280">more rebooking with post-visit follow-up</div></div>
+      </div>
+
+      <h2 id="what-ai-does" class="text-2xl font-bold mb-6" style="color:#1d1d1f">What AI Does for Med Spas</h2>
+      <div class="space-y-4 mb-8">
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#ec489922;color:#ec4899">1</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">24/7 Inquiry Response</h3><p class="text-sm" style="color:#424245">AI answers calls, texts, and web chat inquiries instantly — including evenings and weekends when most prospects search for med spa treatments.</p></div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#ec489922;color:#ec4899">2</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Treatment FAQ Handling</h3><p class="text-sm" style="color:#424245">AI answers questions about Botox, fillers, laser treatments, CoolSculpting, chemical peels, and more — pricing, what to expect, recovery, and candidacy.</p></div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#ec489922;color:#ec4899">3</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Appointment Booking</h3><p class="text-sm" style="color:#424245">AI books directly into your scheduling system (Jane, Mindbody, Aesthetix, or similar) — no back-and-forth email chains.</p></div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#ec489922;color:#ec4899">4</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Pre-Care Instructions</h3><p class="text-sm" style="color:#424245">AI automatically sends treatment-specific pre-care reminders via SMS — reducing day-of cancellations caused by missed prep instructions.</p></div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#ec489922;color:#ec4899">5</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Post-Visit Follow-Up & Rebooking</h3><p class="text-sm" style="color:#424245">AI checks in 48–72 hours post-treatment, asks about their experience, and offers to rebook follow-up treatments or maintenance appointments.</p></div>
+        </div>
+      </div>
+
+      <h2 id="treatment-faqs-ai-handles" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Treatment Questions AI Can Answer</h2>
+      <div class="glass rounded-2xl p-6 mb-8">
+        <div class="grid md:grid-cols-2 gap-6 text-sm" style="color:#424245">
+          <div>
+            <h3 class="font-bold mb-3" style="color:#ec4899">Injectables</h3>
+            <ul class="space-y-1">
+              <li><i class="fa-solid fa-check text-pink-400 mr-2"></i>How long does Botox last?</li>
+              <li><i class="fa-solid fa-check text-pink-400 mr-2"></i>What's the difference between Botox and Dysport?</li>
+              <li><i class="fa-solid fa-check text-pink-400 mr-2"></i>How many units do I need?</li>
+              <li><i class="fa-solid fa-check text-pink-400 mr-2"></i>Is there downtime after fillers?</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-bold mb-3" style="color:#ec4899">Body & Skin</h3>
+            <ul class="space-y-1">
+              <li><i class="fa-solid fa-check text-pink-400 mr-2"></i>How many laser sessions do I need?</li>
+              <li><i class="fa-solid fa-check text-pink-400 mr-2"></i>What areas does CoolSculpting treat?</li>
+              <li><i class="fa-solid fa-check text-pink-400 mr-2"></i>What's the pricing for chemical peels?</li>
+              <li><i class="fa-solid fa-check text-pink-400 mr-2"></i>Can I combine treatments?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="faq" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Frequently Asked Questions</h2>
+      <div class="mb-10">
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(1)">
+        <span>Can AI give medical advice about treatments?</span>
+        <i id="faq-icon-1" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-1" class="faq-body">No — and it shouldn't. AI answers general FAQ-level questions and books consultations. For medical suitability, candidacy, and clinical advice, it directs prospects to your licensed providers.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(2)">
+        <span>Which booking systems does it integrate with?</span>
+        <i id="faq-icon-2" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-2" class="faq-body">Topher AI integrates with Jane App, Mindbody, Square Appointments, Aesthetix, and most major med spa scheduling platforms via API or Zapier.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(3)">
+        <span>Will AI feel too robotic for a luxury med spa brand?</span>
+        <i id="faq-icon-3" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-3" class="faq-body">AI voice and chat agents are designed to match your brand voice — warm, professional, and personalized. The goal is a premium client experience, not a call center.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(4)">
+        <span>How does AI help with retention?</span>
+        <i id="faq-icon-4" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-4" class="faq-body">Post-visit follow-up sequences check in after treatments, request reviews, and offer rebooking incentives — dramatically improving retention compared to no follow-up.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(5)">
+        <span>What's the ROI for a med spa using AI?</span>
+        <i id="faq-icon-5" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-5" class="faq-body">If AI reduces no-shows by 30% and each missed slot is worth $250, a med spa with 10 no-shows/week saves $75,000+ per year — before counting new bookings from after-hours capture.</div>
+    </div>
+      </div>
+
+      <h2 class="text-2xl font-bold mb-6" style="color:#1d1d1f">Related Articles</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        
+    <div class="related-card" onclick="window.location='../med-spas/reducing-no-shows-with-ai.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#ec489922;color:#ec4899">Med Spas</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">Reducing No-Shows with AI</h4>
+      <p class="text-xs" style="color:#6b7280">How automated reminders cut no-show rates by 30–50%.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../can-ai-schedule-appointments.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Fundamentals</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">Can AI Schedule Appointments?</h4>
+      <p class="text-xs" style="color:#6b7280">How AI booking integrations work.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../compare/ai-receptionist-vs-human-receptionist.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Compare</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">AI vs. Human Receptionist</h4>
+      <p class="text-xs" style="color:#6b7280">Full cost and feature comparison.</p>
+    </div>
+      </div>
+    </div>
+    <aside class="hidden lg:block">
+      
+    <div class="space-y-6">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="color:#6b7280">On This Page</h3>
+        <a href="#the-problem" data-target="the-problem" class="toc-link">The Problem</a>
+<a href="#what-ai-does" data-target="what-ai-does" class="toc-link">What AI Does</a>
+<a href="#treatment-faqs-ai-handles" data-target="treatment-faqs-ai-handles" class="toc-link">FAQs AI Handles</a>
+<a href="#faq" data-target="faq" class="toc-link">FAQ</a>
+
+      </div>
+      <div class="rounded-2xl p-6 text-white" style="background:linear-gradient(135deg,#ec4899,#db2777)">
+        <i class="fa-solid fa-spa text-2xl mb-3 opacity-90"></i>
+        <h3 class="font-bold text-lg mb-2">More Bookings, Fewer No-Shows</h3>
+        <p class="text-sm opacity-80 mb-4">AI converts inquiries and fills your treatment schedule.</p>
+        <a href="../../index.html#contact" class="block w-full text-center py-2.5 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.2);color:white">Get a Free Demo</a>
+      </div>
+    </div>
+    </aside>
+  </div>
+</main>
+<footer class="py-16 px-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+            <i class="fa-solid fa-headset text-white text-xs"></i>
+          </div>
+          <span class="font-bold text-white">Topher AI</span>
+        </div>
+        <p class="text-sm" style="color:#86868b">AI receptionist &amp; automation for modern businesses.</p>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Product</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#features" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Features</a></li>
+          <li><a href="../../index.html#pricing" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Pricing</a></li>
+          <li><a href="../../index.html#industries" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Industries</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Industries</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#real-estate" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Real Estate</a></li>
+          <li><a href="../../index.html#law-firms" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Law Firms</a></li>
+          <li><a href="../../index.html#med-spas" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Med Spas</a></li>
+          <li><a href="../../index.html#insurance" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Insurance</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Knowledge</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Knowledge Center</a></li>
+          <li><a href="../what-is-an-ai-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">What Is an AI Receptionist</a></li>
+          <li><a href="../real-estate/ai-receptionist-for-realtors.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI for Real Estate</a></li>
+          <li><a href="../compare/ai-receptionist-vs-human-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI vs. Human</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Company</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#contact" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Contact</a></li>
+          <li><a href="../../index.html#demo" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Book a Demo</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t pt-8" style="border-color:rgba(255,255,255,0.1)">
+      <p class="text-sm text-center" style="color:#86868b">© 2025 Topher AI. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+<script>
+function toggleFaq(id){
+  var b=document.getElementById('faq-body-'+id);
+  var i=document.getElementById('faq-icon-'+id);
+  if(b.style.display==='block'){b.style.display='none';i.className='fa-solid fa-chevron-down text-gray-400 text-xs';}
+  else{b.style.display='block';i.className='fa-solid fa-chevron-up text-indigo-500 text-xs';}
+}
+window.addEventListener('scroll',function(){
+  var links=document.querySelectorAll('.toc-link[data-target]');
+  links.forEach(function(l){
+    var t=document.getElementById(l.dataset.target);
+    if(t){var r=t.getBoundingClientRect();if(r.top<=120&&r.bottom>=80){links.forEach(function(x){x.classList.remove('active')});l.classList.add('active');}}
+  });
+});
+</script>
+</body></html>

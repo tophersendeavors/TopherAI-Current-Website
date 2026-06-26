@@ -1,0 +1,163 @@
+{
+  "name": "Topher AI — SMS Drip Sequence",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "drip-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.item.json;\n\nconst firstName = (body.firstName || body.name || '').split(' ')[0].trim() || 'there';\nconst phone     = (body.phone || '').trim();\nconst email     = (body.email || '').trim();\n\nif (!phone) {\n  // No phone — skip drip silently\n  return [];\n}\n\nreturn [{ json: { firstName, phone, email } }];"
+      },
+      "id": "parse-drip-input",
+      "name": "Parse Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "amount": 4,
+        "unit": "hours"
+      },
+      "id": "wait-4hr",
+      "name": "Wait 4 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "webhookId": "wait-4hr"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SMS_API_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $('Parse Input').item.json.phone, \"text\": \"Hey \" + $('Parse Input').item.json.firstName + \"! Just checking in — did you get a chance to see my email? If you want to skip the wait and grab a time that works for you, here's my calendar: https://cal.com/christopher-wrgldt/topher-ai-demo-call — Chris\" } }}",
+        "options": {}
+      },
+      "id": "send-followup-sms",
+      "name": "Send Follow-Up SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/sms_messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey",        "value": "={{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"to_number\": $('Parse Input').item.json.phone, \"from_number\": $vars.SMS_FROM_NUMBER, \"message\": \"Hey \" + $('Parse Input').item.json.firstName + \"! Just checking in — did you get a chance to see my email? If you want to skip the wait and grab a time that works for you, here's my calendar: https://cal.com/christopher-wrgldt/topher-ai-demo-call — Chris\", \"direction\": \"outbound\", \"message_type\": \"drip_followup_4hr\", \"status\": \"sent\" } }}",
+        "options": {}
+      },
+      "id": "log-followup-sms",
+      "name": "Log Follow-Up to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "amount": 20,
+        "unit": "hours"
+      },
+      "id": "wait-20hr",
+      "name": "Wait 20 More Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1340, 300],
+      "webhookId": "wait-20hr"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SMS_API_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $('Parse Input').item.json.phone, \"text\": \"Hey \" + $('Parse Input').item.json.firstName + \", last one from me — if you ever want to see Topher AI in action, my calendar is always open: https://cal.com/christopher-wrgldt/topher-ai-demo-call. No pressure at all. — Chris\" } }}",
+        "options": {}
+      },
+      "id": "send-final-sms",
+      "name": "Send Final SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/sms_messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey",        "value": "={{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"to_number\": $('Parse Input').item.json.phone, \"from_number\": $vars.SMS_FROM_NUMBER, \"message\": \"Hey \" + $('Parse Input').item.json.firstName + \", last one from me — if you ever want to see Topher AI in action, my calendar is always open: https://cal.com/christopher-wrgldt/topher-ai-demo-call. No pressure at all. — Chris\", \"direction\": \"outbound\", \"message_type\": \"drip_final_24hr\", \"status\": \"sent\" } }}",
+        "options": {}
+      },
+      "id": "log-final-sms",
+      "name": "Log Final SMS to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1780, 300]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [[{ "node": "Parse Input", "type": "main", "index": 0 }]]
+    },
+    "Parse Input": {
+      "main": [[{ "node": "Wait 4 Hours", "type": "main", "index": 0 }]]
+    },
+    "Wait 4 Hours": {
+      "main": [[{ "node": "Send Follow-Up SMS", "type": "main", "index": 0 }]]
+    },
+    "Send Follow-Up SMS": {
+      "main": [[{ "node": "Log Follow-Up to Supabase", "type": "main", "index": 0 }]]
+    },
+    "Log Follow-Up to Supabase": {
+      "main": [[{ "node": "Wait 20 More Hours", "type": "main", "index": 0 }]]
+    },
+    "Wait 20 More Hours": {
+      "main": [[{ "node": "Send Final SMS", "type": "main", "index": 0 }]]
+    },
+    "Send Final SMS": {
+      "main": [[{ "node": "Log Final SMS to Supabase", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

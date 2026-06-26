@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *{font-family:'Inter',sans-serif}
+    body{background:#f5f5f7;color:#1d1d1f}
+    .glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.6)}
+    .quick-answer{background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08));border:1.5px solid rgba(99,102,241,0.25);border-radius:12px;padding:24px 28px}
+    .faq-btn{width:100%;text-align:left;padding:18px 22px;background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:#1d1d1f;transition:all .2s}
+    .faq-btn:hover{background:rgba(255,255,255,1);border-color:rgba(99,102,241,0.3)}
+    .faq-body{display:none;padding:16px 22px 20px;background:rgba(255,255,255,0.6);border:1px solid rgba(0,0,0,0.06);border-top:none;border-radius:0 0 10px 10px;color:#424245;line-height:1.7}
+    .toc-link{display:block;padding:7px 12px;border-radius:8px;font-size:0.82rem;color:#424245;text-decoration:none;transition:all .2s}
+    .toc-link:hover,.toc-link.active{background:rgba(99,102,241,0.1);color:#4f46e5;font-weight:600}
+    .stat-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px 24px;text-align:center}
+    .step-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0}
+    table{width:100%;border-collapse:collapse}
+    th{padding:12px 16px;text-align:left;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    td{padding:12px 16px;border-bottom:1px solid rgba(0,0,0,0.06);font-size:0.9rem;color:#424245}
+    tr:last-child td{border-bottom:none}
+    .win-ai{color:#059669;font-weight:600}
+    .win-human{color:#dc2626;font-weight:500}
+    .neutral{color:#6b7280}
+    .related-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px;cursor:pointer;transition:all .25s}
+    .related-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+    .breadcrumb a{color:#6b7280;font-size:0.82rem;text-decoration:none}
+    .breadcrumb a:hover{color:#4f46e5}
+    .breadcrumb span{color:#9ca3af;font-size:0.82rem;margin:0 6px}
+    nav{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.06)}
+    footer{background:#1d1d1f}
+  </style>
+</head>
+<title>AI Receptionist vs. Answering Service | Topher AI</title>
+<meta name="description" content="AI receptionists and answering services both handle calls — but they're fundamentally different. Compare cost, capabilities, and which is right for your business."/>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {"@type":"Article","headline":"AI Receptionist vs. Answering Service","description":"A complete comparison of AI receptionists and traditional answering services — cost, capabilities, use cases, and which is right for your business.","author":{"@type":"Organization","name":"Topher AI"},"publisher":{"@type":"Organization","name":"Topher AI","url":"https://topherai.com"},"datePublished":"2025-01-01","dateModified":"2025-06-01"},
+    {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Knowledge Center","item":"https://topherai.com/knowledge/"},{"@type":"ListItem","position":2,"name":"Comparisons","item":"https://topherai.com/knowledge/compare/"},{"@type":"ListItem","position":3,"name":"AI Receptionist vs. Answering Service"}]},
+    {"@type":"FAQPage","mainEntity":[
+      {"@type":"Question","name":"What is the difference between an AI receptionist and an answering service?","acceptedAnswer":{"@type":"Answer","text":"An answering service uses human operators who take messages and relay them to your business. An AI receptionist is software that answers calls, qualifies leads, books appointments, and syncs data automatically — without human operators or per-minute charges."}},
+      {"@type":"Question","name":"Is an AI receptionist cheaper than an answering service?","acceptedAnswer":{"@type":"Answer","text":"Yes. Answering services typically cost $0.75–$1.50 per minute, leading to $300–$800+/month for moderate call volumes. AI receptionists are typically $97–$997/month flat — with no per-minute charges and unlimited call handling."}},
+      {"@type":"Question","name":"When should I use an answering service instead of AI?","acceptedAnswer":{"@type":"Answer","text":"Answering services are better when calls require genuine human judgment, emotional sensitivity in crisis situations, or complex decision-making beyond what AI can handle. For routine intake, qualification, and booking, AI is faster and more cost-effective."}}
+    ]},
+    {"@type":"SpeakableSpecification","cssSelector":["#quick-answer","h2","h3"]}
+  ]
+}
+</script>
+<body>
+<nav class="sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+    <a href="../../index.html" class="flex items-center gap-2 no-underline">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+        <i class="fa-solid fa-headset text-white text-xs"></i>
+      </div>
+      <span class="font-bold text-base" style="color:#1d1d1f">Topher AI</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="../../index.html#features" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Features</a>
+      <a href="../../index.html#industries" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Industries</a>
+      <a href="../../index.html#pricing" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Pricing</a>
+      <a href="../" class="text-sm font-medium transition-colors" style="color:#4f46e5;font-weight:600">Knowledge</a>
+      <a href="../../index.html#contact" class="text-sm font-medium text-white px-4 py-2 rounded-xl transition-opacity hover:opacity-90" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">Get Started</a>
+    </div>
+  </div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 py-12">
+  <div class="breadcrumb flex items-center gap-1 mb-8">
+    <a href="../">Knowledge Center</a><span>/</span>
+    <a href="../compare/ai-receptionist-vs-human-receptionist.html">Comparisons</a><span>/</span>
+    <span class="text-sm" style="color:#1d1d1f">AI vs. Answering Service</span>
+  </div>
+
+  <div class="mb-10">
+    <span class="text-xs font-semibold px-3 py-1 rounded-full inline-block mb-4" style="background:#f59e0b22;color:#f59e0b">Compare</span>
+    <h1 class="text-4xl font-bold mb-4" style="color:#1d1d1f">AI Receptionist vs. Answering Service</h1>
+    <p class="text-xl" style="color:#424245;max-width:700px">Both handle your calls. Only one qualifies leads, books appointments, and costs a flat monthly rate.</p>
+  </div>
+
+  <div class="grid lg:grid-cols-[1fr_280px] gap-10">
+    <div>
+      <div id="quick-answer" class="quick-answer mb-10">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="fa-solid fa-bolt text-indigo-500"></i>
+          <span class="text-xs font-bold uppercase tracking-wider" style="color:#6366f1">Quick Answer</span>
+        </div>
+        <p class="font-semibold text-lg mb-2" style="color:#1d1d1f">Answering services relay messages. AI receptionists resolve calls — qualifying leads, booking appointments, and syncing data automatically.</p>
+        <p style="color:#424245">Answering services are better for true emergency routing and complex live transfers. AI is better for anything involving lead capture, qualification, scheduling, and 24/7 scale — at a fraction of the cost.</p>
+      </div>
+
+      <!-- Comparison Table -->
+      <h2 id="feature-comparison" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Feature-by-Feature Comparison</h2>
+      <div class="glass rounded-2xl overflow-hidden mb-8">
+        <table>
+          <thead>
+            <tr style="background:#1d1d1f">
+              <th class="text-white">Feature</th>
+              <th class="text-white" style="color:#a5f3fc">AI Receptionist</th>
+              <th class="text-white" style="color:#fca5a5">Answering Service</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Response Time</td><td class="win-ai">&lt;2 seconds</td><td class="neutral">30–90 seconds to pickup</td></tr>
+            <tr><td>Availability</td><td class="win-ai">24/7/365, unlimited</td><td class="neutral">24/7 (staffed)</td></tr>
+            <tr><td>Lead Qualification</td><td class="win-ai">Yes — automated scoring</td><td class="win-human">Takes message only</td></tr>
+            <tr><td>Appointment Booking</td><td class="win-ai">Yes — direct calendar sync</td><td class="win-human">Takes callback request</td></tr>
+            <tr><td>CRM Integration</td><td class="win-ai">Automatic, real-time</td><td class="win-human">Manual/emailed summaries</td></tr>
+            <tr><td>SMS/Email Follow-Up</td><td class="win-ai">Yes — automated sequences</td><td class="win-human">Not included</td></tr>
+            <tr><td>Pricing Model</td><td class="win-ai">Flat monthly ($97–$997)</td><td class="win-human">Per minute ($0.75–$1.50)</td></tr>
+            <tr><td>Avg Monthly Cost</td><td class="win-ai">$297–$697</td><td class="win-human">$400–$1,200+</td></tr>
+            <tr><td>Consistent Script Adherence</td><td class="win-ai">100%</td><td class="neutral">Varies by operator</td></tr>
+            <tr><td>Emotional Intelligence</td><td class="neutral">Improving rapidly</td><td class="win-ai">Human advantage</td></tr>
+            <tr><td>Complex Live Transfer</td><td class="neutral">Configurable</td><td class="win-ai">Core capability</td></tr>
+            <tr><td>HIPAA/Legal Compliance</td><td class="win-ai">Built-in (varies by vendor)</td><td class="neutral">Varies by service</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Cost Comparison -->
+      <h2 id="cost-comparison" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Cost Comparison: 200 Calls/Month</h2>
+      <div class="glass rounded-2xl overflow-hidden mb-8">
+        <table>
+          <thead><tr style="background:#1d1d1f"><th class="text-white">Cost Factor</th><th class="text-white" style="color:#a5f3fc">AI Receptionist</th><th class="text-white" style="color:#fca5a5">Answering Service</th></tr></thead>
+          <tbody>
+            <tr><td>Base Monthly Cost</td><td class="win-ai">$297</td><td class="neutral">$100–$200 setup</td></tr>
+            <tr><td>Per-Minute Charges</td><td class="win-ai">$0</td><td class="win-human">$150–$400 (200 calls × 1–2 min avg)</td></tr>
+            <tr><td>CRM Sync Cost</td><td class="win-ai">Included</td><td class="win-human">$50–$200/mo add-on</td></tr>
+            <tr><td>Follow-Up Automation</td><td class="win-ai">Included</td><td class="win-human">Not offered</td></tr>
+            <tr><td><strong>Estimated Monthly Total</strong></td><td class="win-ai"><strong>$297–$697</strong></td><td class="win-human"><strong>$600–$1,200+</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- When to use each -->
+      <h2 id="when-to-use-each" class="text-2xl font-bold mb-6" style="color:#1d1d1f">When to Use Each</h2>
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-bold text-lg mb-4" style="color:#6366f1"><i class="fa-solid fa-robot mr-2"></i>Choose AI Receptionist When…</h3>
+          <ul class="space-y-2 text-sm" style="color:#424245">
+            <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i>You need 24/7 lead qualification</li>
+            <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i>Appointment booking is a priority</li>
+            <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i>You want CRM auto-sync</li>
+            <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i>Call volume is moderate to high</li>
+            <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i>You want predictable monthly costs</li>
+            <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i>Automated follow-up sequences matter</li>
+          </ul>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-bold text-lg mb-4" style="color:#f59e0b"><i class="fa-solid fa-headset mr-2"></i>Choose Answering Service When…</h3>
+          <ul class="space-y-2 text-sm" style="color:#424245">
+            <li><i class="fa-solid fa-check text-yellow-500 mr-2"></i>Calls require sensitive human judgment</li>
+            <li><i class="fa-solid fa-check text-yellow-500 mr-2"></i>Complex emergency routing is needed</li>
+            <li><i class="fa-solid fa-check text-yellow-500 mr-2"></i>Call volume is very low (&lt;50/mo)</li>
+            <li><i class="fa-solid fa-check text-yellow-500 mr-2"></i>Industry requires human verification</li>
+            <li><i class="fa-solid fa-check text-yellow-500 mr-2"></i>Callers are elderly or prefer humans</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <h2 id="faq" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Frequently Asked Questions</h2>
+      <div class="mb-10">
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(1)">
+        <span>Can I use both an AI receptionist and an answering service?</span>
+        <i id="faq-icon-1" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-1" class="faq-body">Yes — a common setup is AI handling first response and qualification, with an answering service as backup for calls AI escalates or can't resolve. This gives you the best of both.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(2)">
+        <span>Do answering services integrate with CRMs?</span>
+        <i id="faq-icon-2" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-2" class="faq-body">Some do, but it's typically an add-on with manual review. AI receptionists sync automatically in real time — no operator review lag.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(3)">
+        <span>How reliable is AI vs. a human operator?</span>
+        <i id="faq-icon-3" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-3" class="faq-body">AI has no sick days, shift changes, or operator quality variance. Human operators bring empathy but introduce consistency risk. AI consistency is 100% — human operators vary.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(4)">
+        <span>What industries use answering services most?</span>
+        <i id="faq-icon-4" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-4" class="faq-body">Answering services are common in medical/dental (after-hours clinical decisions), legal (complex emergency situations), and HVAC/plumbing (dispatch-heavy emergencies). For intake and qualification, AI is typically superior.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(5)">
+        <span>Can AI do live transfers like an answering service?</span>
+        <i id="faq-icon-5" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-5" class="faq-body">Yes. AI can warm-transfer calls to a live agent when escalation is needed — it's a configurable option, not a limitation.</div>
+    </div>
+      </div>
+
+      <h2 class="text-2xl font-bold mb-6" style="color:#1d1d1f">Related Articles</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        
+    <div class="related-card" onclick="window.location='../compare/ai-receptionist-vs-human-receptionist.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#f59e0b22;color:#f59e0b">Compare</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">AI vs. Human Receptionist</h4>
+      <p class="text-xs" style="color:#6b7280">Full cost and capability comparison.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../ai-receptionist-vs-virtual-assistant.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#f59e0b22;color:#f59e0b">Compare</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">AI Receptionist vs. Virtual Assistant</h4>
+      <p class="text-xs" style="color:#6b7280">Understand the key differences.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../how-much-does-an-ai-receptionist-cost.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Fundamentals</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">How Much Does AI Cost?</h4>
+      <p class="text-xs" style="color:#6b7280">Pricing breakdown for AI receptionist plans.</p>
+    </div>
+      </div>
+    </div>
+    <aside class="hidden lg:block">
+      
+    <div class="space-y-6">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="color:#6b7280">On This Page</h3>
+        <a href="#feature-comparison" data-target="feature-comparison" class="toc-link">Feature Comparison</a>
+<a href="#cost-comparison" data-target="cost-comparison" class="toc-link">Cost Comparison</a>
+<a href="#when-to-use-each" data-target="when-to-use-each" class="toc-link">When to Use Each</a>
+<a href="#faq" data-target="faq" class="toc-link">FAQ</a>
+
+      </div>
+      <div class="rounded-2xl p-6 text-white" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+        <i class="fa-solid fa-scale-balanced text-2xl mb-3 opacity-90"></i>
+        <h3 class="font-bold text-lg mb-2">See AI in Action</h3>
+        <p class="text-sm opacity-80 mb-4">Topher AI replaces your answering service — and does more.</p>
+        <a href="../../index.html#contact" class="block w-full text-center py-2.5 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.2);color:white">Get a Free Demo</a>
+      </div>
+    </div>
+    </aside>
+  </div>
+</main>
+<footer class="py-16 px-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+            <i class="fa-solid fa-headset text-white text-xs"></i>
+          </div>
+          <span class="font-bold text-white">Topher AI</span>
+        </div>
+        <p class="text-sm" style="color:#86868b">AI receptionist &amp; automation for modern businesses.</p>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Product</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#features" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Features</a></li>
+          <li><a href="../../index.html#pricing" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Pricing</a></li>
+          <li><a href="../../index.html#industries" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Industries</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Industries</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#real-estate" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Real Estate</a></li>
+          <li><a href="../../index.html#law-firms" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Law Firms</a></li>
+          <li><a href="../../index.html#med-spas" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Med Spas</a></li>
+          <li><a href="../../index.html#insurance" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Insurance</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Knowledge</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Knowledge Center</a></li>
+          <li><a href="../what-is-an-ai-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">What Is an AI Receptionist</a></li>
+          <li><a href="../real-estate/ai-receptionist-for-realtors.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI for Real Estate</a></li>
+          <li><a href="../compare/ai-receptionist-vs-human-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI vs. Human</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Company</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#contact" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Contact</a></li>
+          <li><a href="../../index.html#demo" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Book a Demo</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t pt-8" style="border-color:rgba(255,255,255,0.1)">
+      <p class="text-sm text-center" style="color:#86868b">© 2025 Topher AI. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+<script>
+function toggleFaq(id){
+  var b=document.getElementById('faq-body-'+id);
+  var i=document.getElementById('faq-icon-'+id);
+  if(b.style.display==='block'){b.style.display='none';i.className='fa-solid fa-chevron-down text-gray-400 text-xs';}
+  else{b.style.display='block';i.className='fa-solid fa-chevron-up text-indigo-500 text-xs';}
+}
+window.addEventListener('scroll',function(){
+  var links=document.querySelectorAll('.toc-link[data-target]');
+  links.forEach(function(l){
+    var t=document.getElementById(l.dataset.target);
+    if(t){var r=t.getBoundingClientRect();if(r.top<=120&&r.bottom>=80){links.forEach(function(x){x.classList.remove('active')});l.classList.add('active');}}
+  });
+});
+</script>
+</body></html>

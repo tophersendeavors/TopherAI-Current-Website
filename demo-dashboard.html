@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topher AI — Concierge OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #05070a; --bg2: #0a0d12; --bg3: #0f1318;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --blue: #0ea5e9; --blue-dim: rgba(14,165,233,0.12); --blue-glow: rgba(14,165,233,0.25);
+  --text: #e2e8f0; --muted: #64748b;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; overflow: hidden; }
+
+/* GATE */
+#gate { position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999; }
+.gate-card { width:380px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:40px;text-align:center; }
+.gate-logo { font-family:var(--mono);font-size:13px;color:var(--blue);letter-spacing:.15em;text-transform:uppercase;margin-bottom:24px; }
+.gate-title { font-size:22px;font-weight:600;margin-bottom:8px; }
+.gate-sub { font-size:13px;color:var(--muted);margin-bottom:28px; }
+.gate-input { width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:13px 16px;color:var(--text);font-size:14px;font-family:var(--mono);outline:none;margin-bottom:12px;transition:border-color .2s; }
+.gate-input:focus { border-color:var(--blue); }
+.gate-input::placeholder { color:var(--muted); }
+.gate-btn { width:100%;background:var(--blue);border:none;border-radius:10px;padding:13px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:opacity .2s; }
+.gate-btn:hover { opacity:.85; }
+.gate-err { font-size:12px;color:#f87171;margin-top:10px;display:none; }
+
+/* DEMO BANNER */
+#demo-banner { position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(14,165,233,0.1);border-bottom:1px solid rgba(14,165,233,0.2);padding:7px 20px;display:none;align-items:center;justify-content:center;gap:10px; }
+.demo-dot { width:6px;height:6px;border-radius:50%;background:var(--blue);animation:blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.demo-text { font-size:11px;font-family:var(--mono);color:var(--blue);letter-spacing:.1em;text-transform:uppercase; }
+
+/* LAYOUT */
+#app { display:none;height:100vh;padding-top:33px; }
+.layout { display:flex;height:100%; }
+
+/* SIDEBAR */
+.sidebar { width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);padding:24px 12px;display:flex;flex-direction:column;gap:4px; }
+.sidebar-logo { font-family:var(--mono);font-size:12px;color:var(--blue);letter-spacing:.12em;text-transform:uppercase;padding:4px 12px 20px; }
+.nav-item { display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--muted);transition:all .15s;border:none;background:none;width:100%;text-align:left;font-family:var(--sans); }
+.nav-item:hover { background:var(--bg3);color:var(--text); }
+.nav-item.active { background:var(--blue-dim);color:var(--blue); }
+.nav-icon { width:16px;height:16px;flex-shrink:0; }
+.nav-badge { margin-left:auto;background:var(--blue);color:#fff;font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:99px; }
+.sidebar-section { font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:16px 12px 6px;font-family:var(--mono); }
+
+/* MAIN */
+.main { flex:1;overflow-y:auto;padding:28px 32px; }
+.page { display:none; }
+.page.active { display:block; }
+.page-header { margin-bottom:24px; }
+.page-title { font-size:20px;font-weight:600;margin-bottom:4px; }
+.page-sub { font-size:13px;color:var(--muted); }
+
+/* STATS */
+.stats-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px; }
+.stat-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px; }
+.stat-label { font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-family:var(--mono);margin-bottom:10px; }
+.stat-value { font-size:28px;font-weight:600;font-family:var(--mono); }
+.stat-delta { font-size:11px;color:#22c55e;margin-top:4px; }
+
+/* CARDS */
+.section-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px; }
+.section-head { padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
+.section-head-title { font-size:13px;font-weight:500; }
+.section-head-sub { font-size:12px;color:var(--muted); }
+
+/* TABLE */
+table { width:100%;border-collapse:collapse; }
+th { font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-family:var(--mono);padding:10px 20px;text-align:left;border-bottom:1px solid var(--border);font-weight:500; }
+td { padding:14px 20px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:rgba(255,255,255,0.02); }
+
+/* BADGES */
+.badge { display:inline-flex;align-items:center;gap:5px;font-size:11px;font-family:var(--mono);padding:3px 9px;border-radius:99px;font-weight:500; }
+.badge-hot   { background:rgba(239,68,68,.15); color:#f87171; border:1px solid rgba(239,68,68,.25); }
+.badge-warm  { background:rgba(245,158,11,.15);color:#fbbf24; border:1px solid rgba(245,158,11,.25); }
+.badge-cold  { background:rgba(100,116,139,.15);color:#94a3b8;border:1px solid rgba(100,116,139,.2); }
+.badge-new   { background:var(--blue-dim);color:var(--blue);border:1px solid rgba(14,165,233,.25); }
+.badge-booked{ background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.25); }
+.badge-closed{ background:rgba(139,92,246,.15);color:#a78bfa;border:1px solid rgba(139,92,246,.25); }
+.badge-dot { width:5px;height:5px;border-radius:50%;background:currentColor; }
+
+/* AVATAR */
+.avatar { width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;font-family:var(--mono); }
+.av-blue   { background:rgba(14,165,233,.2);  color:var(--blue); }
+.av-purple { background:rgba(139,92,246,.2);  color:#a78bfa; }
+.av-green  { background:rgba(34,197,94,.2);   color:#4ade80; }
+.av-amber  { background:rgba(245,158,11,.2);  color:#fbbf24; }
+.av-coral  { background:rgba(239,68,68,.2);   color:#f87171; }
+.av-teal   { background:rgba(20,184,166,.2);  color:#2dd4bf; }
+
+/* PIPELINE */
+.pipeline-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:16px; }
+.pipeline-col { background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden; }
+.pipeline-col-head { padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
+.pipeline-col-title { font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-family:var(--mono); }
+.pipeline-col-count { font-size:11px;font-family:var(--mono);color:var(--muted);background:var(--bg3);padding:2px 7px;border-radius:99px; }
+.pipeline-cards { padding:12px;display:flex;flex-direction:column;gap:8px; }
+.pipeline-card { background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px; }
+.pipeline-card-name { font-size:13px;font-weight:500;margin-bottom:4px; }
+.pipeline-card-meta { font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:6px; }
+.pipeline-card-foot { display:flex;align-items:center;justify-content:space-between; }
+
+/* CALLS */
+.call-row { display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border); }
+.call-row:last-child { border-bottom:none; }
+.call-dir { width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.call-in  { background:rgba(34,197,94,.15);color:#4ade80; }
+.call-out { background:rgba(14,165,233,.15);color:var(--blue); }
+.call-info { flex:1; }
+.call-name { font-size:13px;font-weight:500; }
+.call-detail { font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px; }
+
+/* SMS */
+.sms-layout { display:grid;grid-template-columns:260px 1fr;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;height:480px; }
+.sms-list { border-right:1px solid var(--border);overflow-y:auto; }
+.sms-thread { padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s; }
+.sms-thread:hover { background:var(--bg3); }
+.sms-thread.active { background:var(--blue-dim); }
+.sms-thread-name { font-size:13px;font-weight:500;margin-bottom:3px; }
+.sms-thread-preview { font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.sms-thread-time { font-size:10px;color:var(--muted);font-family:var(--mono);float:right; }
+.sms-convo { padding:20px;display:flex;flex-direction:column;gap:12px;overflow-y:auto; }
+.sms-msg { max-width:75%; }
+.sms-msg.out { align-self:flex-end; }
+.sms-bubble { padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5; }
+.sms-msg.in  .sms-bubble { background:var(--bg3);border:1px solid var(--border);border-bottom-left-radius:3px; }
+.sms-msg.out .sms-bubble { background:var(--blue-dim);border:1px solid rgba(14,165,233,.2);border-bottom-right-radius:3px;color:#bae6fd; }
+.sms-time { font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px; }
+.sms-msg.out .sms-time { text-align:right; }
+
+/* ACTIVITY */
+.activity-row { display:flex;align-items:flex-start;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border); }
+.activity-row:last-child { border-bottom:none; }
+.activity-icon { width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:14px; }
+.activity-text { flex:1;font-size:13px;line-height:1.5; }
+.activity-time { font-size:11px;color:var(--muted);font-family:var(--mono);white-space:nowrap; }
+
+/* CONTROLS */
+.table-controls { padding:12px 20px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center; }
+.search-input { flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none;transition:border-color .2s; }
+.search-input:focus { border-color:var(--blue); }
+.search-input::placeholder { color:var(--muted); }
+.filter-select { background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:12px;font-family:var(--mono);outline:none;cursor:pointer; }
+
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2);border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-logo">Topher AI</div>
+    <div class="gate-title">Concierge OS</div>
+    <div class="gate-sub">Enter your demo access code to continue</div>
+    <input class="gate-input" type="password" id="gate-input" placeholder="Access code" onkeydown="if(event.key==='Enter')checkGate()">
+    <button class="gate-btn" onclick="checkGate()">Enter Dashboard</button>
+    <div class="gate-err" id="gate-err">Incorrect access code. Try again.</div>
+  </div>
+</div>
+
+<!-- DEMO BANNER -->
+<div id="demo-banner">
+  <div class="demo-dot"></div>
+  <div class="demo-text">Demo Mode — Sample Data Only</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-logo">Topher AI</div>
+      <div class="sidebar-section">Overview</div>
+      <button class="nav-item active" onclick="showPage('overview',this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+        Overview
+      </button>
+      <div class="sidebar-section">Pipeline</div>
+      <button class="nav-item" onclick="showPage('pipeline',this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3"/></svg>
+        Pipeline
+      </button>
+      <button class="nav-item" onclick="showPage('leads',this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+        All Leads
+        <span class="nav-badge">12</span>
+      </button>
+      <div class="sidebar-section">Activity</div>
+      <button class="nav-item" onclick="showPage('calls',this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+        Calls
+      </button>
+      <button class="nav-item" onclick="showPage('sms',this)">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+        SMS
+      </button>
+    </div>
+
+    <div class="main">
+
+      <!-- OVERVIEW -->
+      <div class="page active" id="page-overview">
+        <div class="page-header">
+          <div class="page-title">Overview</div>
+          <div class="page-sub">Last 30 days · Demo workspace</div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value">47</div><div class="stat-delta">↑ 23% vs last month</div></div>
+          <div class="stat-card"><div class="stat-label">Hot Leads</div><div class="stat-value" style="color:#f87171">8</div><div class="stat-delta">↑ 4 this week</div></div>
+          <div class="stat-card"><div class="stat-label">Calls Handled</div><div class="stat-value">134</div><div class="stat-delta">↑ 41% vs last month</div></div>
+          <div class="stat-card"><div class="stat-label">Demos Booked</div><div class="stat-value" style="color:#4ade80">11</div><div class="stat-delta">↑ 2 today</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div class="section-card">
+            <div class="section-head"><div class="section-head-title">Recent Leads</div><div class="section-head-sub">Last 7 days</div></div>
+            <table><thead><tr><th>Name</th><th>Score</th><th>Industry</th><th>Time</th></tr></thead><tbody id="recent-leads-body"></tbody></table>
+          </div>
+          <div class="section-card">
+            <div class="section-head"><div class="section-head-title">Activity Feed</div><div class="section-head-sub">Live updates</div></div>
+            <div id="activity-feed"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PIPELINE -->
+      <div class="page" id="page-pipeline">
+        <div class="page-header"><div class="page-title">Pipeline</div><div class="page-sub">12 active leads across all stages</div></div>
+        <div class="pipeline-grid" id="pipeline-grid"></div>
+      </div>
+
+      <!-- LEADS -->
+      <div class="page" id="page-leads">
+        <div class="page-header"><div class="page-title">All Leads</div><div class="page-sub">Complete lead database · Demo data only</div></div>
+        <div class="section-card">
+          <div class="table-controls">
+            <input class="search-input" type="text" placeholder="Search leads..." oninput="filterLeads(this.value)">
+            <select class="filter-select" onchange="filterByScore(this.value)">
+              <option value="">All scores</option>
+              <option value="hot">Hot</option>
+              <option value="warm">Warm</option>
+              <option value="cold">Cold</option>
+            </select>
+          </div>
+          <table><thead><tr><th>Name</th><th>Industry</th><th>Score</th><th>Status</th><th>Phone</th><th>Inquiry</th><th>Time</th></tr></thead><tbody id="leads-body"></tbody></table>
+        </div>
+      </div>
+
+      <!-- CALLS -->
+      <div class="page" id="page-calls">
+        <div class="page-header"><div class="page-title">Call Log</div><div class="page-sub">AI-handled calls · Last 30 days</div></div>
+        <div class="section-card"><div id="calls-list"></div></div>
+      </div>
+
+      <!-- SMS -->
+      <div class="page" id="page-sms">
+        <div class="page-header"><div class="page-title">SMS Threads</div><div class="page-sub">Automated follow-up sequences</div></div>
+        <div class="sms-layout">
+          <div class="sms-list" id="sms-list"></div>
+          <div class="sms-convo" id="sms-convo"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// GATE
+function checkGate() {
+  const val = document.getElementById('gate-input').value.trim().toLowerCase();
+  if (['demo','topherai','topher','chris'].includes(val)) {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('demo-banner').style.display = 'flex';
+    document.getElementById('app').style.display = 'block';
+    init();
+  } else {
+    const err = document.getElementById('gate-err');
+    err.style.display = 'block';
+    document.getElementById('gate-input').value = '';
+    setTimeout(() => err.style.display = 'none', 3000);
+  }
+}
+
+// SAMPLE DATA
+const LEADS = [
+  { id:1,  name:'Sarah Chen',         initials:'SC', av:'av-blue',   industry:'Real Estate', score:'hot',  status:'booked',  phone:'(310) 555-0182', inquiry:'3BR home in Silver Lake, budget $1.2M',           time:'2 min ago',   stage:'Booked'    },
+  { id:2,  name:'Marcus Williams',    initials:'MW', av:'av-amber',  industry:'Real Estate', score:'hot',  status:'new',     phone:'(424) 555-0291', inquiry:'Investment duplex, cash buyer, wants to move fast', time:'18 min ago',  stage:'Hot Lead'  },
+  { id:3,  name:'Jennifer Rodriguez', initials:'JR', av:'av-coral',  industry:'Med Spa',     score:'hot',  status:'booked',  phone:'(818) 555-0374', inquiry:'Botox + filler consult, wants earliest appointment',time:'45 min ago',  stage:'Booked'    },
+  { id:4,  name:'David Kim',          initials:'DK', av:'av-purple', industry:'Legal',       score:'hot',  status:'new',     phone:'(213) 555-0518', inquiry:'Personal injury, car accident last week, urgent',    time:'1 hr ago',    stage:'Hot Lead'  },
+  { id:5,  name:'Ashley Thompson',    initials:'AT', av:'av-teal',   industry:'Real Estate', score:'warm', status:'new',     phone:'(323) 555-0643', inquiry:'First-time buyer, FHA loan, budget $650K',           time:'2 hrs ago',   stage:'Contacted' },
+  { id:6,  name:'Robert Martinez',    initials:'RM', av:'av-green',  industry:'Contractor',  score:'warm', status:'new',     phone:'(626) 555-0712', inquiry:'Full kitchen remodel, 600sqft, needs a quote',       time:'3 hrs ago',   stage:'Contacted' },
+  { id:7,  name:'Emily Watson',       initials:'EW', av:'av-blue',   industry:'Med Spa',     score:'warm', status:'new',     phone:'(310) 555-0889', inquiry:'Laser hair removal package, comparing prices',        time:'4 hrs ago',   stage:'Contacted' },
+  { id:8,  name:"James O'Brien",      initials:'JO', av:'av-amber',  industry:'Insurance',   score:'hot',  status:'booked',  phone:'(949) 555-0931', inquiry:'Commercial liability policy, 3 business locations',   time:'5 hrs ago',   stage:'Booked'    },
+  { id:9,  name:'Lisa Park',          initials:'LP', av:'av-coral',  industry:'Real Estate', score:'hot',  status:'new',     phone:'(714) 555-1024', inquiry:'Listing inquiry — 4BR Brentwood, wants a CMA',       time:'6 hrs ago',   stage:'Hot Lead'  },
+  { id:10, name:'Michael Torres',     initials:'MT', av:'av-purple', industry:'Legal',       score:'warm', status:'closed',  phone:'(562) 555-1147', inquiry:'LLC formation and operating agreement',              time:'1 day ago',   stage:'Closed'    },
+  { id:11, name:'Sophia Nguyen',      initials:'SN', av:'av-teal',   industry:'Med Spa',     score:'cold', status:'new',     phone:'(805) 555-1263', inquiry:'General skincare consultation inquiry',               time:'1 day ago',   stage:'New'       },
+  { id:12, name:'Brandon Foster',     initials:'BF', av:'av-green',  industry:'Real Estate', score:'warm', status:'new',     phone:'(661) 555-1388', inquiry:'Pre-approval help, looking for an agent referral',    time:'2 days ago',  stage:'Contacted' },
+];
+
+const CALLS = [
+  { dir:'in',  name:'Sarah Chen',         detail:'Inbound · Real estate inquiry · AI qualified as hot lead',   dur:'3:24', score:'hot',  time:'Today 9:02 AM'       },
+  { dir:'out', name:'Marcus Williams',    detail:'Outbound · Aria called 30 seconds after form submission',    dur:'2:11', score:'hot',  time:'Today 9:18 AM'       },
+  { dir:'in',  name:'Jennifer Rodriguez', detail:'Inbound · Med spa consult · Appointment booked during call', dur:'4:07', score:'hot',  time:'Today 8:45 AM'       },
+  { dir:'in',  name:'David Kim',          detail:'Inbound · Legal inquiry · Flagged as urgent',               dur:'2:58', score:'hot',  time:'Today 8:15 AM'       },
+  { dir:'out', name:'Ashley Thompson',    detail:'Outbound · Warm follow-up · SMS converted to call',          dur:'1:43', score:'warm', time:'Yesterday 4:30 PM'   },
+  { dir:'in',  name:'Robert Martinez',    detail:'Inbound · Contractor lead · Routed to estimator',           dur:'3:52', score:'warm', time:'Yesterday 2:14 PM'   },
+  { dir:'in',  name:"James O'Brien",      detail:'Inbound · Insurance inquiry · Booked with broker',          dur:'5:18', score:'hot',  time:'Yesterday 11:00 AM'  },
+  { dir:'out', name:'Lisa Park',          detail:'Outbound · Listing lead · Left voicemail + SMS sent',        dur:'0:42', score:'hot',  time:'Yesterday 10:20 AM'  },
+  { dir:'in',  name:'Emily Watson',       detail:'Inbound · Med spa · AI answered pricing questions',          dur:'2:29', score:'warm', time:'2 days ago'          },
+  { dir:'in',  name:'Sophia Nguyen',      detail:'Inbound · Short call · Brochure sent via SMS',              dur:'1:08', score:'cold', time:'2 days ago'          },
+];
+
+const SMS_THREADS = [
+  { id:0, name:'Sarah Chen', preview:"Great, I'll send you the link now!", time:'9:04 AM',
+    msgs:[
+      { dir:'in',  text:'Hi, I just submitted a form about a home in Silver Lake. Is someone available?', t:'9:01 AM' },
+      { dir:'out', text:'Hey Sarah! This is Topher AI — got your request. You\'re looking for a 3BR in Silver Lake around $1.2M, right?', t:'9:01 AM' },
+      { dir:'in',  text:'Yes exactly! Do you have anything available?', t:'9:02 AM' },
+      { dir:'out', text:'We have a few great options. Chris would love to walk you through them — can I send you a booking link?', t:'9:02 AM' },
+      { dir:'in',  text:'Sure, sounds good!', t:'9:03 AM' },
+      { dir:'out', text:"Great, I'll send you the link now! Takes 2 min to grab a time. Talk soon!", t:'9:04 AM' },
+    ]
+  },
+  { id:1, name:'Marcus Williams', preview:'Very impressive! We\'ll be in touch.', time:'9:22 AM',
+    msgs:[
+      { dir:'in',  text:'Looking for a duplex, cash buyer. Need to move fast.', t:'9:18 AM' },
+      { dir:'out', text:'Marcus — got your request. Cash buyer looking for a duplex. Any preferred area?', t:'9:19 AM' },
+      { dir:'in',  text:'South LA or Inglewood preferably.', t:'9:19 AM' },
+      { dir:'out', text:"Perfect. Flagging this urgent for our team. Aria will be calling you in just a moment — keep an eye out!", t:'9:20 AM' },
+      { dir:'in',  text:"Got the call, very impressive! We'll be in touch.", t:'9:22 AM' },
+    ]
+  },
+  { id:2, name:'David Kim', preview:'Someone will follow up within the hour.', time:'8:17 AM',
+    msgs:[
+      { dir:'in',  text:'I was in an accident last week and need legal help ASAP.', t:'8:15 AM' },
+      { dir:'out', text:"David, I'm so sorry to hear that. We're here to help. Can you briefly describe what happened?", t:'8:15 AM' },
+      { dir:'in',  text:'Car accident, other driver was at fault. I have injuries.', t:'8:16 AM' },
+      { dir:'out', text:'Understood — this sounds like a strong case. Marking this urgent. Someone from the team will follow up within the hour.', t:'8:17 AM' },
+    ]
+  },
+  { id:3, name:'Ashley Thompson', preview:"Here's the link to book your consult.", time:'Yesterday',
+    msgs:[
+      { dir:'in',  text:'Hi! I filled out a form about buying my first home.', t:'4:28 PM' },
+      { dir:'out', text:"Hey Ashley! Congrats on taking the first step. What's your timeline and budget?", t:'4:29 PM' },
+      { dir:'in',  text:'FHA loan, around $650K. No rush, just starting to look.', t:'4:30 PM' },
+      { dir:'out', text:"Got it — Chris works with a lot of first-time buyers. Want to grab a free 20-minute consult?", t:'4:31 PM' },
+      { dir:'in',  text:'Sure, why not', t:'4:32 PM' },
+      { dir:'out', text:"Here's the link to book your consult: cal.com/christopher-wrgldt/topher-ai-demo-call", t:'4:32 PM' },
+    ]
+  },
+];
+
+const ACTIVITY = [
+  { icon:'📞', color:'rgba(14,165,233,.15)',  text:'<strong>Aria called Marcus Williams</strong> <span style="color:var(--muted)"> · 30 seconds after form submit</span>', time:'9 min ago'   },
+  { icon:'🔥', color:'rgba(239,68,68,.15)',   text:'<strong>Sarah Chen scored HOT</strong> <span style="color:var(--muted)"> · GPT-4o: "$1.2M cash-ready buyer"</span>',  time:'14 min ago'  },
+  { icon:'📅', color:'rgba(34,197,94,.15)',   text:'<strong>Jennifer Rodriguez booked</strong> <span style="color:var(--muted)"> · Med spa consult · Thu 2PM</span>',       time:'45 min ago'  },
+  { icon:'💬', color:'rgba(139,92,246,.15)',  text:'<strong>SMS drip sent</strong> <span style="color:var(--muted)"> · 3 warm leads · Follow-up sequence #2</span>',       time:'1 hr ago'    },
+  { icon:'📞', color:'rgba(14,165,233,.15)',  text:'<strong>Inbound call handled</strong> <span style="color:var(--muted)"> · David Kim · Legal · Flagged urgent</span>',  time:'1 hr ago'    },
+  { icon:'📊', color:'rgba(245,158,11,.15)',  text:'<strong>Weekly digest sent</strong> <span style="color:var(--muted)"> · 47 leads · 11 booked this month</span>',        time:'3 hrs ago'   },
+];
+
+// HELPERS
+function scoreBadge(s) {
+  const cls = s==='hot'?'badge-hot':s==='warm'?'badge-warm':'badge-cold';
+  return `<span class="badge ${cls}"><span class="badge-dot"></span>${s}</span>`;
+}
+function statusBadge(s) {
+  const cls = s==='booked'?'badge-booked':s==='closed'?'badge-closed':'badge-new';
+  const label = s==='booked'?'Booked':s==='closed'?'Closed':'New';
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+function avDiv(l) {
+  return `<div style="display:flex;align-items:center;gap:10px"><div class="avatar ${l.av}">${l.initials}</div><div><div style="font-size:13px;font-weight:500">${l.name}</div><div style="font-size:11px;color:var(--muted);font-family:var(--mono)">${l.industry}</div></div></div>`;
+}
+
+// RENDERS
+function renderLeads(data) {
+  document.getElementById('leads-body').innerHTML = data.map(l=>`
+    <tr>
+      <td>${avDiv(l)}</td>
+      <td style="font-size:12px;color:var(--muted);font-family:var(--mono)">${l.industry}</td>
+      <td>${scoreBadge(l.score)}</td>
+      <td>${statusBadge(l.status)}</td>
+      <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">${l.phone}</td>
+      <td style="font-size:12px;color:var(--muted);max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.inquiry}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap">${l.time}</td>
+    </tr>`).join('');
+}
+
+function renderRecentLeads() {
+  document.getElementById('recent-leads-body').innerHTML = LEADS.slice(0,6).map(l=>`
+    <tr>
+      <td>${avDiv(l)}</td>
+      <td>${scoreBadge(l.score)}</td>
+      <td style="font-size:12px;color:var(--muted);font-family:var(--mono)">${l.industry}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${l.time}</td>
+    </tr>`).join('');
+}
+
+function renderActivity() {
+  document.getElementById('activity-feed').innerHTML = ACTIVITY.map(a=>`
+    <div class="activity-row">
+      <div class="activity-icon" style="background:${a.color}">${a.icon}</div>
+      <div class="activity-text">${a.text}</div>
+      <div class="activity-time">${a.time}</div>
+    </div>`).join('');
+}
+
+function renderPipeline() {
+  const stages = ['New','Contacted','Hot Lead','Booked','Closed'];
+  const grouped = {};
+  stages.forEach(s=>grouped[s]=[]);
+  LEADS.forEach(l=>{ if(grouped[l.stage]) grouped[l.stage].push(l); });
+  document.getElementById('pipeline-grid').innerHTML = stages.map(s=>`
+    <div class="pipeline-col">
+      <div class="pipeline-col-head">
+        <div class="pipeline-col-title">${s}</div>
+        <div class="pipeline-col-count">${grouped[s].length}</div>
+      </div>
+      <div class="pipeline-cards">
+        ${grouped[s].map(l=>`
+          <div class="pipeline-card">
+            <div class="pipeline-card-name">${l.name}</div>
+            <div class="pipeline-card-meta">${l.industry}</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.4">${l.inquiry.slice(0,48)}${l.inquiry.length>48?'…':''}</div>
+            <div class="pipeline-card-foot">
+              ${scoreBadge(l.score)}
+              <span style="font-size:10px;color:var(--muted);font-family:var(--mono)">${l.time}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function renderCalls() {
+  const scoreColor = s => s==='hot'?'#f87171':s==='warm'?'#fbbf24':'#475569';
+  document.getElementById('calls-list').innerHTML = CALLS.map(c=>`
+    <div class="call-row">
+      <div class="call-dir ${c.dir==='in'?'call-in':'call-out'}">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          ${c.dir==='in'
+            ? '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 4.5l-15 15M4.5 4.5v10.5h10.5"/>'
+            : '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15M19.5 4.5v10.5H9"/>'}
+        </svg>
+      </div>
+      <div class="call-info">
+        <div class="call-name">${c.name}</div>
+        <div class="call-detail">${c.detail}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:12px;color:var(--muted);font-family:var(--mono)">${c.dur}</div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">${c.time}</div>
+      </div>
+      <div style="font-size:10px;color:${scoreColor(c.score)};flex-shrink:0">●</div>
+    </div>`).join('');
+}
+
+let activeSmsIdx = 0;
+
+function renderSMSList() {
+  document.getElementById('sms-list').innerHTML = SMS_THREADS.map((t,i)=>`
+    <div class="sms-thread ${i===activeSmsIdx?'active':''}" onclick="selectThread(${i})">
+      <span class="sms-thread-time">${t.time}</span>
+      <div class="sms-thread-name">${t.name}</div>
+      <div class="sms-thread-preview">${t.preview}</div>
+    </div>`).join('');
+}
+
+function renderSMSConvo(idx) {
+  document.getElementById('sms-convo').innerHTML = SMS_THREADS[idx].msgs.map(m=>`
+    <div class="sms-msg ${m.dir}">
+      <div class="sms-bubble">${m.text}</div>
+      <div class="sms-time">${m.t}</div>
+    </div>`).join('');
+}
+
+function selectThread(idx) {
+  activeSmsIdx = idx;
+  renderSMSList();
+  renderSMSConvo(idx);
+}
+
+// FILTERS
+let scoreFilter = '', searchFilter = '';
+function filterLeads(q) { searchFilter = q.toLowerCase(); applyFilters(); }
+function filterByScore(s) { scoreFilter = s; applyFilters(); }
+function applyFilters() {
+  let data = LEADS;
+  if (scoreFilter) data = data.filter(l=>l.score===scoreFilter);
+  if (searchFilter) data = data.filter(l=>
+    l.name.toLowerCase().includes(searchFilter) ||
+    l.industry.toLowerCase().includes(searchFilter) ||
+    l.inquiry.toLowerCase().includes(searchFilter)
+  );
+  renderLeads(data);
+}
+
+// NAV
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// INIT
+function init() {
+  renderLeads(LEADS);
+  renderRecentLeads();
+  renderActivity();
+  renderPipeline();
+  renderCalls();
+  renderSMSList();
+  renderSMSConvo(0);
+}
+</script>
+</body>
+</html>

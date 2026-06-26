@@ -1,0 +1,261 @@
+{
+  "name": "Topher AI — Weekly Lead Digest",
+  "nodes": [
+    {
+      "parameters": {
+        "fromEmail": "cs@topherai.com",
+        "toEmail": "christophermaretich@gmail.com",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "html",
+        "html": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "9bc0e145-ba88-4b37-9621-dfdcd60e024b",
+      "name": "Send Weekly Digest",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        2672,
+        352
+      ],
+      "webhookId": "f07f5c58-3173-44db-8ef7-e71090297956",
+      "credentials": {
+        "smtp": {
+          "id": "g6lDQtpneiofB51E",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pull contacts + week config from Package Contacts (flattened)\nconst pkg      = $('Package Contacts').item.json;\nconst contacts = Array.isArray(pkg.contacts) ? pkg.contacts : [];\nconst weekAgoISO = pkg.weekAgoISO || $('Set Config').item.json.weekAgoISO;\nconst weekLabel  = pkg.weekLabel  || $('Set Config').item.json.weekLabel;\n\n// SMS — use $input.all() to handle single or multi-item responses\nconst smsItems = $input.all();\nlet smsAll;\nif (smsItems.length === 1 && Array.isArray(smsItems[0].json)) {\n  smsAll = smsItems[0].json;\n} else if (smsItems.length > 1) {\n  smsAll = smsItems.map(i => i.json).filter(x => x && typeof x === 'object' && !Array.isArray(x));\n} else {\n  smsAll = [];\n}\n\n// Debug snapshot (visible in the email footer)\nconst _debug = `contacts fetched: ${contacts.length} | sms fetched: ${smsAll.length} | pkg keys: ${Object.keys(pkg).join(',')}`;\n\nconst weekAgo = new Date(weekAgoISO);\n\n// Filter to this week in JS (no Supabase date expression needed)\nconst newLeads = contacts.filter(c => c.created_at && new Date(c.created_at) >= weekAgo);\nconst sms      = smsAll.filter(s => s.created_at && new Date(s.created_at) >= weekAgo);\n\n// Pipeline counts (all time)\nconst pipeline = {\n  new:            contacts.filter(c => !c.lead_status || c.lead_status === 'new').length,\n  contacted:      contacts.filter(c => c.lead_status === 'contacted').length,\n  demo_scheduled: contacts.filter(c => c.lead_status === 'demo_scheduled').length,\n  closed:         contacts.filter(c => c.lead_status === 'closed').length,\n};\n\nconst hot = contacts.filter(c => c.urgency === 'hot').length;\n\n// SMS stats\nconst smsOut = sms.filter(s => s.direction === 'outbound').length;\nconst smsIn  = sms.filter(s => s.direction === 'inbound').length;\nconst drips  = sms.filter(s => (s.message_type || '').startsWith('drip')).length;\n\n// Helpers\nconst urgencyBadge = u => {\n  if (u === 'hot')  return '<span style=\"background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;\">🔥 Hot</span>';\n  if (u === 'warm') return '<span style=\"background:#fffbeb;color:#d97706;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;\">⚡ Warm</span>';\n  if (u === 'cold') return '<span style=\"background:#eff6ff;color:#2563eb;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;\">❄️ Cold</span>';\n  return '<span style=\"background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:20px;font-size:11px;\">—</span>';\n};\nconst fmtPhone = p => {\n  if (!p) return '—';\n  const d = String(p).replace(/\\D/g,'');\n  return d.length === 11 ? `(${d.slice(1,4)}) ${d.slice(4,7)}-${d.slice(7)}`\n       : d.length === 10 ? `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}` : p;\n};\n\n// New leads table rows\nconst topLeads  = newLeads.slice(0, 8);\nconst leadsRows = topLeads.length === 0\n  ? '<tr><td colspan=\"4\" style=\"padding:16px;text-align:center;color:#9ca3af;font-size:13px;\">No new leads this week</td></tr>'\n  : topLeads.map(l => `<tr style=\"border-bottom:1px solid #f3f4f6;\">\n      <td style=\"padding:10px 12px;font-size:13px;color:#111827;font-weight:500;\">${l.name || 'Unknown'}</td>\n      <td style=\"padding:10px 12px;font-size:12px;color:#6366f1;font-family:monospace;\">${fmtPhone(l.phone)}</td>\n      <td style=\"padding:10px 12px;font-size:12px;color:#0284c7;\">${l.email || '—'}</td>\n      <td style=\"padding:10px 12px;\">${urgencyBadge(l.urgency)}</td>\n    </tr>`).join('');\n\n// Pipeline rows\nconst pipelineStages = [\n  { key:'new',            label:'New',            color:'#6366f1' },\n  { key:'contacted',      label:'Contacted',      color:'#f59e0b' },\n  { key:'demo_scheduled', label:'Demo Scheduled', color:'#0ea5e9' },\n  { key:'closed',         label:'Closed',         color:'#22c55e' },\n];\nconst pipelineRows = pipelineStages.map(s =>\n  `<tr style=\"border-bottom:1px solid #f9fafb;\">\n    <td style=\"padding:10px 16px;\">\n      <span style=\"display:inline-block;width:8px;height:8px;border-radius:50%;background:${s.color};margin-right:8px;\"></span>\n      <span style=\"font-size:13px;color:#374151;\">${s.label}</span>\n    </td>\n    <td style=\"padding:10px 16px;font-size:18px;font-weight:700;color:${s.color};text-align:right;\">${pipeline[s.key]}</td>\n  </tr>`\n).join('');\n\nconst html = `<!DOCTYPE html>\n<html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head>\n<body style=\"margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;\">\n<div style=\"max-width:620px;margin:32px auto;\">\n\n  <div style=\"background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#1e40af 100%);border-radius:16px 16px 0 0;padding:32px 36px;\">\n    <div style=\"margin-bottom:16px;\">\n      <span style=\"display:inline-block;width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:10px;text-align:center;line-height:36px;font-weight:800;color:#fff;font-size:16px;\">T</span>\n      <span style=\"color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;letter-spacing:0.05em;margin-left:10px;\">TOPHER AI</span>\n    </div>\n    <h1 style=\"margin:0 0 6px;color:#fff;font-size:22px;font-weight:700;\">Weekly Lead Digest</h1>\n    <p style=\"margin:0;color:rgba(255,255,255,0.6);font-size:13px;\">${weekLabel}</p>\n  </div>\n\n  <div style=\"background:#fff;padding:28px 36px 20px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;\">\n    <p style=\"margin:0 0 20px;font-size:14px;color:#6b7280;\">Here's your pipeline snapshot for the week.</p>\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n      <td style=\"padding:0 6px 0 0;\">\n        <div style=\"background:#f5f3ff;border-radius:12px;padding:16px 18px;border:1px solid #e0e7ff;\">\n          <div style=\"font-size:28px;font-weight:800;color:#4f46e5;\">${newLeads.length}</div>\n          <div style=\"font-size:11px;color:#7c3aed;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;\">New This Week</div>\n        </div>\n      </td>\n      <td style=\"padding:0 6px;\">\n        <div style=\"background:#fef2f2;border-radius:12px;padding:16px 18px;border:1px solid #fecaca;\">\n          <div style=\"font-size:28px;font-weight:800;color:#dc2626;\">${hot}</div>\n          <div style=\"font-size:11px;color:#dc2626;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;\">Hot Leads</div>\n        </div>\n      </td>\n      <td style=\"padding:0 6px;\">\n        <div style=\"background:#f0fdf4;border-radius:12px;padding:16px 18px;border:1px solid #bbf7d0;\">\n          <div style=\"font-size:28px;font-weight:800;color:#16a34a;\">${pipeline.demo_scheduled}</div>\n          <div style=\"font-size:11px;color:#16a34a;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;\">Demos Booked</div>\n        </div>\n      </td>\n      <td style=\"padding:0 0 0 6px;\">\n        <div style=\"background:#f0f9ff;border-radius:12px;padding:16px 18px;border:1px solid #bae6fd;\">\n          <div style=\"font-size:28px;font-weight:800;color:#0284c7;\">${contacts.length}</div>\n          <div style=\"font-size:11px;color:#0284c7;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;\">Total Leads</div>\n        </div>\n      </td>\n    </tr></table>\n  </div>\n\n  <div style=\"background:#fff;padding:0 36px 24px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;\">\n    <h2 style=\"font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;margin:0 0 12px;\">Pipeline Breakdown</h2>\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#fafafa;border-radius:10px;border:1px solid #f3f4f6;\">\n      <tbody>${pipelineRows}</tbody>\n    </table>\n  </div>\n\n  <div style=\"background:#fff;padding:0 36px 28px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;\">\n    <h2 style=\"font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;margin:0 0 12px;\">New Leads This Week</h2>\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border:1px solid #f3f4f6;border-radius:10px;\">\n      <thead><tr style=\"background:#f9fafb;border-bottom:1px solid #f3f4f6;\">\n        <th style=\"padding:10px 12px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;\">Name</th>\n        <th style=\"padding:10px 12px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;\">Phone</th>\n        <th style=\"padding:10px 12px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;\">Email</th>\n        <th style=\"padding:10px 12px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;\">Score</th>\n      </tr></thead>\n      <tbody>${leadsRows}</tbody>\n    </table>\n  </div>\n\n  <div style=\"background:#fff;padding:0 36px 28px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;\">\n    <h2 style=\"font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;margin:0 0 12px;\">SMS Activity This Week</h2>\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n      <td style=\"padding:0 6px 0 0;\">\n        <div style=\"padding:14px 16px;background:#f5f3ff;border-radius:10px;border:1px solid #e0e7ff;\">\n          <div style=\"font-size:22px;font-weight:700;color:#4f46e5;\">${smsOut}</div>\n          <div style=\"font-size:11px;color:#7c3aed;font-weight:600;margin-top:2px;\">Outbound Sent</div>\n        </div>\n      </td>\n      <td style=\"padding:0 6px;\">\n        <div style=\"padding:14px 16px;background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;\">\n          <div style=\"font-size:22px;font-weight:700;color:#16a34a;\">${smsIn}</div>\n          <div style=\"font-size:11px;color:#16a34a;font-weight:600;margin-top:2px;\">Inbound Replies</div>\n        </div>\n      </td>\n      <td style=\"padding:0 0 0 6px;\">\n        <div style=\"padding:14px 16px;background:#f0f9ff;border-radius:10px;border:1px solid #bae6fd;\">\n          <div style=\"font-size:22px;font-weight:700;color:#0284c7;\">${drips}</div>\n          <div style=\"font-size:11px;color:#0284c7;font-weight:600;margin-top:2px;\">Drip Messages</div>\n        </div>\n      </td>\n    </tr></table>\n  </div>\n\n  <div style=\"background:#fff;padding:0 36px 36px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;border-radius:0 0 16px 16px;border-bottom:1px solid #e5e7eb;\">\n    <div style=\"border-top:1px solid #f3f4f6;padding-top:24px;text-align:center;\">\n      <a href=\"href=\"https://topherai.com/leads-dashboard.html\"\" style=\"display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:600;\">View Full Dashboard →</a>\n      <p style=\"margin:16px 0 0;font-size:11px;color:#d1d5db;\">Topher AI · Automated weekly digest · Every Monday 8am</p>\n      <p style=\"margin:8px 0 0;font-size:10px;color:#e5e7eb;font-family:monospace;opacity:0.5;\">${_debug}</p>\n    </div>\n  </div>\n\n</div>\n</body></html>`;\n\nconst subject = `📊 Topher AI — ${weekLabel} · ${newLeads.length} New · ${contacts.length} Total · ${hot} Hot`;\n\nreturn [{ json: { html, subject } }];"
+      },
+      "id": "e9d56bd7-18c2-4b69-bc9a-aed0816b4c55",
+      "name": "Build Digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/sms_messages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "direction,message_type,status,created_at"
+            },
+            {
+              "name": "order",
+              "value": "created_at.desc"
+            },
+            {
+              "name": "limit",
+              "value": "500"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d3ed54b6-c843-4637-b721-1f1260f7edaa",
+      "name": "Fetch SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        2224,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const config = $('Set Config').item.json;\n\n// $input.all() handles both:\n//   - n8n returns array as ONE item  → allItems[0].json is the array\n//   - n8n splits array into N items  → map each item.json to get rows\nconst allItems = $input.all();\nlet contacts;\nif (allItems.length === 1 && Array.isArray(allItems[0].json)) {\n  contacts = allItems[0].json;\n} else if (allItems.length > 1) {\n  contacts = allItems.map(i => i.json).filter(x => x && typeof x === 'object' && !Array.isArray(x));\n} else {\n  contacts = [];\n}\n\n// Flatten into a single object — avoids nested-object reference issues downstream\nreturn [{ json: {\n  weekAgoISO: config.weekAgoISO,\n  weekLabel:  config.weekLabel,\n  contacts:   contacts\n} }];"
+      },
+      "id": "86ac2caf-9e00-4335-8fae-d9fc8b6b6710",
+      "name": "Package Contacts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/contacts",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,name,phone,email,lead_status,urgency,industry,created_at"
+            },
+            {
+              "name": "order",
+              "value": "created_at.desc"
+            },
+            {
+              "name": "limit",
+              "value": "1000"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "79be8670-5547-4ecb-b9c4-570f1a2b31f6",
+      "name": "Fetch All Contacts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1792,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);\nconst weekLabel = weekAgo.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })\n  + ' – '\n  + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });\nreturn [{ json: { weekAgoISO: weekAgo.toISOString(), weekLabel } }];"
+      },
+      "id": "f5408ba4-1351-4b68-837f-492eb0c19e63",
+      "name": "Set Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "a32c70f5-ee03-4c21-9133-0fb0a1e958ff",
+      "name": "Every Monday 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        352
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Build Digest": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch SMS": {
+      "main": [
+        [
+          {
+            "node": "Build Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Package Contacts": {
+      "main": [
+        [
+          {
+            "node": "Fetch SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All Contacts": {
+      "main": [
+        [
+          {
+            "node": "Package Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Config": {
+      "main": [
+        [
+          {
+            "node": "Fetch All Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday 8am": {
+      "main": [
+        [
+          {
+            "node": "Set Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "8225135c-e751-4136-8694-4c8cbeba7e56",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "57d0131561cd8e704494b6c3a013d895c007284d2bb85831b19e2b772ee29e9d"
+  },
+  "id": "RBHhFB92r8dKUMaB",
+  "tags": []
+}

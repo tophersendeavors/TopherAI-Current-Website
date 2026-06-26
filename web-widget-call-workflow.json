@@ -1,0 +1,224 @@
+{
+  "name": "Topher AI — Web Widget Call Intake",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vapi-topher",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "web-widget-webhook",
+      "name": "Web Widget Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "vapi-topher"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true } }}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "respond-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [480, 140]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.item.json.body || $input.item.json;\nconst message = body.message || body;\nconst call = message.call || message;\n\n// Only process end-of-call events\nconst eventType = message.type || body.type || '';\nif (!['end-of-call-report', 'call-end', 'end'].some(t => eventType.includes(t))) {\n  return [];\n}\n\n// Extract transcript\nconst artifact = message.artifact || {};\nconst transcript = artifact.transcript || message.transcript || call.transcript || '';\n\n// Must have meaningful transcript\nif (!transcript || transcript.length < 50) {\n  return [];\n}\n\n// Extract ended reason — skip very short/failed calls\nconst endedReason = call.endedReason || message.endedReason || '';\nif (['failed', 'error'].includes(endedReason)) {\n  return [];\n}\n\n// Call metadata\nconst callId       = call.id || message.callId || '';\nconst durationSecs = call.duration || artifact.duration || 0;\nconst startedAt    = call.startedAt || new Date().toISOString();\n\nreturn [{ json: { transcript, callId, durationSecs, startedAt, endedReason } }];"
+      },
+      "id": "parse-call",
+      "name": "Parse Call Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 380]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.OPENAI_API_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"gpt-4o\",\n  \"temperature\": 0,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a lead extraction assistant. Extract structured information from an AI receptionist call transcript. Return ONLY valid JSON with these fields:\\n\\n{\\n  \\\"name\\\": \\\"full name or empty string\\\",\\n  \\\"phone\\\": \\\"phone number with country code or empty string\\\",\\n  \\\"email\\\": \\\"email address or empty string\\\",\\n  \\\"industry\\\": \\\"one of: Real Estate, Med Spa, Legal, Contractor, Insurance, Home Services, Other\\\",\\n  \\\"inquiry\\\": \\\"one sentence summary of what they want\\\",\\n  \\\"urgency\\\": \\\"hot, warm, or cold\\\",\\n  \\\"score_reason\\\": \\\"one sentence explaining the urgency score\\\",\\n  \\\"booked\\\": true or false\\n}\\n\\nScoring rules:\\n- hot: strong buying signal, clear need, motivated, mentioned timeline or budget, or said yes to booking\\n- warm: interested but vague timeline or just exploring\\n- cold: just browsing, no clear need, or unresponsive\\n\\nIf a field is not mentioned in the transcript, use an empty string (not null).\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Transcript:\\n\" + $json.transcript\n    }\n  ]\n} }}",
+        "options": {}
+      },
+      "id": "gpt-extract",
+      "name": "GPT-4o Extract & Score",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.item.json.choices?.[0]?.message?.content || '{}';\nlet parsed;\ntry {\n  // Strip markdown code fences if present\n  const clean = raw.replace(/```json\\n?/gi, '').replace(/```/gi, '').trim();\n  parsed = JSON.parse(clean);\n} catch(e) {\n  parsed = { name:'', phone:'', email:'', industry:'Other', inquiry:'Web widget call', urgency:'cold', score_reason:'Parse error', booked:false };\n}\n\nconst callMeta = $('Parse Call Data').item.json;\n\nreturn [{ json: {\n  ...parsed,\n  transcript:   callMeta.transcript,\n  callId:       callMeta.callId,\n  durationSecs: callMeta.durationSecs,\n  startedAt:    callMeta.startedAt,\n  source:       'web_widget'\n} }];"
+      },
+      "id": "parse-gpt",
+      "name": "Parse GPT Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 380]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey",        "value": "={{ $vars.SUPABASE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" },
+            { "name": "Prefer",        "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"name\":         $json.name || 'Web Visitor',\n  \"phone\":        $json.phone || '',\n  \"email\":        $json.email || '',\n  \"industry\":     $json.industry || 'Other',\n  \"inquiry\":      $json.inquiry || '',\n  \"urgency\":      $json.urgency || 'cold',\n  \"score_reason\": $json.score_reason || '',\n  \"source\":       'web_widget',\n  \"call_id\":      $json.callId || '',\n  \"call_duration\":$json.durationSecs || 0,\n  \"transcript\":   $json.transcript || '',\n  \"booked\":       $json.booked || false,\n  \"status\":       $json.booked ? 'booked' : 'new',\n  \"created_at\":   $json.startedAt || new Date().toISOString()\n} }}",
+        "options": {}
+      },
+      "id": "save-supabase",
+      "name": "Save to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Parse GPT Response').item.json;\nconst urgency = lead.urgency || '';\nif (urgency === 'hot') {\n  return [{ json: lead }];\n}\nreturn [];"
+      },
+      "id": "route-hot",
+      "name": "Is Hot Lead?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, 280]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Parse GPT Response').item.json;\nconst urgency = lead.urgency || '';\nif (urgency === 'warm') {\n  return [{ json: lead }];\n}\nreturn [];"
+      },
+      "id": "route-warm",
+      "name": "Is Warm Lead?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, 480]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SMS_API_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"from\": $vars.SMS_FROM_NUMBER,\n  \"to\":   $vars.ADMIN_PHONE,\n  \"text\": \"🔥 HOT LEAD — Web Widget Call\\n\\nName: \" + ($json.name || 'Unknown') + \"\\nPhone: \" + ($json.phone || 'Not provided') + \"\\nEmail: \" + ($json.email || 'Not provided') + \"\\nIndustry: \" + $json.industry + \"\\nInquiry: \" + $json.inquiry + \"\\nScore: \" + $json.score_reason + \"\\nBooked: \" + ($json.booked ? 'YES ✅' : 'No') + \"\\nDuration: \" + Math.round(($json.durationSecs||0)/60) + \"m \" + (($json.durationSecs||0)%60) + \"s\"\n} }}",
+        "options": {}
+      },
+      "id": "sms-hot-alert",
+      "name": "SMS Hot Lead Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1680, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "alerts@topherai.com",
+        "toEmail":   "={{ $vars.ADMIN_EMAIL }}",
+        "subject":   "=🔥 Hot Lead — Web Widget Call: {{ $json.name || 'Unknown Visitor' }}",
+        "emailType": "html",
+        "html": "={{ '<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f8fafc;padding:32px\">' +\n'<div style=\"background:#0284c7;padding:20px 24px;border-radius:10px 10px 0 0\">' +\n'<h1 style=\"color:#fff;margin:0;font-size:20px\">🔥 Hot Lead — Web Widget</h1></div>' +\n'<div style=\"background:#fff;padding:24px;border-radius:0 0 10px 10px;border:1px solid #e2e8f0\">' +\n'<table style=\"width:100%;border-collapse:collapse\">' +\n'<tr><td style=\"padding:8px 0;color:#64748b;width:110px\">Name</td><td style=\"padding:8px 0;font-weight:600\">' + ($json.name||'Not captured') + '</td></tr>' +\n'<tr><td style=\"padding:8px 0;color:#64748b\">Phone</td><td style=\"padding:8px 0\">' + ($json.phone||'Not provided') + '</td></tr>' +\n'<tr><td style=\"padding:8px 0;color:#64748b\">Email</td><td style=\"padding:8px 0\">' + ($json.email||'Not provided') + '</td></tr>' +\n'<tr><td style=\"padding:8px 0;color:#64748b\">Industry</td><td style=\"padding:8px 0\">' + $json.industry + '</td></tr>' +\n'<tr><td style=\"padding:8px 0;color:#64748b\">Inquiry</td><td style=\"padding:8px 0\">' + $json.inquiry + '</td></tr>' +\n'<tr><td style=\"padding:8px 0;color:#64748b\">Score</td><td style=\"padding:8px 0;color:#ef4444;font-weight:700\">HOT 🔥</td></tr>' +\n'<tr><td style=\"padding:8px 0;color:#64748b\">Reason</td><td style=\"padding:8px 0\">' + $json.score_reason + '</td></tr>' +\n'<tr><td style=\"padding:8px 0;color:#64748b\">Booked</td><td style=\"padding:8px 0\">' + ($json.booked?'YES ✅':'Not yet') + '</td></tr>' +\n'</table>' +\n'<div style=\"margin-top:20px;padding:16px;background:#f1f5f9;border-radius:8px\">' +\n'<p style=\"margin:0 0 8px;font-weight:600;color:#334155\">Transcript</p>' +\n'<p style=\"margin:0;font-size:13px;color:#64748b;line-height:1.6;white-space:pre-wrap\">' + ($json.transcript||'').slice(0,800) + ($json.transcript&&$json.transcript.length>800?'...':'') + '</p>' +\n'</div>' +\n'<a href=\"https://topherai.com/leads-dashboard.html\" style=\"display:inline-block;margin-top:20px;background:#0284c7;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600\">View Dashboard</a>' +\n'</div></div>' }}",
+        "options": {}
+      },
+      "id": "email-hot-alert",
+      "name": "Email Hot Lead Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1680, 340]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Parse GPT Response').item.json;\n// Only trigger SMS drip if we captured a phone number\nif (!lead.phone || lead.phone.trim() === '') {\n  return [];\n}\nreturn [{ json: lead }];"
+      },
+      "id": "has-phone-warm",
+      "name": "Has Phone? (Warm)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1680, 520]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.SMS_API_KEY }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"from\": $vars.SMS_FROM_NUMBER,\n  \"to\":   $json.phone,\n  \"text\": \"Hey \" + ($json.name ? $json.name.split(' ')[0] : 'there') + \"! Thanks for chatting with Topher AI. I wanted to follow up personally — if you have any questions or want to see a full demo, grab a time with Chris here:\\n\\nhttps://cal.com/christopher-wrgldt/topher-ai-demo-call\\n\\nTakes 2 minutes to book. — Topher AI\"\n} }}",
+        "options": {}
+      },
+      "id": "sms-warm-followup",
+      "name": "SMS Warm Follow-up",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1920, 520]
+    }
+  ],
+  "connections": {
+    "Web Widget Webhook": {
+      "main": [[
+        { "node": "Respond OK",       "type": "main", "index": 0 },
+        { "node": "Parse Call Data",  "type": "main", "index": 0 }
+      ]]
+    },
+    "Parse Call Data": {
+      "main": [[{ "node": "GPT-4o Extract & Score", "type": "main", "index": 0 }]]
+    },
+    "GPT-4o Extract & Score": {
+      "main": [[{ "node": "Parse GPT Response", "type": "main", "index": 0 }]]
+    },
+    "Parse GPT Response": {
+      "main": [[{ "node": "Save to Supabase", "type": "main", "index": 0 }]]
+    },
+    "Save to Supabase": {
+      "main": [[
+        { "node": "Is Hot Lead?",  "type": "main", "index": 0 },
+        { "node": "Is Warm Lead?", "type": "main", "index": 0 }
+      ]]
+    },
+    "Is Hot Lead?": {
+      "main": [[
+        { "node": "SMS Hot Lead Alert",   "type": "main", "index": 0 },
+        { "node": "Email Hot Lead Alert", "type": "main", "index": 0 }
+      ]]
+    },
+    "Is Warm Lead?": {
+      "main": [[{ "node": "Has Phone? (Warm)", "type": "main", "index": 0 }]]
+    },
+    "Has Phone? (Warm)": {
+      "main": [[{ "node": "SMS Warm Follow-up", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

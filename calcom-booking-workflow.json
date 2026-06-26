@@ -1,0 +1,202 @@
+{
+  "name": "Vapi — Cal.com Live Booking (v2)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vapi-calcom-booking",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-1408, 512],
+      "webhookId": "58a91c2a-eafe-49c0-9066-83fc92e6d3a2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst body = raw.body || raw;\n\nconst toolCall =\n  body.message?.toolCallList?.[0] ||\n  body.message?.toolCalls?.[0] ||\n  body.message?.toolCall ||\n  body.toolCallList?.[0] ||\n  body.toolCalls?.[0] ||\n  null;\n\nif (!toolCall) {\n  return [{ json: { toolName: '', toolCallId: 'unknown', args: {} } }];\n}\n\nconst toolName = toolCall.function?.name || toolCall.name || '';\nconst toolCallId = toolCall.id || '';\nlet args = {};\ntry {\n  const rawArgs = toolCall.function?.arguments ?? toolCall.arguments ?? '{}';\n  args = typeof rawArgs === 'string' ? JSON.parse(rawArgs) : (rawArgs || {});\n} catch(e) { args = {}; }\n\nreturn [{ json: { toolName, toolCallId, args } }];"
+      },
+      "id": "node-002",
+      "name": "Extract Tool",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-1184, 512]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond-check",
+              "leftValue": "={{ $json.toolName }}",
+              "rightValue": "checkAvailability",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-003",
+      "name": "Which Tool?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-960, 512]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst startTime = now.toISOString();\nconst end = new Date(now);\nend.setDate(end.getDate() + 7);\nconst endTime = end.toISOString();\nreturn [{ json: { ...$input.first().json, startTime, endTime } }];"
+      },
+      "id": "node-004",
+      "name": "Build Date Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-736, 400]
+    },
+    {
+      "parameters": {
+        "url": "https://api.cal.com/v2/slots",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "eventTypeId", "value": "={{ $vars.CALCOM_EVENT_TYPE_ID }}" },
+            { "name": "start", "value": "={{ $json.startTime }}" },
+            { "name": "end", "value": "={{ $json.endTime }}" },
+            { "name": "timeZone", "value": "={{ $vars.CALCOM_TIMEZONE || 'America/Los_Angeles' }}" }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $vars.CALCOM_API_KEY }}" },
+            { "name": "cal-api-version", "value": "2024-09-04" }
+          ]
+        },
+        "options": { "timeout": 8000 }
+      },
+      "id": "node-005",
+      "name": "Get Available Slots",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-512, 400],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const toolCallId = $('Extract Tool').first().json.toolCallId;\nconst response = $input.first().json;\nconst timezone = $vars.CALCOM_TIMEZONE || 'America/Los_Angeles';\n\nlet slotsMap = {};\n\nif (response?.data && typeof response.data === 'object') {\n  if (response.data.slots) {\n    slotsMap = response.data.slots;\n  } else {\n    slotsMap = response.data;\n  }\n} else if (response?.slots) {\n  slotsMap = response.slots;\n}\n\nconst formatted = [];\n\nfor (const [dateKey, times] of Object.entries(slotsMap)) {\n  if (!Array.isArray(times) || times.length === 0) continue;\n\n  times.slice(0, 3).forEach(slot => {\n    const isoTime = slot.start || slot.time || slot;\n    if (!isoTime) return;\n\n    const d = new Date(isoTime);\n    const display = d.toLocaleString('en-US', {\n      weekday: 'long', month: 'long', day: 'numeric',\n      hour: 'numeric', minute: '2-digit', timeZone: timezone\n    });\n    formatted.push(display + ' [' + isoTime + ']');\n  });\n\n  if (formatted.length >= 6) break;\n}\n\nlet result;\nif (formatted.length === 0) {\n  result = 'No availability found in the next 7 days. Let the caller know and offer to take their name and number for a callback.';\n} else {\n  result = 'Available appointment slots. Offer 2-3 naturally, and do NOT read the ISO datetimes in brackets aloud:\\n\\n' + formatted.join('\\n') + '\\n\\nWhen the caller confirms a slot, call createBooking and pass the ISO datetime in brackets as slot_iso exactly as shown.';\n}\n\nreturn [{ json: { results: [{ toolCallId, result }] } }];"
+      },
+      "id": "node-006",
+      "name": "Format Slots",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-288, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst args = data.args || {};\nconst isoStart = args.slot_iso || '';\n\nif (!isoStart) {\n  return [{ json: { ...data, bookingPayload: null, bookingError: 'Missing slot_iso' } }];\n}\n\nif (!args.email) {\n  return [{ json: { ...data, bookingPayload: null, bookingError: 'Missing email' } }];\n}\n\nconst eventTypeId = Number($vars.CALCOM_EVENT_TYPE_ID);\nif (!eventTypeId || isNaN(eventTypeId)) {\n  return [{ json: { ...data, bookingPayload: null, bookingError: 'CALCOM_EVENT_TYPE_ID variable is not set or invalid in n8n. Go to Settings > Variables and add it.' } }];\n}\n\nconst timezone = $vars.CALCOM_TIMEZONE || 'America/Los_Angeles';\n\n// Strip brackets, quotes, or whitespace the LLM may have wrapped around the ISO\nconst cleanIso = isoStart.replace(/[\\[\\]\"'\\s]/g, '').trim();\n\n// Validate it looks like an ISO datetime before sending\nif (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}/.test(cleanIso)) {\n  return [{ json: { ...data, bookingPayload: null, bookingError: 'slot_iso does not look like a valid ISO datetime: ' + isoStart + '. You must call checkAvailability first to get real slots. Do not invent or guess slot times.' } }];\n}\n\n// Reject slots in the past\nconst slotDate = new Date(cleanIso);\nconst now = new Date();\nif (slotDate <= now) {\n  return [{ json: { ...data, bookingPayload: null, bookingError: 'The slot ' + cleanIso + ' is in the past. You must call checkAvailability right now to get real available slots, then offer those exact times to the caller. Never invent or reuse a slot ISO.' } }];\n}\n\nconst payload = {\n  eventTypeId: eventTypeId,\n  start: cleanIso,\n  attendee: {\n    name: args.name || 'Caller',\n    email: args.email,\n    timeZone: timezone,\n    language: 'en'\n  }\n};\n\nif (args.phone) {\n  payload.attendee.phoneNumber = args.phone;\n}\n\nif (args.notes) {\n  payload.bookingFieldsResponses = { notes: args.notes };\n}\n\nreturn [{ json: { ...data, bookingPayload: payload, bookingError: null } }];"
+      },
+      "id": "node-007",
+      "name": "Build Booking Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-736, 624]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cal.com/v2/bookings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $vars.CALCOM_API_KEY }}" },
+            { "name": "cal-api-version", "value": "2026-02-25" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($json.bookingPayload) }}",
+        "options": { "timeout": 8000 }
+      },
+      "id": "node-008",
+      "name": "Create Cal.com Booking",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-512, 624],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const toolCallId = $('Extract Tool').first().json.toolCallId;\nconst response = $input.first().json;\nconst timezone = $vars.CALCOM_TIMEZONE || 'America/Los_Angeles';\n\nconst bookingData = response.data ? response.data : response;\n\nlet result;\nif (bookingData.id || bookingData.uid) {\n  const start = new Date(bookingData.start || bookingData.startTime);\n  const readableTime = start.toLocaleString('en-US', {\n    weekday: 'long', month: 'long', day: 'numeric',\n    hour: 'numeric', minute: '2-digit', timeZone: timezone\n  });\n  const attendeeEmail = bookingData.attendees?.[0]?.email || 'their email';\n  result = 'Booking confirmed. Scheduled for ' + readableTime + '. A confirmation email has been sent to ' + attendeeEmail + '.';\n} else {\n  const errorDetail = bookingData.error || bookingData.message || response.message || response.error || JSON.stringify(response);\n  const errorMsg = typeof errorDetail === 'object' ? JSON.stringify(errorDetail) : String(errorDetail);\n  result = 'Booking failed (' + errorMsg + '). Do not end the call. Apologize briefly, then collect or confirm the callers name, email, phone, and preferred time. Tell them the team will manually confirm the appointment shortly.';\n}\nreturn [{ json: { results: [{ toolCallId, result }] } }];"
+      },
+      "id": "node-009",
+      "name": "Format Confirmation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-288, 624]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "node-010",
+      "name": "Respond to Vapi",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [-64, 512]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Extract Tool", "type": "main", "index": 0 }]]
+    },
+    "Extract Tool": {
+      "main": [[{ "node": "Which Tool?", "type": "main", "index": 0 }]]
+    },
+    "Which Tool?": {
+      "main": [
+        [{ "node": "Build Date Range", "type": "main", "index": 0 }],
+        [{ "node": "Build Booking Payload", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Date Range": {
+      "main": [[{ "node": "Get Available Slots", "type": "main", "index": 0 }]]
+    },
+    "Get Available Slots": {
+      "main": [[{ "node": "Format Slots", "type": "main", "index": 0 }]]
+    },
+    "Format Slots": {
+      "main": [[{ "node": "Respond to Vapi", "type": "main", "index": 0 }]]
+    },
+    "Build Booking Payload": {
+      "main": [[{ "node": "Create Cal.com Booking", "type": "main", "index": 0 }]]
+    },
+    "Create Cal.com Booking": {
+      "main": [[{ "node": "Format Confirmation", "type": "main", "index": 0 }]]
+    },
+    "Format Confirmation": {
+      "main": [[{ "node": "Respond to Vapi", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "10",
+  "meta": { "templateCredsSetupCompleted": true },
+  "id": "vapi-calcom-booking-v4",
+  "tags": []
+}

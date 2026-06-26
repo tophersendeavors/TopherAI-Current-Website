@@ -1,0 +1,234 @@
+{
+  "name": "Topher AI — Cal.com Booking Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cal-booking",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "1173148c-abd5-4ab2-aa96-b4c3f627a211",
+      "name": "Cal.com Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        112
+      ],
+      "webhookId": "cal-booking-intake"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.item.json.body || $input.item.json;\n\nconst trigger  = body.triggerEvent || '';\nconst payload  = body.payload || {};\n\n// Only process new bookings (ignore cancellations/reschedules here)\nconst attendee = (payload.attendees || [])[0] || {};\n\nconst name      = attendee.name  || payload.name  || 'Unknown';\nconst email     = attendee.email || payload.email || '';\nconst firstName = name.split(' ')[0];\n\n// Format the start time nicely\nconst startRaw  = payload.startTime || payload.start || '';\nlet   startStr  = startRaw;\nif (startRaw) {\n  const d = new Date(startRaw);\n  startStr = d.toLocaleString('en-US', {\n    weekday: 'short',\n    month:   'short',\n    day:     'numeric',\n    hour:    'numeric',\n    minute:  '2-digit',\n    hour12:  true,\n    timeZone: 'America/Los_Angeles'\n  });\n}\n\nconst eventTitle = payload.title || payload.eventTitle || 'Topher AI Demo Call';\nconst cancelUrl  = payload.cancelUrl  || '';\nconst reschedUrl = payload.rescheduleUrl || '';\n\nreturn [{ json: {\n  trigger,\n  name,\n  firstName,\n  email,\n  startStr,\n  eventTitle,\n  cancelUrl,\n  reschedUrl\n} }];"
+      },
+      "id": "46d136e0-77d9-475b-ae30-ba243e37753e",
+      "name": "Parse Booking",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telnyx.com/v2/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SMS_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from\": $vars.SMS_FROM_NUMBER, \"to\": $vars.ADMIN_PHONE, \"text\": \"📅 DEMO BOOKED\\n\\nName: \" + $json.name + \"\\nEmail: \" + $json.email + \"\\nTime: \" + $json.startStr + \"\\n\\nCheck your Cal.com for details.\" } }}",
+        "options": {}
+      },
+      "id": "4d200be9-32a5-4888-94b1-2cb57192219f",
+      "name": "Send Booking Alert SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $vars.SMTP_FROM_EMAIL }}",
+        "toEmail": "chris@topherai.com",
+        "subject": "=📅 Demo Booked: {{ $json.name }} — {{ $json.startStr }}",
+        "html": "=<div style=\"font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb\">\n  <div style=\"background:linear-gradient(135deg,#7c3aed,#0ea5e9);padding:32px;text-align:center\">\n    <h1 style=\"margin:0;font-size:22px;font-weight:700;color:#ffffff\">📅 Demo Call Booked!</h1>\n    <p style=\"margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px\">Someone just scheduled time with you</p>\n  </div>\n  <div style=\"padding:32px;background:#ffffff\">\n    <table style=\"width:100%;border-collapse:collapse\">\n      <tr><td style=\"padding:12px 0;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px;width:100px\">Name</td><td style=\"padding:12px 0;border-bottom:1px solid #e5e7eb;font-size:15px;font-weight:600;color:#111827\">{{ $json.name }}</td></tr>\n      <tr><td style=\"padding:12px 0;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px\">Email</td><td style=\"padding:12px 0;border-bottom:1px solid #e5e7eb;font-size:14px\"><a href=\"mailto:{{ $json.email }}\" style=\"color:#0284c7;text-decoration:none\">{{ $json.email }}</a></td></tr>\n      <tr><td style=\"padding:12px 0;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:13px\">Time</td><td style=\"padding:12px 0;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:600;color:#111827\">{{ $json.startStr }}</td></tr>\n      <tr><td style=\"padding:12px 0;color:#6b7280;font-size:13px\">Event</td><td style=\"padding:12px 0;font-size:14px;color:#111827\">{{ $json.eventTitle }}</td></tr>\n    </table>\n    <div style=\"margin-top:28px;display:flex;gap:12px;justify-content:center\">\n      <a href=\"https://cal.com/christopher-wrgldt\" style=\"display:inline-block;padding:13px 28px;background:linear-gradient(135deg,#7c3aed,#0ea5e9);color:#ffffff;text-decoration:none;border-radius:8px;font-weight:700;font-size:14px\">View in Cal.com →</a>\n    </div>\n    <p style=\"margin-top:24px;font-size:12px;color:#9ca3af;text-align:center\">Prepare your demo materials and confirm the meeting. 🚀</p>\n  </div>\n</div>",
+        "options": {}
+      },
+      "id": "baae1204-2e04-4977-9040-8bd21a879843",
+      "name": "Send Booking Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        160
+      ],
+      "webhookId": "3ca1298e-10e2-4039-9654-715135c47966",
+      "credentials": {
+        "smtp": {
+          "id": "g6lDQtpneiofB51E",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $vars.SUPABASE_URL }}/rest/v1/contacts",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "=eq.{{ $('Parse Booking').item.json.email }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"lead_status\": \"demo_scheduled\", \"urgency\": \"hot\", \"updated_at\": new Date().toISOString() } }}",
+        "options": {}
+      },
+      "id": "74bf4fc0-265b-4447-b8f6-907f60a953ba",
+      "name": "Update Contact to Hot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        0,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "7695c769-72ed-4a52-8afb-3a26f66d1ec0",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        224,
+        160
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cal.com Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Booking": {
+      "main": [
+        [
+          {
+            "node": "Send Booking Alert SMS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Booking Email Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Contact to Hot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Booking Alert SMS": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Booking Email Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Contact to Hot": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "8a7df205-4e7c-426e-b069-3af316b0aecb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "57d0131561cd8e704494b6c3a013d895c007284d2bb85831b19e2b772ee29e9d"
+  },
+  "id": "NayZ5UMKLRik9ZBl",
+  "tags": []
+}

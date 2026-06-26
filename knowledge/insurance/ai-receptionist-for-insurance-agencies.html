@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *{font-family:'Inter',sans-serif}
+    body{background:#f5f5f7;color:#1d1d1f}
+    .glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.6)}
+    .quick-answer{background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08));border:1.5px solid rgba(99,102,241,0.25);border-radius:12px;padding:24px 28px}
+    .faq-btn{width:100%;text-align:left;padding:18px 22px;background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:#1d1d1f;transition:all .2s}
+    .faq-btn:hover{background:rgba(255,255,255,1);border-color:rgba(99,102,241,0.3)}
+    .faq-body{display:none;padding:16px 22px 20px;background:rgba(255,255,255,0.6);border:1px solid rgba(0,0,0,0.06);border-top:none;border-radius:0 0 10px 10px;color:#424245;line-height:1.7}
+    .toc-link{display:block;padding:7px 12px;border-radius:8px;font-size:0.82rem;color:#424245;text-decoration:none;transition:all .2s}
+    .toc-link:hover,.toc-link.active{background:rgba(99,102,241,0.1);color:#4f46e5;font-weight:600}
+    .stat-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px 24px;text-align:center}
+    .step-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0}
+    table{width:100%;border-collapse:collapse}
+    th{padding:12px 16px;text-align:left;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    td{padding:12px 16px;border-bottom:1px solid rgba(0,0,0,0.06);font-size:0.9rem;color:#424245}
+    tr:last-child td{border-bottom:none}
+    .win-ai{color:#059669;font-weight:600}
+    .win-human{color:#dc2626;font-weight:500}
+    .neutral{color:#6b7280}
+    .related-card{background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px;cursor:pointer;transition:all .25s}
+    .related-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+    .breadcrumb a{color:#6b7280;font-size:0.82rem;text-decoration:none}
+    .breadcrumb a:hover{color:#4f46e5}
+    .breadcrumb span{color:#9ca3af;font-size:0.82rem;margin:0 6px}
+    nav{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.06)}
+    footer{background:#1d1d1f}
+  </style>
+</head>
+<title>AI Receptionist for Insurance Agencies | Topher AI</title>
+<meta name="description" content="AI receptionists help insurance agencies capture more leads, qualify prospects by coverage type, and schedule consultations — without adding staff."/>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {"@type":"Article","headline":"AI Receptionist for Insurance Agencies","description":"How AI helps insurance agencies capture leads, qualify prospects by coverage type, and schedule consultations automatically.","author":{"@type":"Organization","name":"Topher AI"},"publisher":{"@type":"Organization","name":"Topher AI","url":"https://topherai.com"},"datePublished":"2025-01-01","dateModified":"2025-06-01"},
+    {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Knowledge Center","item":"https://topherai.com/knowledge/"},{"@type":"ListItem","position":2,"name":"Insurance","item":"https://topherai.com/knowledge/insurance/"},{"@type":"ListItem","position":3,"name":"AI Receptionist for Insurance Agencies"}]},
+    {"@type":"FAQPage","mainEntity":[
+      {"@type":"Question","name":"What can an AI receptionist do for an insurance agency?","acceptedAnswer":{"@type":"Answer","text":"AI can answer calls 24/7, qualify prospects by coverage type (auto, home, life, commercial), gather basic info (ZIP code, coverage needs, current insurer), and book consultations with agents."}},
+      {"@type":"Question","name":"Can AI quote insurance policies?","acceptedAnswer":{"@type":"Answer","text":"AI cannot provide binding quotes or coverage recommendations — those require licensed agents. However, AI can gather the information needed to produce a quote and schedule an agent follow-up."}},
+      {"@type":"Question","name":"How does AI help during insurance renewal season?","acceptedAnswer":{"@type":"Answer","text":"During peak renewal periods, AI handles overflow call volume, sends automated renewal reminders, and books review appointments — preventing clients from lapsing or shopping competitors."}}
+    ]},
+    {"@type":"SpeakableSpecification","cssSelector":["#quick-answer","h2","h3"]}
+  ]
+}
+</script>
+<body>
+<nav class="sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+    <a href="../../index.html" class="flex items-center gap-2 no-underline">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+        <i class="fa-solid fa-headset text-white text-xs"></i>
+      </div>
+      <span class="font-bold text-base" style="color:#1d1d1f">Topher AI</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="../../index.html#features" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Features</a>
+      <a href="../../index.html#industries" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Industries</a>
+      <a href="../../index.html#pricing" class="text-sm font-medium transition-colors" style="color:#424245" onmouseover="this.style.color='#1d1d1f'" onmouseout="this.style.color='#424245'">Pricing</a>
+      <a href="../" class="text-sm font-medium transition-colors" style="color:#4f46e5;font-weight:600">Knowledge</a>
+      <a href="../../index.html#contact" class="text-sm font-medium text-white px-4 py-2 rounded-xl transition-opacity hover:opacity-90" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">Get Started</a>
+    </div>
+  </div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 py-12">
+  <div class="breadcrumb flex items-center gap-1 mb-8">
+    <a href="../">Knowledge Center</a><span>/</span>
+    <a href="../">Insurance</a><span>/</span>
+    <span class="text-sm" style="color:#1d1d1f">AI Receptionist for Insurance Agencies</span>
+  </div>
+
+  <div class="mb-10">
+    <span class="text-xs font-semibold px-3 py-1 rounded-full inline-block mb-4" style="background:#0ea5e922;color:#0ea5e9">Insurance</span>
+    <h1 class="text-4xl font-bold mb-4" style="color:#1d1d1f">AI Receptionist for Insurance Agencies</h1>
+    <p class="text-xl" style="color:#424245;max-width:700px">Capture more leads, qualify by coverage type, and book agent consultations — without adding headcount.</p>
+  </div>
+
+  <div class="grid lg:grid-cols-[1fr_280px] gap-10">
+    <div>
+      <div id="quick-answer" class="quick-answer mb-10">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="fa-solid fa-bolt text-indigo-500"></i>
+          <span class="text-xs font-bold uppercase tracking-wider" style="color:#6366f1">Quick Answer</span>
+        </div>
+        <p class="font-semibold text-lg mb-2" style="color:#1d1d1f">AI answers every inquiry, gathers coverage needs and basic info, and routes prospects to the right agent — instantly, 24/7.</p>
+        <p style="color:#424245">Insurance prospects compare multiple agencies simultaneously. AI ensures your agency is the first to respond and the one that captures their information — giving your agents the best shot at winning the policy.</p>
+      </div>
+
+      <h2 id="why-ai-for-insurance" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Why Insurance Agencies Need AI</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#0ea5e9">78%</div><div class="text-sm" style="color:#6b7280">of prospects contact 3+ agencies before deciding</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#0ea5e9">5min</div><div class="text-sm" style="color:#6b7280">response window before interest drops significantly</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#0ea5e9">45%</div><div class="text-sm" style="color:#6b7280">of agency calls go to voicemail or hold</div></div>
+        <div class="stat-card"><div class="text-3xl font-bold mb-1" style="color:#0ea5e9">2x</div><div class="text-sm" style="color:#6b7280">close rate improvement with same-day follow-up</div></div>
+      </div>
+
+      <h2 id="what-ai-handles" class="text-2xl font-bold mb-6" style="color:#1d1d1f">What AI Handles for Insurance Agencies</h2>
+      <div class="space-y-4 mb-8">
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#0ea5e922;color:#0ea5e9">1</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">24/7 Lead Capture</h3><p class="text-sm" style="color:#424245">AI answers inbound calls, web form leads, and chat inquiries instantly — capturing name, contact info, coverage type of interest, and ZIP code before routing to an agent.</p></div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#0ea5e922;color:#0ea5e9">2</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Coverage Type Triage</h3><p class="text-sm" style="color:#424245">AI identifies what type of coverage the prospect needs — auto, home, renters, life, commercial, health — and routes to the appropriate specialist agent.</p></div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#0ea5e922;color:#0ea5e9">3</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Pre-Quote Info Gathering</h3><p class="text-sm" style="color:#424245">AI collects the information agents need to prepare quotes: current insurer, coverage history, property/vehicle details, number of drivers, and coverage preferences.</p></div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#0ea5e922;color:#0ea5e9">4</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Consultation Scheduling</h3><p class="text-sm" style="color:#424245">AI books a quote review call or in-person meeting directly into the agent's calendar — eliminating phone tag.</p></div>
+        </div>
+        <div class="flex gap-4 p-4 glass rounded-xl">
+          <div class="step-num" style="background:#0ea5e922;color:#0ea5e9">5</div>
+          <div><h3 class="font-bold mb-1" style="color:#1d1d1f">Renewal Reminder Campaigns</h3><p class="text-sm" style="color:#424245">AI sends automated renewal reminders 60, 30, and 7 days before policy expiration — reducing lapses and preventing clients from shopping competitors.</p></div>
+        </div>
+      </div>
+
+      <h2 id="coverage-types" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Coverage Types AI Can Triage</h2>
+      <div class="glass rounded-2xl p-6 mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm" style="color:#424245">
+          <div><i class="fa-solid fa-car text-sky-500 mr-2"></i>Auto Insurance</div>
+          <div><i class="fa-solid fa-house text-sky-500 mr-2"></i>Homeowners Insurance</div>
+          <div><i class="fa-solid fa-heart text-sky-500 mr-2"></i>Life Insurance</div>
+          <div><i class="fa-solid fa-building text-sky-500 mr-2"></i>Commercial / Business</div>
+          <div><i class="fa-solid fa-shield-halved text-sky-500 mr-2"></i>Renters Insurance</div>
+          <div><i class="fa-solid fa-stethoscope text-sky-500 mr-2"></i>Health Insurance</div>
+          <div><i class="fa-solid fa-umbrella text-sky-500 mr-2"></i>Umbrella Policies</div>
+          <div><i class="fa-solid fa-truck text-sky-500 mr-2"></i>Commercial Auto</div>
+          <div><i class="fa-solid fa-briefcase text-sky-500 mr-2"></i>Workers' Comp</div>
+        </div>
+      </div>
+
+      <h2 id="faq" class="text-2xl font-bold mb-6" style="color:#1d1d1f">Frequently Asked Questions</h2>
+      <div class="mb-10">
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(1)">
+        <span>Can AI provide insurance quotes or coverage advice?</span>
+        <i id="faq-icon-1" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-1" class="faq-body">No. AI gathers intake information and books the appointment. All quotes, coverage recommendations, and binding decisions are handled by your licensed agents.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(2)">
+        <span>How does AI handle claims inquiries?</span>
+        <i id="faq-icon-2" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-2" class="faq-body">AI can collect initial claim information, provide general guidance on the claims process, and route to the appropriate claims team — but does not process claims or make coverage determinations.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(3)">
+        <span>Will AI work for an independent agency vs. a captive agency?</span>
+        <i id="faq-icon-3" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-3" class="faq-body">Both. AI is fully customizable to your agency's product lineup, carrier relationships, and qualification criteria.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(4)">
+        <span>How does AI handle renewal calls from existing clients?</span>
+        <i id="faq-icon-4" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-4" class="faq-body">AI identifies the caller, confirms their policy renewal date, and either answers common renewal questions or books a policy review with their agent.</div>
+    </div>
+        
+    <div class="mb-3">
+      <button class="faq-btn" onclick="toggleFaq(5)">
+        <span>What's the ROI for an insurance agency using AI?</span>
+        <i id="faq-icon-5" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+      </button>
+      <div id="faq-body-5" class="faq-body">Agencies using AI for lead capture report 20–40% more qualified consultations booked per month — at a cost far below adding another CSR.</div>
+    </div>
+      </div>
+
+      <h2 class="text-2xl font-bold mb-6" style="color:#1d1d1f">Related Articles</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        
+    <div class="related-card" onclick="window.location='../what-is-an-ai-receptionist.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Fundamentals</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">What Is an AI Receptionist?</h4>
+      <p class="text-xs" style="color:#6b7280">The complete guide to AI receptionists.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../how-ai-voice-agents-work.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Fundamentals</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">How AI Voice Agents Work</h4>
+      <p class="text-xs" style="color:#6b7280">The technology behind AI phone systems.</p>
+    </div>
+        
+    <div class="related-card" onclick="window.location='../compare/ai-receptionist-vs-human-receptionist.html'">
+      <span class="text-xs font-semibold px-2 py-1 rounded-full mb-3 inline-block" style="background:#6366f122;color:#6366f1">Compare</span>
+      <h4 class="font-bold text-sm mb-1" style="color:#1d1d1f">AI vs. Human Receptionist</h4>
+      <p class="text-xs" style="color:#6b7280">Full cost and feature comparison.</p>
+    </div>
+      </div>
+    </div>
+    <aside class="hidden lg:block">
+      
+    <div class="space-y-6">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="color:#6b7280">On This Page</h3>
+        <a href="#why-ai-for-insurance" data-target="why-ai-for-insurance" class="toc-link">Why AI for Insurance</a>
+<a href="#what-ai-handles" data-target="what-ai-handles" class="toc-link">What AI Handles</a>
+<a href="#coverage-types" data-target="coverage-types" class="toc-link">Coverage Types</a>
+<a href="#faq" data-target="faq" class="toc-link">FAQ</a>
+
+      </div>
+      <div class="rounded-2xl p-6 text-white" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">
+        <i class="fa-solid fa-shield-halved text-2xl mb-3 opacity-90"></i>
+        <h3 class="font-bold text-lg mb-2">Never Miss a Policy Inquiry</h3>
+        <p class="text-sm opacity-80 mb-4">AI captures leads 24/7 so agents focus on closing.</p>
+        <a href="../../index.html#contact" class="block w-full text-center py-2.5 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.2);color:white">Get a Free Demo</a>
+      </div>
+    </div>
+    </aside>
+  </div>
+</main>
+<footer class="py-16 px-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+            <i class="fa-solid fa-headset text-white text-xs"></i>
+          </div>
+          <span class="font-bold text-white">Topher AI</span>
+        </div>
+        <p class="text-sm" style="color:#86868b">AI receptionist &amp; automation for modern businesses.</p>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Product</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#features" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Features</a></li>
+          <li><a href="../../index.html#pricing" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Pricing</a></li>
+          <li><a href="../../index.html#industries" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Industries</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Industries</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#real-estate" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Real Estate</a></li>
+          <li><a href="../../index.html#law-firms" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Law Firms</a></li>
+          <li><a href="../../index.html#med-spas" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Med Spas</a></li>
+          <li><a href="../../index.html#insurance" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Insurance</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Knowledge</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Knowledge Center</a></li>
+          <li><a href="../what-is-an-ai-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">What Is an AI Receptionist</a></li>
+          <li><a href="../real-estate/ai-receptionist-for-realtors.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI for Real Estate</a></li>
+          <li><a href="../compare/ai-receptionist-vs-human-receptionist.html" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">AI vs. Human</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Company</h4>
+        <ul class="space-y-2.5">
+          <li><a href="../../index.html#contact" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Contact</a></li>
+          <li><a href="../../index.html#demo" class="text-sm transition-colors" style="color:#86868b" onmouseover="this.style.color='#f5f5f7'" onmouseout="this.style.color='#86868b'">Book a Demo</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t pt-8" style="border-color:rgba(255,255,255,0.1)">
+      <p class="text-sm text-center" style="color:#86868b">© 2025 Topher AI. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+<script>
+function toggleFaq(id){
+  var b=document.getElementById('faq-body-'+id);
+  var i=document.getElementById('faq-icon-'+id);
+  if(b.style.display==='block'){b.style.display='none';i.className='fa-solid fa-chevron-down text-gray-400 text-xs';}
+  else{b.style.display='block';i.className='fa-solid fa-chevron-up text-indigo-500 text-xs';}
+}
+window.addEventListener('scroll',function(){
+  var links=document.querySelectorAll('.toc-link[data-target]');
+  links.forEach(function(l){
+    var t=document.getElementById(l.dataset.target);
+    if(t){var r=t.getBoundingClientRect();if(r.top<=120&&r.bottom>=80){links.forEach(function(x){x.classList.remove('active')});l.classList.add('active');}}
+  });
+});
+</script>
+</body></html>
