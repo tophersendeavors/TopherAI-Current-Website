@@ -2197,11 +2197,30 @@ function ProspectingTab({ rows, loading, onOpenProspect, search, setSearch }) {
 }
 
 /* Prospect detail drawer (read-only) — mirrors LeadDrawer */
-function ProspectDrawer({ prospect, onClose }) {
+const DRAFT_STATUS_COLORS = { draft:'#EE9A86', approved:'#34d399', rejected:'#fb7185', superseded:'#8E94A6', sent:'#34d399', scheduled:'#fbbf24' };
+const DraftStatusPill = ({ status }) => {
+  const s = (status||'draft').toLowerCase();
+  const c = DRAFT_STATUS_COLORS[s] || '#B3A799';
+  return <span className="pill" style={{ background:c+'1A', color:c, border:'1px solid '+c+'40' }}><span className="dot" style={{ background:c }}/>{s}</span>;
+};
+
+function ProspectDrawer({ prospect, onClose, outreach = [], onUpdateOutreach, operator }) {
+  const [busy, setBusy] = useState(false);
   if (!prospect) return null;
   const b = prospect;
   const yn = v => v === true ? 'Yes' : v === false ? 'No' : '—';
   const cleanUrl = u => u ? u.replace(/^https?:\/\//,'').replace(/\/$/,'') : '';
+  const bizOutreach = (outreach||[]).filter(o => o.business_id === b.id).slice().sort((x,y)=> new Date(y.created_at||0) - new Date(x.created_at||0));
+  const activeDraft = bizOutreach.find(o => !o.superseded_at && o.status !== 'rejected') || null;
+  const act = async (fields, confirmMsg) => {
+    if (!activeDraft || !onUpdateOutreach) return;
+    if (confirmMsg && !window.confirm(confirmMsg)) return;
+    setBusy(true);
+    try { await onUpdateOutreach(activeDraft.id, fields); } finally { setBusy(false); }
+  };
+  const approveDraft = () => act({ status:'approved', approved_at: new Date().toISOString(), approved_by: operator || null });
+  const rejectDraft  = () => act({ status:'rejected', superseded_at: new Date().toISOString() }, 'Reject this draft? It will be marked rejected and will no longer be the active draft.');
+  const queueRedraft = () => act({ status:'superseded', superseded_at: new Date().toISOString() }, 'Queue a redraft? This supersedes the current draft so the next drafting-workflow run regenerates it. It does not generate a new draft instantly.');
   return (
     <Fragment>
       <div className="drawer-backdrop" onClick={onClose}/>
@@ -2274,6 +2293,111 @@ function ProspectDrawer({ prospect, onClose }) {
                 {Array.isArray(b.pain_points) && b.pain_points.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">{b.pain_points.map((p,i)=><span key={i} className="pill badge-muted">{p}</span>)}</div>
                 )}
+              </div>
+            )}
+          </ProspectSection>
+
+          <ProspectSection title="Strategic dossier">
+            {b.enrichment_status !== 'enriched' ? (
+              <div className="glass-flat rounded-xl p-3 text-[12px] text-slate-500 flex items-start gap-2"><Icon name="clock" size={12}/><span>Not yet enriched — Workflow 4 populates the strategic dossier (summary, pains, angle, conversation starter).</span></div>
+            ) : (
+              <div className="space-y-3">
+                {[
+                  ['Summary', b.company_summary],
+                  ['Credibility', b.credibility_note],
+                  ['Differentiator', b.differentiator],
+                  ['Local angle', b.local_angle],
+                  ['Key observation', b.key_observation],
+                  ['Core pain', b.core_pain],
+                  ['Value to them', b.value_to_them],
+                  ['Conversation starter', b.conversation_starter],
+                ].filter(r => r[1]).map(([label, text], i) => (
+                  <div key={i}>
+                    <div className="text-[9.5px] uppercase tracking-widest text-slate-500 font-semibold mb-1">{label}</div>
+                    <p className="text-[12.5px] text-slate-200 leading-relaxed whitespace-pre-wrap">{text}</p>
+                  </div>
+                ))}
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                  {b.business_maturity   && <span className="pill badge-muted">Maturity: {b.business_maturity}</span>}
+                  {b.brand_positioning   && <span className="pill badge-muted">Positioning: {b.brand_positioning}</span>}
+                  {b.tech_sophistication && <span className="pill badge-muted">Tech: {b.tech_sophistication}</span>}
+                  {b.recommended_channel && <span className="pill badge-indigo">Channel: {b.recommended_channel}</span>}
+                </div>
+                {b.assessment_signals && typeof b.assessment_signals === 'object' && (
+                  <div className="space-y-2 pt-0.5">
+                    <div className="text-[9.5px] uppercase tracking-widest text-slate-500 font-semibold">Assessment signals</div>
+                    {['maturity','tech_sophistication','brand_positioning','recommended_channel'].filter(k => b.assessment_signals[k]).map(k => {
+                      const sig = b.assessment_signals[k];
+                      return (
+                        <div key={k} className="glass-flat rounded-lg p-2.5">
+                          <div className="text-[11px] text-slate-200 font-medium">{k.replace(/_/g,' ')}: <span className="text-slate-400">{sig.label}</span></div>
+                          {sig.reasoning && <div className="text-[11px] text-slate-500 mt-1 leading-snug">{sig.reasoning}</div>}
+                          {Array.isArray(sig.evidence) && sig.evidence.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">{sig.evidence.map((e,i)=><span key={i} className="pill badge-muted" style={{ fontSize:'9.5px' }}>{e}</span>)}</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                <div className="text-[10px] text-slate-600 pt-0.5">{[b.enrichment_model, b.enrichment_prompt_version, b.enriched_at ? ('enriched ' + fmtDate(b.enriched_at)) : null].filter(Boolean).join(' · ')}</div>
+              </div>
+            )}
+          </ProspectSection>
+
+          <ProspectSection title="Internal email draft">
+            {!activeDraft ? (
+              <div className="glass-flat rounded-xl p-3 text-[12px] text-slate-500 flex items-start gap-2"><Icon name="inbox" size={12}/><span>No internal draft yet. Workflow 5 generates the first-touch email for enriched, email-channel businesses.</span></div>
+            ) : (
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <DraftStatusPill status={activeDraft.status}/>
+                  <span className="pill badge-muted">{activeDraft.channel} · {activeDraft.message_type}</span>
+                  {activeDraft.generation_prompt_version && <span className="pill badge-muted" style={{ fontSize:'9.5px' }}>{activeDraft.generation_prompt_version}</span>}
+                  <span className="text-[10px] text-slate-600 ml-auto">{fmtDate(activeDraft.created_at)}</span>
+                </div>
+                <div className="glass-flat rounded-xl p-3 space-y-2">
+                  <div>
+                    <div className="text-[9.5px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Subject</div>
+                    <div className="text-[12.5px] text-slate-100">{activeDraft.subject || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-[9.5px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Body</div>
+                    <div className="text-[12.5px] text-slate-200 leading-relaxed whitespace-pre-wrap">{activeDraft.body || '—'}</div>
+                  </div>
+                </div>
+                <div className="text-[10px] text-slate-600">{[activeDraft.generation_model, activeDraft.persona_key ? ('persona ' + activeDraft.persona_key + (activeDraft.persona_version ? (' v' + activeDraft.persona_version) : '')) : null, activeDraft.created_by].filter(Boolean).join(' · ')}</div>
+                {activeDraft.status === 'approved' && (
+                  <div className="pill badge-ok" style={{ display:'flex', width:'fit-content' }}><Icon name="check" size={11}/> Approved{activeDraft.approved_at ? (' · ' + fmtDate(activeDraft.approved_at)) : ''}{activeDraft.approved_by ? (' · ' + activeDraft.approved_by) : ''}</div>
+                )}
+                <div className="grid grid-cols-3 gap-2 pt-0.5">
+                  <button disabled={busy || activeDraft.status === 'approved'} onClick={approveDraft} className="btn btn-primary justify-center disabled:opacity-50"><Icon name="check" size={12}/>Approve</button>
+                  <button disabled={busy} onClick={queueRedraft} className="btn btn-ghost justify-center disabled:opacity-50"><Icon name="refresh" size={12}/>Queue Redraft</button>
+                  <button disabled={busy} onClick={rejectDraft} className="btn btn-danger justify-center disabled:opacity-50"><Icon name="close" size={12}/>Reject</button>
+                </div>
+                <p className="text-[10px] text-slate-600">Queue Redraft supersedes this draft so the next drafting-workflow run regenerates it — it does not generate a new draft instantly.</p>
+              </div>
+            )}
+          </ProspectSection>
+
+          <ProspectSection title="Outreach history">
+            {bizOutreach.length === 0 ? (
+              <div className="glass-flat rounded-xl p-3 text-[12px] text-slate-500">No outreach generated for this business yet.</div>
+            ) : (
+              <div className="space-y-2">
+                {bizOutreach.map(o => (
+                  <div key={o.id} className="glass-flat rounded-lg p-2.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <DraftStatusPill status={o.status}/>
+                      <span className="pill badge-muted" style={{ fontSize:'9.5px' }}>{o.channel} · {o.message_type}</span>
+                      {o.superseded_at && <span className="pill badge-muted" style={{ fontSize:'9.5px' }}>superseded</span>}
+                      <span className="text-[10px] text-slate-600 ml-auto">{fmtDate(o.created_at)}</span>
+                    </div>
+                    {o.subject && <div className="text-[12px] text-slate-200 mt-1.5">{o.subject}</div>}
+                    {o.body && <div className="text-[11px] text-slate-500 mt-0.5 clamp-2 leading-snug">{o.body}</div>}
+                    <div className="text-[10px] text-slate-600 mt-1">{[o.generation_prompt_version, o.created_by].filter(Boolean).join(' · ')}</div>
+                  </div>
+                ))}
               </div>
             )}
           </ProspectSection>
@@ -2440,6 +2564,7 @@ function App() {
   const [drawerLead, setDrawerLead] = useState(null);
   const [businesses, setBusinesses] = useState([]);
   const [engineRuns, setEngineRuns] = useState([]);
+  const [outreach, setOutreach]     = useState([]);
   const [drawerProspect, setDrawerProspect] = useState(null);
   const [mobileNav, setMobileNav]   = useState(false);
   const [settings, setSettings]     = useState({});
@@ -2459,12 +2584,13 @@ function App() {
       const smsResult = smsQuery.error
         ? await db.from('admin_lead_alerts').select('*').order('created_at',{ascending:false}).limit(300)
         : smsQuery;
-      const [{ data:c, error:e1 }, { data:cl, error:e2 }, { data:amb, error:e3 }, { data:biz, error:e4 }, { data:er, error:e5 }] = await Promise.all([
+      const [{ data:c, error:e1 }, { data:cl, error:e2 }, { data:amb, error:e3 }, { data:biz, error:e4 }, { data:er, error:e5 }, { data:om, error:e6 }] = await Promise.all([
         db.from('contacts').select('*').order('created_at',{ascending:false}).limit(500),
         db.from('calls').select('*').order('created_at',{ascending:false}).limit(300),
         db.from('ambassador_applicants').select('*').order('created_at',{ascending:false}).limit(500),
         db.from('businesses').select('*').order('created_at',{ascending:false}).limit(500),
         db.from('engine_runs').select('workflow_key,status,started_at,finished_at,created_at').order('created_at',{ascending:false}).limit(200),
+        db.from('outreach_messages').select('id,business_id,campaign_id,channel,message_type,direction,status,subject,body,generation_model,generation_prompt_version,generation_workflow_version,generation_reason,generation_count,created_by,created_at,superseded_at,approved_by,approved_at,sent_at,scheduled_for,review_notes,persona_key,persona_version').order('created_at',{ascending:false}).limit(500),
       ]);
       const firstErr = e1||e2||smsResult.error;
       if (firstErr) setErr(firstErr.message);
@@ -2473,6 +2599,7 @@ function App() {
         setAmbassadors(amb||[]);   // e3 (ambassador table) is non-fatal — table may not exist yet
         setBusinesses(biz||[]);    // e4 (businesses) non-fatal too
         setEngineRuns(er||[]);     // e5 (engine_runs) non-fatal — Workflow Health / Last Successful Run telemetry
+        setOutreach(om||[]);       // e6 (outreach_messages) non-fatal — internal email drafts + history for the prospect drawer
         try {
           const { data: st } = await db.from('app_settings').select('data').eq('id',1).maybeSingle();
           const s = (st && st.data) || {};
@@ -2496,6 +2623,13 @@ function App() {
     const { error } = await db.from('contacts').update({ ...fields, updated_at: new Date().toISOString() }).eq('id', id);
     if (error) { alert('Update failed: ' + error.message); return; }
     setContacts(prev => prev.map(c => c.id === id ? { ...c, ...fields } : c));
+  };
+
+  // outreach_messages has NO updated_at column — never send it here.
+  const updateOutreach = async (id, fields) => {
+    const { error } = await db.from('outreach_messages').update(fields).eq('id', id);
+    if (error) { alert('Update failed: ' + error.message); return; }
+    setOutreach(prev => prev.map(o => o.id === id ? { ...o, ...fields } : o));
   };
 
   const deleteContact = async (id) => {
@@ -2702,7 +2836,7 @@ function App() {
       </main>
 
       {drawerLead && <LeadDrawer lead={drawerLead} onClose={() => setDrawerLead(null)} onUpdate={updateContact} onDelete={deleteContact} calls={calls} sms={sms} settings={settings}/>}
-      {drawerProspect && <ProspectDrawer prospect={drawerProspect} onClose={() => setDrawerProspect(null)}/>}
+      {drawerProspect && <ProspectDrawer prospect={drawerProspect} onClose={() => setDrawerProspect(null)} outreach={outreach} onUpdateOutreach={updateOutreach} operator={session?.user?.email}/>}
       <HelpFab/>
       <HelpModal/>
     </div>
