@@ -9,4 +9,7 @@ deployment:
     - /bin/cp index.html /home/soluykqf/topherai.com/index.html
     - 'if [ -f /home/soluykqf/topherai.com/es-home.html ]; then /bin/cp -p /home/soluykqf/topherai.com/es-home.html /home/soluykqf/deploy-backups/topherai.com/es-home-$(date +%Y%m%d-%H%M%S).html; fi'
     - /bin/cp es-home.html /home/soluykqf/topherai.com/es-home.html
+    - /bin/mkdir -p /home/soluykqf/topherai.com/knowledge/law-firms
+    - 'if [ -f /home/soluykqf/topherai.com/knowledge/law-firms/ai-intake-for-law-firms.html ]; then /bin/cp -p /home/soluykqf/topherai.com/knowledge/law-firms/ai-intake-for-law-firms.html /home/soluykqf/deploy-backups/topherai.com/legal-intake-$(date +%Y%m%d-%H%M%S).html; fi'
+    - /bin/cp knowledge/law-firms/ai-intake-for-law-firms.html /home/soluykqf/topherai.com/knowledge/law-firms/ai-intake-for-law-firms.html
     - /bin/cp sitemap.xml /home/soluykqf/topherai.com/sitemap.xml
