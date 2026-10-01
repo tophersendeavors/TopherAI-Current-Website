@@ -16,7 +16,7 @@ if [ -n "$(/usr/bin/git status --porcelain)" ]; then
   exit 1
 fi
 needs_deploy=0
-for path in index.html es-home.html sitemap.xml knowledge/index.html knowledge/cost-of-missed-calls.html knowledge/law-firms/ai-intake-for-law-firms.html; do
+for path in index.html es-home.html sitemap.xml knowledge/index.html knowledge/cost-of-missed-calls.html knowledge/law-firms/ai-intake-for-law-firms.html solutions/ai-answering-service/index.html solutions/ai-client-intake/index.html industries/law-firms/index.html tools/missed-call-cost-calculator/index.html; do
   if ! /usr/bin/cmp -s "$repo/$path" "$public/$path"; then
     needs_deploy=1
     printf 'Changed: %s\n' "$path"
