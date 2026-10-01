@@ -5,74 +5,180 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy | Topher AI</title>
     <meta name="description" content="Privacy Policy for Topher AI — how we collect, use, and protect your data.">
+    <link rel="canonical" href="https://topherai.com/privacy.html">
+    <link rel="icon" type="image/svg+xml" href="assets/topher-heart.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta name="theme-color" content="#E8826B">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Topher AI">
+    <meta property="og:title" content="Privacy Policy | Topher AI">
+    <meta property="og:description" content="Privacy Policy for Topher AI — how we collect, use, and protect your data.">
+    <meta property="og:url" content="https://topherai.com/privacy.html">
+    <meta name="robots" content="index, follow">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: { sans: ['Hanken Grotesk', 'sans-serif'], display: ['Quicksand', 'sans-serif'] },
                     colors: {
-                        navy: { 950: '#020817', 900: '#050d1f', 800: '#0a1628' },
-                        electric: { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' }
+                        navy: { 950: '#141219', 900: '#16141C', 800: '#1A1821', 700: '#241E2A', 600: '#2C2438' },
+                        electric: { 400: '#EE9A86', 500: '#E8826B', 600: '#D26A52' }
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #020817; color: #cbd5e1; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        body { background-color: #1A1821; color: #D7CEC6; font-family: 'Hanken Grotesk', sans-serif; -webkit-font-smoothing: antialiased; }
         .glass-nav { background: rgba(2, 8, 23, 0.90); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-        .text-gradient-blue { background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .text-gradient-blue { background: linear-gradient(135deg, #E8826B 0%, #D26A52 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .prose-legal h2 { font-size: 1.25rem; font-weight: 700; color: #f1f5f9; margin-top: 2.5rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
         .prose-legal h3 { font-size: 1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
         .prose-legal p { font-size: 0.9375rem; line-height: 1.75; color: #94a3b8; margin-bottom: 1rem; }
         .prose-legal ul { list-style: none; padding: 0; margin-bottom: 1rem; }
         .prose-legal ul li { font-size: 0.9375rem; line-height: 1.75; color: #94a3b8; padding-left: 1.25rem; position: relative; margin-bottom: 0.35rem; }
-        .prose-legal ul li::before { content: '—'; position: absolute; left: 0; color: #0ea5e9; font-weight: 600; }
-        .prose-legal a { color: #38bdf8; text-decoration: underline; text-underline-offset: 2px; }
-        .prose-legal a:hover { color: #7dd3fc; }
+        .prose-legal ul li::before { content: '—'; position: absolute; left: 0; color: #E8826B; font-weight: 600; }
+        .prose-legal a { color: #EE9A86; text-decoration: underline; text-underline-offset: 2px; }
+        .prose-legal a:hover { color: #F2B2A2; }
         .prose-legal strong { color: #e2e8f0; font-weight: 600; }
-        .tag-pill { background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.25); color: #38bdf8; }
-        .tag-pill-green { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); color: #34d399; }
+        .tag-pill { background: rgba(232,130,107, 0.1); border: 1px solid rgba(232,130,107, 0.25); color: #EE9A86; }
+        .tag-pill-green { background: rgba(232,130,107,0.10); border: 1px solid rgba(232,130,107,0.25); color: #EE9A86; }
         .toc-link { display: block; font-size: 0.875rem; color: #64748b; padding: 0.35rem 0; transition: color 0.15s; }
-        .toc-link:hover { color: #38bdf8; }
+        .toc-link:hover { color: #EE9A86; }
         .data-table { width: 100%; border-collapse: collapse; margin-bottom: 1.25rem; font-size: 0.875rem; }
-        .data-table th { text-align: left; color: #e2e8f0; font-weight: 600; padding: 0.6rem 0.75rem; background: rgba(14,165,233,0.08); border: 1px solid rgba(255,255,255,0.06); }
+        .data-table th { text-align: left; color: #e2e8f0; font-weight: 600; padding: 0.6rem 0.75rem; background: rgba(232,130,107,0.08); border: 1px solid rgba(255,255,255,0.06); }
         .data-table td { color: #94a3b8; padding: 0.6rem 0.75rem; border: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
         .data-table tr:hover td { background: rgba(255,255,255,0.02); }
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #020817; }
-        ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
+        ::-webkit-scrollbar-track { background: #1A1821; }
+        ::-webkit-scrollbar-thumb { background: #7E757D; border-radius: 3px; }
     </style>
+<style id="topher-chrome">
+.nav-item{position:relative}
+.nav-link{font-size:.875rem;font-weight:500;color:#B4ABAF;display:inline-flex;align-items:center;gap:5px;padding:8px 0;transition:color .15s;white-space:nowrap}
+.nav-link:hover,.nav-item:hover>.nav-link,.nav-link[aria-current]{color:#F2EEE9}
+.nav-link .caret{font-size:9px;opacity:.6;transition:transform .18s}
+.nav-item:hover .caret{transform:rotate(180deg)}
+.nav-menu{position:absolute;top:100%;left:-14px;min-width:262px;background:#211E29;border:1px solid rgba(243,233,221,0.09);border-radius:14px;padding:8px;box-shadow:0 18px 48px rgba(0,0,0,.5);opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .16s;z-index:60}
+.nav-item:hover .nav-menu,.nav-menu:hover,.nav-item:focus-within .nav-menu{opacity:1;visibility:visible;transform:translateY(0)}
+.nav-menu a{display:block;padding:9px 12px;border-radius:9px;font-size:.85rem;font-weight:500;color:#C6BCC2;line-height:1.35;transition:all .13s}
+.nav-menu a:hover{background:rgba(232,130,107,0.11);color:#F2EEE9}
+.nav-menu a small{display:block;font-size:.72rem;color:#8C8289;font-weight:400;margin-top:2px}
+.nav-menu a:hover small{color:#9B9099}
+.nav-menu-label{font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6E6571;padding:8px 12px 5px}
+.nav-menu hr{border:0;border-top:1px solid rgba(243,233,221,0.07);margin:6px 8px}
+@media(max-width:900px){.nav-desktop{display:none}}
+.mob-menu{display:none;background:#1A1821;border-top:1px solid rgba(243,233,221,0.08);padding:14px 0 20px}
+.mob-menu.open{display:block}
+.mob-menu a{display:block;padding:10px 20px;font-size:.9rem;color:#C6BCC2}
+.mob-menu a:hover{color:#F2EEE9;background:rgba(232,130,107,0.08)}
+.mob-label{font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6E6571;padding:14px 20px 4px}
+.f-h{font-size:10.5px;font-weight:700;color:#F3E9DD;text-transform:uppercase;letter-spacing:.07em;margin:0 0 15px}
+.f-l{display:flex;flex-direction:column;gap:9px;list-style:none;padding:0;margin:0}
+.f-l a{font-size:.84rem;color:#8C8289;line-height:1.4;text-decoration:none}
+.f-l a:hover{color:#C6BCC2}
+.glass-nav{background:rgba(26,24,33,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 1px 0 rgba(243,233,221,0.07)}
+.text-gradient-blue{background:linear-gradient(135deg,#E8826B 0%,#D26A52 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.btn-glow{box-shadow:0 4px 20px rgba(232,130,107,0.28),0 2px 8px rgba(243,233,221,0.08);color:#F3E9DD!important;transition:all .18s}
+.btn-glow:hover{box-shadow:0 8px 32px rgba(232,130,107,0.45);transform:translateY(-1px);color:#F3E9DD!important}
+</style>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1826282408412111');
+fbq('track','PageView');
+</script>
+<noscript>
+<img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1826282408412111&ev=PageView&noscript=1"/>
+</noscript>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
 
 <!-- NAV -->
-<nav class="fixed w-full z-50 glass-nav border-b border-white/5">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-4">
-            <a href="index.html" class="flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-lg text-white"
-                     style="background: linear-gradient(135deg, #0ea5e9, #818cf8);">T</div>
-                <span class="font-bold text-xl text-white tracking-tight">Topher <span class="text-gradient-blue">AI</span></span>
-            </a>
-            <a href="index.html" class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition">
-                <i class="fas fa-arrow-left text-xs"></i> Back to Home
-            </a>
-        </div>
-    </div>
+<!-- NAV START -->
+<nav class="sticky top-0 w-full z-50 glass-nav" aria-label="Main navigation">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center py-4">
+<a href="" class="flex items-center gap-2.5" aria-label="Topher AI home">
+<span style="width:34px;height:32px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block;" aria-hidden="true"><path d="M50 87 C22 66 7 50 7 30 C7 16.5 17 7.5 29 7.5 C39.5 7.5 46.5 14.5 50 22 C53.5 14.5 60.5 7.5 71 7.5 C83 7.5 93 16.5 93 30 C93 50 78 66 50 87 Z" fill="#E8826B"/><path d="M18 47 L35 47 L40 35 L47.5 59 L53.5 39 L57.5 47 L82 47" fill="none" stroke="#F3E9DD" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+<span class="font-bold text-xl tracking-tight" style="color:#F2EEE9;">Topher <span class="text-gradient-blue">AI</span></span>
+</a>
+<div class="nav-desktop flex items-center" style="gap:30px;">
+<div class="nav-item"><a href="solutions/ai-client-intake/" class="nav-link">Solutions <i class="fas fa-chevron-down caret"></i></a>
+<div class="nav-menu">
+<div class="nav-menu-label">By job to be done</div>
+<a href="solutions/ai-client-intake/">AI Client Intake<small>Qualify and capture every new inquiry</small></a>
+<a href="solutions/ai-answering-service/">AI Answering Service<small>Every call answered, 24/7</small></a>
+<a href="solutions/ai-receptionist/">AI Receptionist<small>A full front desk that never clocks out</small></a>
+<hr>
+<a href="tools/missed-call-cost-calculator/">Missed Call Cost Calculator<small>See what unanswered calls cost you</small></a>
+</div></div>
+<div class="nav-item"><a href="industries/law-firms/" class="nav-link">Industries <i class="fas fa-chevron-down caret"></i></a>
+<div class="nav-menu">
+<div class="nav-menu-label">Built for your intake</div>
+<a href="industries/law-firms/">Law Firms<small>Client intake, conflicts, consultations</small></a>
+<a href="knowledge/real-estate/ai-receptionist-for-realtors.html">Real Estate<small>Buyer and seller lead response</small></a>
+<a href="knowledge/industries/ai-receptionist-for-med-spas.html">Med Spas<small>Bookings, treatment FAQs, no-shows</small></a>
+<a href="knowledge/industries/ai-receptionist-for-insurance-agencies.html">Insurance<small>Quote requests and policy questions</small></a>
+</div></div>
+<div class="nav-item"><a href="knowledge/" class="nav-link">Resources <i class="fas fa-chevron-down caret"></i></a>
+<div class="nav-menu">
+<a href="knowledge/">Knowledge Center<small>Guides, comparisons, and answers</small></a>
+<a href="blog/">Blog<small>Field notes from thousands of calls</small></a>
+<a href="tools/missed-call-cost-calculator/">Missed Call Calculator<small>Your revenue leak, quantified</small></a>
+<hr>
+<a href="topher.html">See It Think<small>Inside the emotional reasoning engine</small></a>
+</div></div>
+<a href="index.html#pricing" class="nav-link">Pricing</a>
+</div>
+<div class="flex items-center gap-3">
+<a href="tel:2138986724" class="hidden lg:inline-flex items-center gap-2 text-sm font-semibold" style="color:#D26A52;"><i class="fas fa-phone text-xs"></i>(213) 898-6724</a>
+<a href="index.html#contact" class="px-5 py-2.5 rounded-full text-sm font-semibold btn-glow" style="background:linear-gradient(135deg,#D26A52,#E8826B);">Book Demo</a>
+<button onclick="document.getElementById('mobMenu').classList.toggle('open')" aria-label="Menu" style="background:none;border:none;color:#B4ABAF;font-size:19px;cursor:pointer;padding:4px 2px;" class="lg:hidden md:hidden nav-burger"><i class="fas fa-bars"></i></button>
+</div>
+</div>
+</div>
+<div class="mob-menu" id="mobMenu">
+<div class="mob-label">Solutions</div>
+<a href="solutions/ai-client-intake/">AI Client Intake</a>
+<a href="solutions/ai-answering-service/">AI Answering Service</a>
+<a href="solutions/ai-receptionist/">AI Receptionist</a>
+<div class="mob-label">Industries</div>
+<a href="industries/law-firms/">Law Firms</a>
+<a href="knowledge/real-estate/ai-receptionist-for-realtors.html">Real Estate</a>
+<a href="knowledge/industries/ai-receptionist-for-med-spas.html">Med Spas</a>
+<a href="knowledge/industries/ai-receptionist-for-insurance-agencies.html">Insurance</a>
+<div class="mob-label">Resources</div>
+<a href="knowledge/">Knowledge Center</a>
+<a href="blog/">Blog</a>
+<a href="tools/missed-call-cost-calculator/">Missed Call Calculator</a>
+<a href="topher.html">See It Think</a>
+<div class="mob-label">Company</div>
+<a href="index.html#pricing">Pricing</a>
+<a href="tel:2138986724">(213) 898-6724</a>
+</div>
 </nav>
 
 <!-- HERO -->
-<div class="pt-28 pb-12 border-b border-white/5" style="background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(14,165,233,0.12) 0%, transparent 70%);">
+<div class="pt-12 pb-12 border-b border-white/5" style="background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(232,130,107,0.12) 0%, transparent 70%);">
     <div class="max-w-4xl mx-auto px-4 text-center">
         <div class="inline-flex items-center gap-2 tag-pill rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider mb-5">
             Legal
         </div>
         <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">Privacy Policy</h1>
-        <p class="text-slate-400 text-sm">Effective Date: June 1, 2025 &nbsp;·&nbsp; Last Updated: June 1, 2025</p>
+        <p class="text-slate-400 text-sm">Effective Date: May 18, 2026 &nbsp;·&nbsp; Last Updated: May 18, 2026</p>
     </div>
 </div>
 
@@ -82,7 +188,7 @@
 
         <!-- Table of Contents -->
         <aside class="hidden lg:block">
-            <div class="sticky top-28">
+            <div class="sticky top-24">
                 <p class="text-xs font-bold text-white uppercase tracking-wider mb-4">Contents</p>
                 <nav class="space-y-0.5 border-l border-white/5 pl-4">
                     <a href="#overview" class="toc-link">1. Overview</a>
@@ -103,7 +209,7 @@
                 </nav>
                 <div class="mt-8 p-4 rounded-xl border border-white/8" style="background: rgba(10,22,40,0.6);">
                     <p class="text-xs text-slate-500 leading-relaxed">Privacy questions?</p>
-                    <a href="mailto:hello@topherai.com" class="text-xs text-electric-400 hover:text-electric-300 font-semibold mt-1 block">hello@topherai.com</a>
+                    <a href="mailto:cs@topherai.com" class="text-xs text-electric-400 hover:text-electric-300 font-semibold mt-1 block">cs@topherai.com</a>
                 </div>
             </div>
         </aside>
@@ -111,7 +217,7 @@
         <!-- Main Content -->
         <main class="lg:col-span-3 prose-legal">
 
-            <div class="rounded-xl border border-electric-500/20 p-5 mb-10" style="background: rgba(14,165,233,0.05);">
+            <div class="rounded-xl border border-electric-500/20 p-5 mb-10" style="background: rgba(232,130,107,0.05);">
                 <p class="text-sm text-slate-300 leading-relaxed m-0">
                     At Topher AI, your privacy matters. This policy explains what data we collect, why we collect it, how we use it, and what rights you have. We are committed to being transparent and to handling your data responsibly.
                 </p>
@@ -249,6 +355,11 @@
                             <td>Call audio, transcripts, conversation data</td>
                         </tr>
                         <tr>
+                            <td>AI Language Models (e.g., OpenAI, Anthropic)</td>
+                            <td>AI reasoning, conversation generation, lead qualification</td>
+                            <td>Conversation text, lead metadata, qualification context</td>
+                        </tr>
+                        <tr>
                             <td>Telephony / SMS (e.g., Telnyx)</td>
                             <td>Phone &amp; SMS delivery</td>
                             <td>Phone numbers, message content, call metadata</td>
@@ -339,7 +450,7 @@
                     <li>Employee training on data security and privacy practices</li>
                     <li>Secure, reputable third-party infrastructure providers</li>
                 </ul>
-                <p>No method of transmission over the internet or electronic storage is 100% secure. While we strive to protect your data, we cannot guarantee its absolute security. If you believe your account has been compromised, contact us immediately at <a href="mailto:hello@topherai.com">hello@topherai.com</a>.</p>
+                <p>No method of transmission over the internet or electronic storage is 100% secure. While we strive to protect your data, we cannot guarantee its absolute security. If you believe your account has been compromised, contact us immediately at <a href="mailto:cs@topherai.com">cs@topherai.com</a>.</p>
             </section>
 
             <section id="your-rights">
@@ -355,7 +466,7 @@
                     <li><strong>Restriction:</strong> Request that we restrict certain processing of your data</li>
                 </ul>
 
-                <p>To exercise any of these rights, contact us at <a href="mailto:hello@topherai.com">hello@topherai.com</a>. We will respond within 30 days. We may need to verify your identity before fulfilling your request.</p>
+                <p>To exercise any of these rights, contact us at <a href="mailto:cs@topherai.com">cs@topherai.com</a>. We will respond within 30 days. We may need to verify your identity before fulfilling your request.</p>
 
                 <h3>Marketing Opt-Out</h3>
                 <p>You can unsubscribe from our marketing emails by clicking the "unsubscribe" link in any marketing email, or by contacting us directly. Note that even if you opt out of marketing emails, we may still send you transactional messages related to your account and Services.</p>
@@ -381,12 +492,12 @@
                 <p>We will not discriminate against you for exercising your CCPA rights.</p>
 
                 <h3>How to Submit a Request</h3>
-                <p>To submit a CCPA request, contact us at <a href="mailto:hello@topherai.com">hello@topherai.com</a> with "California Privacy Request" in the subject line. We will verify your identity and respond within 45 days (extendable by an additional 45 days when necessary).</p>
+                <p>To submit a CCPA request, contact us at <a href="mailto:cs@topherai.com">cs@topherai.com</a> with "California Privacy Request" in the subject line. We will verify your identity and respond within 45 days (extendable by an additional 45 days when necessary).</p>
             </section>
 
             <section id="children">
                 <h2>12. Children's Privacy</h2>
-                <p>Our Services are designed for business use and are not directed at children under the age of 13. We do not knowingly collect personal information from children under 13. If we learn we have inadvertently collected such information, we will delete it promptly. If you believe we have collected information from a child under 13, please contact us at <a href="mailto:hello@topherai.com">hello@topherai.com</a>.</p>
+                <p>Our Services are designed for business use and are not directed at children under the age of 13. We do not knowingly collect personal information from children under 13. If we learn we have inadvertently collected such information, we will delete it promptly. If you believe we have collected information from a child under 13, please contact us at <a href="mailto:cs@topherai.com">cs@topherai.com</a>.</p>
             </section>
 
             <section id="international">
@@ -406,8 +517,8 @@
                 <p>If you have questions, concerns, or requests related to this Privacy Policy or our data practices, please contact us:</p>
                 <div class="rounded-xl border border-white/8 p-5 mt-4" style="background: rgba(10,22,40,0.6);">
                     <p class="font-semibold text-white !text-sm !mb-1">Topher AI — Privacy Team</p>
-                    <p class="!text-sm !mb-1">Email: <a href="mailto:hello@topherai.com">hello@topherai.com</a></p>
-                    <p class="!text-sm !mb-1">Phone: <a href="tel:2135000605">(213) 500-0605</a></p>
+                    <p class="!text-sm !mb-1">Email: <a href="mailto:cs@topherai.com">cs@topherai.com</a></p>
+                    <p class="!text-sm !mb-1">Phone: <a href="tel:2138986724">(213) 898-6724</a></p>
                     <p class="!text-sm !mb-0">Hours: Monday–Friday, 9am–6pm PST</p>
                 </div>
                 <p class="mt-4">We take privacy inquiries seriously and will respond to your request within 30 days.</p>
@@ -418,20 +529,66 @@
 </div>
 
 <!-- FOOTER -->
-<footer class="border-t border-white/5 py-8 mt-8" style="background: rgba(2,8,23,0.98);">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div class="flex items-center gap-2.5">
-            <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm text-white"
-                 style="background: linear-gradient(135deg, #0ea5e9, #818cf8);">T</div>
-            <span class="font-bold text-white">Topher AI</span>
-        </div>
-        <p class="text-xs text-slate-700">© 2025 Topher AI. All rights reserved.</p>
-        <div class="flex gap-6">
-            <a href="privacy.html" class="text-xs text-slate-400 hover:text-slate-300 transition font-medium">Privacy Policy</a>
-            <a href="terms.html" class="text-xs text-slate-500 hover:text-slate-300 transition">Terms of Service</a>
-            <a href="index.html" class="text-xs text-slate-500 hover:text-slate-300 transition">Home</a>
-        </div>
-    </div>
+<!-- FOOTER START -->
+<footer style="padding:56px 0 30px;">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-2 md:grid-cols-5 gap-9 mb-10">
+<div class="col-span-2 md:col-span-1">
+<div class="flex items-center gap-2.5 mb-4">
+<span style="width:32px;height:30px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block;" aria-hidden="true"><path d="M50 87 C22 66 7 50 7 30 C7 16.5 17 7.5 29 7.5 C39.5 7.5 46.5 14.5 50 22 C53.5 14.5 60.5 7.5 71 7.5 C83 7.5 93 16.5 93 30 C93 50 78 66 50 87 Z" fill="#E8826B"/><path d="M18 47 L35 47 L40 35 L47.5 59 L53.5 39 L57.5 47 L82 47" fill="none" stroke="#F3E9DD" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+<span class="font-bold text-lg" style="color:#F3E9DD;">Topher AI</span>
+</div>
+<p style="color:#8C8289;font-size:.83rem;line-height:1.65;max-width:210px;margin:0 0 14px;">Intelligent client response infrastructure for growing businesses.</p>
+<a href="tel:2138986724" style="font-size:.86rem;font-weight:600;color:#D26A52;">(213) 898-6724</a>
+</div>
+<div>
+<h4 class="f-h">Solutions</h4>
+<ul class="f-l">
+<li><a href="solutions/ai-client-intake/">AI Client Intake</a></li>
+<li><a href="solutions/ai-answering-service/">AI Answering Service</a></li>
+<li><a href="solutions/ai-receptionist/">AI Receptionist</a></li>
+<li><a href="index.html#how-it-works">How It Works</a></li>
+<li><a href="index.html#pricing">Pricing</a></li>
+</ul>
+</div>
+<div>
+<h4 class="f-h">Industries</h4>
+<ul class="f-l">
+<li><a href="industries/law-firms/">Law Firms</a></li>
+<li><a href="knowledge/real-estate/ai-receptionist-for-realtors.html">Real Estate</a></li>
+<li><a href="knowledge/industries/ai-receptionist-for-med-spas.html">Med Spas</a></li>
+<li><a href="knowledge/industries/ai-receptionist-for-insurance-agencies.html">Insurance</a></li>
+<li><a href="knowledge/real-estate/ai-for-apartment-leasing.html">Apartment Leasing</a></li>
+</ul>
+</div>
+<div>
+<h4 class="f-h">Resources</h4>
+<ul class="f-l">
+<li><a href="knowledge/">Knowledge Center</a></li>
+<li><a href="blog/">Blog</a></li>
+<li><a href="tools/missed-call-cost-calculator/">Missed Call Calculator</a></li>
+<li><a href="knowledge/what-is-an-ai-receptionist.html">What Is an AI Receptionist?</a></li>
+<li><a href="knowledge/how-much-does-an-ai-receptionist-cost.html">Pricing Guide</a></li>
+</ul>
+</div>
+<div>
+<h4 class="f-h">Company</h4>
+<ul class="f-l">
+<li><a href="topher.html">See It Think</a></li>
+<li><a href="index.html#contact">Book a Demo</a></li>
+<li><a href="mailto:hello@topherai.com">hello@topherai.com</a></li>
+<li><a href="es/">Español</a></li>
+</ul>
+</div>
+</div>
+<div style="padding-top:22px;border-top:1px solid rgba(255,255,255,0.05);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
+<p style="font-size:12px;color:#8C8289;margin:0;">© 2026 Topher AI. All rights reserved.</p>
+<div style="display:flex;gap:22px;">
+<a href="privacy.html" style="font-size:12px;color:#8C8289;">Privacy Policy</a>
+<a href="terms.html" style="font-size:12px;color:#8C8289;">Terms of Service</a>
+</div>
+</div>
+</div>
 </footer>
 
 </body>

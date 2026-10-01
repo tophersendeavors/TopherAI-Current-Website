@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Topher AI — Your Inbox</title>
+  
+  <script>
+    // ─────────────────────────────────────────────
+    // CONFIGURE
+    // ─────────────────────────────────────────────
+    window.SUPABASE_URL = 'https://wvhnfnmndtnkjrhxfqbf.supabase.co';
+    window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2aG5mbm1uZHRua2pyaHhmcWJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTM0NDMsImV4cCI6MjA5NDUyOTQ0M30.NSKjVFKLozxb-mpGlPkw7Tw7HDL9hbUFXmtF3Ek33Gc';
+    
+    // Set the displayed business name (until proper auth/multi-tenancy)
+    window.BUSINESS_NAME = 'Topher AI Pilot';
+    window.BUSINESS_OWNER_NAME = 'Chris';
+    
+    // Demo password — replace per pilot
+    window.DASHBOARD_PASSWORD = 'topher2026';
+  </script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..700,0..100,0..1&family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Calm warm palette — feels human, not corporate */
+      --bg: #faf8f4;
+      --paper: #fffefc;
+      --ink: #1a1a1f;
+      --ink-soft: #3d3d47;
+      --ink-mute: #6b6b78;
+      --ink-dim: #9a9aa6;
+      --line: rgba(26,26,31,0.07);
+      --line-strong: rgba(26,26,31,0.13);
+      
+      --accent: #c2410c;        /* warm copper */
+      --accent-soft: #fed7aa;
+      --accent-deep: #9a3412;
+      
+      --sage: #4f7a55;          /* nature green for booked */
+      --sage-soft: #d1e3d4;
+      --rose: #be4b58;          /* signal red for urgent */
+      --rose-soft: #f7d4d8;
+      --gold: #b48226;          /* attention yellow */
+      --gold-soft: #f3e3b8;
+      --indigo: #4f5d8a;
+      --indigo-soft: #d8dde8;
+    }
+    
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter Tight', system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      letter-spacing: -0.005em;
+      min-height: 100vh;
+      font-feature-settings: 'ss01' 1, 'cv11' 1;
+    }
+    
+    .font-display { 
+      font-family: 'Fraunces', Georgia, serif; 
+      font-optical-sizing: auto;
+      letter-spacing: -0.025em;
+    }
+    .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    
+    /* Editorial paper texture */
+    .paper {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 1px 2px rgba(26,26,31,0.025);
+    }
+    .paper-hover:hover { 
+      border-color: var(--line-strong);
+      box-shadow: 0 4px 16px rgba(26,26,31,0.05);
+      transform: translateY(-1px);
+    }
+    .paper-hover { transition: all 0.2s; }
+    
+    /* Eyebrow label */
+    .eyebrow {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    /* Buttons */
+    button { 
+      font-family: inherit; 
+      cursor: pointer; 
+      transition: all 0.15s;
+    }
+    .btn-primary {
+      background: var(--ink);
+      color: var(--paper);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+    .btn-primary:hover {
+      background: var(--accent-deep);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      color: var(--ink);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .btn-secondary:hover {
+      border-color: var(--ink);
+      background: var(--paper);
+    }
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--paper);
+      border: 1px solid var(--line-strong);
+      color: var(--ink);
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .btn-action:hover {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+    .btn-action.primary {
+      background: var(--accent);
+      color: var(--paper);
+      border-color: var(--accent);
+    }
+    .btn-action.primary:hover {
+      background: var(--accent-deep);
+      border-color: var(--accent-deep);
+    }
+    .btn-action.danger {
+      color: var(--rose);
+      border-color: var(--rose-soft);
+    }
+    .btn-action.danger:hover {
+      background: var(--rose);
+      color: var(--paper);
+      border-color: var(--rose);
+    }
+    
+    /* Status chips */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 999px;
+      letter-spacing: 0.01em;
+      border: 1px solid;
+    }
+    .chip-hot     { background: var(--rose-soft);   color: var(--rose);   border-color: var(--rose); }
+    .chip-warm    { background: var(--gold-soft);   color: var(--gold);   border-color: var(--gold); }
+    .chip-cool    { background: var(--indigo-soft); color: var(--indigo); border-color: var(--indigo); }
+    .chip-booked  { background: var(--sage-soft);   color: var(--sage);   border-color: var(--sage); }
+    .chip-neutral { background: var(--bg);          color: var(--ink-mute); border-color: var(--line-strong); }
+    
+    /* Lead cards */
+    .lead-card {
+      padding: 18px 20px;
+      cursor: pointer;
+      position: relative;
+      border-left: 3px solid transparent;
+    }
+    .lead-card.urgent { border-left-color: var(--rose); }
+    .lead-card.hot { border-left-color: var(--gold); }
+    .lead-card.booked-card { border-left-color: var(--sage); }
+    
+    /* Stat cards */
+    .stat {
+      padding: 22px 24px;
+    }
+    .stat-num {
+      font-family: 'Fraunces', serif;
+      font-optical-sizing: auto;
+      font-variation-settings: 'opsz' 96, 'SOFT' 50;
+      font-weight: 400;
+      font-size: 48px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    
+    /* Inputs */
+    .input, .textarea, .select {
+      width: 100%;
+      background: var(--paper);
+      border: 1px solid var(--line-strong);
+      color: var(--ink);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+      transition: border 0.15s;
+    }
+    .input:focus, .textarea:focus, .select:focus {
+      border-color: var(--accent);
+    }
+    .textarea {
+      resize: vertical;
+      min-height: 70px;
+      font-family: 'Inter Tight', sans-serif;
+      line-height: 1.5;
+    }
+    
+    /* Tabs */
+    .tab {
+      padding: 7px 14px;
+      font-size: 12.5px;
+      font-weight: 500;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      color: var(--ink-mute);
+      background: transparent;
+    }
+    .tab:hover { color: var(--ink); background: var(--paper); }
+    .tab.active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .tab .count {
+      display: inline-block;
+      margin-left: 4px;
+      font-size: 10.5px;
+      opacity: 0.6;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .tab.active .count { opacity: 0.8; }
+    
+    /* Tags */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      font-size: 11px;
+      background: var(--bg);
+      border: 1px solid var(--line-strong);
+      color: var(--ink-soft);
+      border-radius: 5px;
+    }
+    .tag-remove {
+      background: transparent;
+      border: none;
+      color: var(--ink-dim);
+      cursor: pointer;
+      padding: 0;
+      font-size: 13px;
+      line-height: 1;
+      margin-left: 2px;
+    }
+    .tag-remove:hover { color: var(--rose); }
+    
+    /* Conversation bubbles */
+    .bubble {
+      max-width: 78%;
+      padding: 9px 13px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+    .bubble-them {
+      background: var(--bg);
+      border-bottom-left-radius: 5px;
+      align-self: flex-start;
+      color: var(--ink);
+    }
+    .bubble-us {
+      background: var(--ink);
+      color: var(--paper);
+      border-bottom-right-radius: 5px;
+      align-self: flex-end;
+    }
+    .bubble-meta {
+      font-size: 10.5px;
+      color: var(--ink-dim);
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 3px;
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(26,26,31,0.10); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(26,26,31,0.20); }
+    
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .reveal > * {
+      animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    }
+    .reveal > *:nth-child(1) { animation-delay: 0.02s; }
+    .reveal > *:nth-child(2) { animation-delay: 0.05s; }
+    .reveal > *:nth-child(3) { animation-delay: 0.08s; }
+    .reveal > *:nth-child(4) { animation-delay: 0.12s; }
+    .reveal > *:nth-child(5) { animation-delay: 0.15s; }
+    .reveal > *:nth-child(6) { animation-delay: 0.18s; }
+    
+    @keyframes saveBlip {
+      0% { opacity: 0; transform: translate(-50%, 6px) scale(0.95); }
+      15%, 80% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -6px) scale(0.95); }
+    }
+    .save-blip {
+      position: fixed;
+      bottom: 26px;
+      left: 50%;
+      background: var(--sage);
+      color: var(--paper);
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(79,122,85,0.25);
+      animation: saveBlip 1.8s ease;
+      z-index: 1000;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--sage);
+      animation: pulse 2s ease-in-out infinite;
+      display: inline-block;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,26,31,0.4);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal {
+      background: var(--paper);
+      border-radius: 18px;
+      padding: 28px;
+      max-width: 460px;
+      width: 100%;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+    }
+    
+    /* Empty state */
+    .empty-state {
+      padding: 60px 24px;
+      text-align: center;
+    }
+    .empty-icon {
+      font-size: 36px;
+      opacity: 0.4;
+      margin-bottom: 12px;
+    }
+    
+    /* Login */
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: 
+        radial-gradient(800px 500px at 80% 20%, rgba(194,65,12,0.06), transparent 60%),
+        radial-gradient(700px 400px at 10% 80%, rgba(79,122,85,0.06), transparent 60%),
+        var(--bg);
+    }
+    .login-card {
+      max-width: 380px;
+      width: 100%;
+      padding: 36px 32px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<div id="boot-loader" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:var(--bg);z-index:9999;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="live-dot"></div>
+    <span style="font-size:13px;color:var(--ink-mute);font-family:'JetBrains Mono',monospace;">Loading</span>
+  </div>
+  <div id="boot-error" style="font-size:12px;color:var(--rose);font-family:'JetBrains Mono',monospace;display:none;max-width:600px;text-align:center;padding:0 20px;"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// Topher AI — Client Dashboard
+// ═══════════════════════════════════════════════════════
+
+(function() {
+  'use strict';
+  
+  function bootError(msg) {
+    const el = document.getElementById('boot-error');
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+    console.error('[boot]', msg);
+  }
+  
+  if (!window.supabase) { bootError('Supabase library failed to load.'); return; }
+  if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+    bootError('Supabase credentials missing.'); return;
+  }
+  
+  let db;
+  try {
+    db = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  } catch (e) { bootError('Init failed: ' + e.message); return; }
+  
+  const SESSION_KEY = 'topher_client_auth_v1';
+  
+  const state = {
+    authenticated: false,
+    contacts: [],
+    calls: [],
+    sms: [],
+    activity: [],
+    view: 'inbox',          // inbox | all | followups | calendar
+    selectedId: null,
+    searchQuery: '',
+    showModal: null,        // { type: 'reminder' | 'tag', contactId }
+    saveMessage: null,
+    loading: true,
+    error: null,
+    lastRefresh: null
+  };
+  
+  // ─────── Helpers ───────
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  
+  function escapeAttr(s) {
+    return escapeHtml(s).replace(/`/g, '&#96;');
+  }
+  
+  const fmt = {
+    phone: (p) => {
+      if (!p) return '—';
+      if (p.startsWith('web:')) return 'Web Visitor';
+      const d = p.replace(/\D/g, '');
+      if (d.length === 11 && d[0] === '1') return `(${d.slice(1,4)}) ${d.slice(4,7)}-${d.slice(7)}`;
+      if (d.length === 10) return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+      return p;
+    },
+    when: (ts) => {
+      if (!ts) return '';
+      const d = new Date(ts);
+      const sec = Math.floor((Date.now() - d.getTime()) / 1000);
+      if (sec < 60) return 'moments ago';
+      if (sec < 3600) return Math.floor(sec/60) + ' min ago';
+      if (sec < 86400) return Math.floor(sec/3600) + 'h ago';
+      if (sec < 172800) return 'yesterday';
+      if (sec < 604800) return Math.floor(sec/86400) + 'd ago';
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    },
+    fullDate: (ts) => {
+      if (!ts) return '—';
+      return new Date(ts).toLocaleString('en-US', { 
+        month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' 
+      });
+    },
+    timeOnly: (ts) => {
+      if (!ts) return '';
+      return new Date(ts).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    },
+    dateOnly: (ts) => {
+      if (!ts) return '';
+      return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    },
+    industry: (s) => {
+      if (!s) return '';
+      return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    },
+    money: (n) => {
+      if (!n) return '';
+      return '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
+    },
+    greeting: () => {
+      const h = new Date().getHours();
+      if (h < 12) return 'Good morning';
+      if (h < 18) return 'Good afternoon';
+      return 'Good evening';
+    }
+  };
+  
+  function urgencyChip(c) {
+    const u = (c.urgency || '').toLowerCase();
+    if (u === 'hot') return '<span class="chip chip-hot">🔥 Hot Lead</span>';
+    if (u === 'warm') return '<span class="chip chip-warm">Warm</span>';
+    if (u === 'cold') return '<span class="chip chip-cool">Cold</span>';
+    return '';
+  }
+  
+  function statusChip(c) {
+    const fs = (c.follow_up_status || '').toLowerCase();
+    const ls = (c.lead_status || '').toLowerCase();
+    
+    if (fs === 'booked' || ls === 'booked' || ls === 'demo_scheduled')
+      return '<span class="chip chip-booked">📅 Booked</span>';
+    if (fs === 'won') return '<span class="chip chip-booked">✓ Won</span>';
+    if (fs === 'lost') return '<span class="chip chip-neutral">Closed</span>';
+    if (fs === 'followed_up') return '<span class="chip chip-cool">Followed Up</span>';
+    if (ls === 'opted_out') return '<span class="chip chip-neutral">Opted Out</span>';
+    if (ls === 'qualified') return '<span class="chip chip-warm">Qualified</span>';
+    if (!c.last_action_at) return '<span class="chip chip-warm">Needs You</span>';
+    return '';
+  }
+  
+  // ─────── Data ───────
+  async function load() {
+    state.loading = true;
+    if (state.authenticated) render();
+    
+    try {
+      const [contactsRes, callsRes, smsRes, activityRes] = await Promise.all([
+        db.from('contacts').select('*').order('created_at', { ascending: false }).limit(500),
+        db.from('calls').select('*').order('created_at', { ascending: false }).limit(300),
+        db.from('sms_messages').select('*').order('created_at', { ascending: false }).limit(500),
+        db.from('contact_activity').select('*').order('created_at', { ascending: false }).limit(200).then(r => r).catch(() => ({ data: [], error: null }))
+      ]);
+      
+      if (contactsRes.error) throw new Error('Contacts: ' + contactsRes.error.message);
+      if (callsRes.error) throw new Error('Calls: ' + callsRes.error.message);
+      if (smsRes.error) throw new Error('SMS: ' + smsRes.error.message);
+      
+      state.contacts = contactsRes.data || [];
+      state.calls = callsRes.data || [];
+      state.sms = smsRes.data || [];
+      state.activity = (activityRes && activityRes.data) || [];
+      state.error = null;
+      state.lastRefresh = new Date();
+    } catch (e) {
+      state.error = e.message;
+    }
+    
+    state.loading = false;
+    if (state.authenticated) render();
+  }
+  
+  async function logActivity(contactId, actionType, actionData) {
+    try {
+      await db.from('contact_activity').insert({
+        contact_id: contactId,
+        actor: window.BUSINESS_OWNER_NAME || 'owner',
+        action_type: actionType,
+        action_data: actionData
+      });
+    } catch (e) {
+      console.warn('Activity log failed (non-blocking):', e);
+    }
+  }
+  
+  async function updateContact(id, fields, activityType) {
+    try {
+      const updates = { 
+        ...fields, 
+        updated_at: new Date().toISOString(),
+        last_action_at: new Date().toISOString(),
+        last_action_by: window.BUSINESS_OWNER_NAME || 'owner'
+      };
+      
+      const { error } = await db.from('contacts').update(updates).eq('id', id);
+      if (error) throw error;
+      
+      // Local update
+      state.contacts = state.contacts.map(c => 
+        c.id === id ? { ...c, ...updates } : c
+      );
+      
+      // Activity log
+      if (activityType) {
+        await logActivity(id, activityType, fields);
+      }
+      
+      flashSave('Saved');
+      render();
+      return true;
+    } catch (e) {
+      flashSave('Error: ' + e.message, true);
+      return false;
+    }
+  }
+  
+  function flashSave(msg, isError) {
+    state.saveMessage = msg;
+    render();
+    setTimeout(() => {
+      state.saveMessage = null;
+      render();
+    }, isError ? 3000 : 1500);
+  }
+  
+  // ─────── Computed views ───────
+  function inboxLeads() {
+    // "Needs your attention" — leads with action signal that haven't been touched yet
+    return state.contacts.filter(c => {
+      const fs = (c.follow_up_status || '').toLowerCase();
+      const ls = (c.lead_status || '').toLowerCase();
+      
+      // Exclude already-handled leads
+      if (['won', 'lost', 'followed_up'].includes(fs)) return false;
+      if (['opted_out', 'dead', 'closed'].includes(ls)) return false;
+      
+      // Include if they're hot OR qualified OR have a recent call
+      if (c.urgency === 'hot') return true;
+      if (['qualified', 'demo_scheduled', 'booked'].includes(ls)) return true;
+      if (c.last_call_at) {
+        const hours = (Date.now() - new Date(c.last_call_at)) / 3600000;
+        if (hours < 48) return true;
+      }
+      return false;
+    }).sort((a, b) => {
+      // Hot first, then most recent
+      const aHot = a.urgency === 'hot' ? 1 : 0;
+      const bHot = b.urgency === 'hot' ? 1 : 0;
+      if (aHot !== bHot) return bHot - aHot;
+      const aTime = new Date(a.last_call_at || a.created_at).getTime();
+      const bTime = new Date(b.last_call_at || b.created_at).getTime();
+      return bTime - aTime;
+    });
+  }
+  
+  function dueCallbacks() {
+    const now = Date.now();
+    return state.contacts
+      .filter(c => c.callback_at && new Date(c.callback_at).getTime() <= now + 24*3600*1000)
+      .sort((a, b) => new Date(a.callback_at) - new Date(b.callback_at));
+  }
+  
+  function filteredContacts() {
+    let list = [...state.contacts];
+    
+    // View filter
+    if (state.view === 'followups') {
+      list = list.filter(c => c.callback_at);
+      list.sort((a, b) => new Date(a.callback_at) - new Date(b.callback_at));
+    } else if (state.view === 'booked') {
+      list = list.filter(c => {
+        const fs = (c.follow_up_status || '').toLowerCase();
+        const ls = (c.lead_status || '').toLowerCase();
+        return fs === 'booked' || fs === 'won' || ls === 'booked' || ls === 'demo_scheduled';
+      });
+    } else if (state.view === 'inbox') {
+      return inboxLeads();
+    }
+    
+    // Search
+    if (state.searchQuery) {
+      const q = state.searchQuery.toLowerCase();
+      list = list.filter(c => 
+        (c.name || '').toLowerCase().includes(q) ||
+        (c.email || '').toLowerCase().includes(q) ||
+        (c.phone || '').includes(q) ||
+        (c.business_name || '').toLowerCase().includes(q) ||
+        (c.notes || '').toLowerCase().includes(q) ||
+        (c.tags || []).some(t => t.toLowerCase().includes(q))
+      );
+    }
+    
+    return list;
+  }
+  
+  function selectedContact() {
+    return state.contacts.find(c => c.id === state.selectedId);
+  }
+  
+  function contactConversation(contact) {
+    if (!contact) return [];
+    
+    // Merge calls and SMS into a single timeline
+    const items = [];
+    
+    state.calls.filter(c => c.caller_phone === contact.phone).forEach(c => {
+      items.push({
+        type: 'call',
+        at: c.created_at,
+        data: c
+      });
+    });
+    
+    state.sms.filter(s => 
+      s.to_number === contact.phone || s.from_number === contact.phone
+    ).forEach(s => {
+      items.push({
+        type: 'sms',
+        at: s.created_at,
+        data: s,
+        direction: s.direction
+      });
+    });
+    
+    return items.sort((a, b) => new Date(a.at) - new Date(b.at));
+  }
+  
+  function contactActivity(contact) {
+    if (!contact) return [];
+    return state.activity.filter(a => a.contact_id === contact.id);
+  }
+  
+  function todayStats() {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    const newLeads = state.contacts.filter(c => new Date(c.created_at) >= today).length;
+    const calls = state.calls.filter(c => new Date(c.created_at) >= today).length;
+    const booked = state.contacts.filter(c => {
+      const fs = (c.follow_up_status || '').toLowerCase();
+      const ls = (c.lead_status || '').toLowerCase();
+      return (fs === 'booked' || ls === 'booked' || ls === 'demo_scheduled') && 
+             new Date(c.updated_at || c.created_at) >= today;
+    }).length;
+    const hot = state.contacts.filter(c => c.urgency === 'hot').length;
+    
+    // Pipeline = sum of deal_value for non-lost leads
+    const pipeline = state.contacts.reduce((sum, c) => {
+      const fs = (c.follow_up_status || '').toLowerCase();
+      if (fs === 'lost' || fs === 'won') return sum;
+      return sum + (Number(c.deal_value) || 0);
+    }, 0);
+    
+    return { newLeads, calls, booked, hot, pipeline };
+  }
+  
+  // ─────── Render ───────
+  function render() {
+    const app = document.getElementById('app');
+    const bl = document.getElementById('boot-loader');
+    if (bl) bl.style.display = 'none';
+    
+    if (!state.authenticated) {
+      app.innerHTML = renderLogin();
+      const input = document.getElementById('pw-input');
+      if (input) {
+        input.focus();
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') window.client.login();
+        });
+      }
+      return;
+    }
+    
+    if (state.error) {
+      app.innerHTML = renderError();
+      return;
+    }
+    
+    const selected = selectedContact();
+    
+    app.innerHTML = `
+      <div style="max-width:1500px;margin:0 auto;padding:32px 36px;">
+        ${renderHeader()}
+        ${renderHero()}
+        ${renderViewTabs()}
+        <div style="display:grid;grid-template-columns:${selected ? '1fr 480px' : '1fr'};gap:24px;align-items:flex-start;">
+          ${renderMainList()}
+          ${selected ? renderDetail(selected) : ''}
+        </div>
+      </div>
+      ${state.saveMessage ? `<div class="save-blip">${escapeHtml(state.saveMessage)}</div>` : ''}
+      ${state.showModal ? renderModal() : ''}
+    `;
+  }
+  
+  function renderLogin() {
+    return `
+      <div class="login-screen">
+        <div class="paper login-card">
+          <div style="text-align:center;margin-bottom:28px;">
+            <div class="font-display" style="font-size:32px;font-weight:400;letter-spacing:-0.03em;line-height:1;">Topher</div>
+            <div class="eyebrow" style="margin-top:8px;">Lead Inbox</div>
+          </div>
+          <div style="margin-bottom:14px;">
+            <label class="eyebrow" style="display:block;margin-bottom:8px;">Password</label>
+            <input id="pw-input" type="password" class="input" placeholder="••••••••" autocomplete="current-password" />
+          </div>
+          <button class="btn-primary" style="width:100%;" onclick="window.client.login()">Sign In</button>
+          <div id="login-err" style="margin-top:12px;font-size:11px;color:var(--rose);text-align:center;font-family:'JetBrains Mono',monospace;display:none;"></div>
+          <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--line);text-align:center;">
+            <div class="eyebrow" style="margin-bottom:4px;">Need help?</div>
+            <a href="mailto:hello@topherai.com" style="font-size:12.5px;color:var(--accent);text-decoration:none;">hello@topherai.com</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  function renderError() {
+    return `
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div class="paper" style="padding:32px;max-width:480px;">
+          <div class="eyebrow" style="color:var(--rose);margin-bottom:10px;">Connection Error</div>
+          <div style="font-size:15px;margin-bottom:8px;">Couldn't load your data.</div>
+          <div style="font-size:12px;color:var(--ink-mute);margin-bottom:16px;font-family:'JetBrains Mono',monospace;">${escapeHtml(state.error)}</div>
+          <button class="btn-primary" onclick="window.location.reload()">Try Again</button>
+        </div>
+      </div>
+    `;
+  }
+  
+  function renderHeader() {
+    return `
+      <header style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="font-display" style="font-size:26px;font-weight:400;letter-spacing:-0.03em;">Topher</div>
+          <span style="color:var(--ink-dim);font-size:13px;">·</span>
+          <span style="font-size:13px;color:var(--ink-mute);">${escapeHtml(window.BUSINESS_NAME || 'Your Dashboard')}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-mute);font-family:'JetBrains Mono',monospace;">
+            <div class="live-dot"></div>
+            <span>${state.lastRefresh ? 'Updated ' + fmt.when(state.lastRefresh) : 'Live'}</span>
+          </div>
+          <button class="btn-secondary" onclick="window.client.refresh()">Refresh</button>
+          <button class="btn-secondary" onclick="window.client.logout()">Sign Out</button>
+        </div>
+      </header>
+    `;
+  }
+  
+  function renderHero() {
+    const inbox = inboxLeads();
+    const callbacks = dueCallbacks();
+    const stats = todayStats();
+    
+    const hotCount = inbox.filter(c => c.urgency === 'hot').length;
+    
+    return `
+      <section style="margin-bottom:36px;" class="reveal">
+        <div style="margin-bottom:24px;">
+          <h1 class="font-display" style="font-size:42px;font-weight:400;line-height:1.05;margin:0 0 6px 0;font-variation-settings: 'opsz' 96, 'SOFT' 50;">
+            ${fmt.greeting()}, ${escapeHtml(window.BUSINESS_OWNER_NAME || 'there')}.
+          </h1>
+          <p style="font-size:16px;color:var(--ink-mute);margin:0;">
+            ${inbox.length === 0 
+              ? "You're all caught up. Riley's handling things."
+              : `${inbox.length} lead${inbox.length === 1 ? '' : 's'} ${inbox.length === 1 ? 'needs' : 'need'} your attention today.${hotCount > 0 ? ` <strong style="color:var(--rose);">${hotCount} hot.</strong>` : ''}`
+            }
+          </p>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;">
+          ${renderStatCard('New today', stats.newLeads, '👋')}
+          ${renderStatCard('Calls today', stats.calls, '📞')}
+          ${renderStatCard('Booked', stats.booked, '📅', stats.booked > 0 ? 'var(--sage)' : null)}
+          ${renderStatCard('Hot leads', stats.hot, '🔥', stats.hot > 0 ? 'var(--rose)' : null)}
+          ${renderStatCard('Pipeline', stats.pipeline > 0 ? fmt.money(stats.pipeline) : '—', '✦')}
+        </div>
+        
+        ${callbacks.length > 0 ? `
+          <div class="paper" style="margin-top:18px;padding:16px 20px;display:flex;align-items:center;gap:14px;border-left:3px solid var(--gold);">
+            <div style="font-size:20px;">⏰</div>
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:13.5px;margin-bottom:2px;">${callbacks.length} callback${callbacks.length === 1 ? '' : 's'} due soon</div>
+              <div style="font-size:12px;color:var(--ink-mute);">${callbacks.slice(0,3).map(c => escapeHtml(c.name || fmt.phone(c.phone))).join(' · ')}${callbacks.length > 3 ? ' · ' + (callbacks.length - 3) + ' more' : ''}</div>
+            </div>
+            <button class="btn-secondary" onclick="window.client.setView('followups')">View All</button>
+          </div>
+        ` : ''}
+      </section>
+    `;
+  }
+  
+  function renderStatCard(label, value, icon, color) {
+    return `
+      <div class="paper stat">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span class="eyebrow">${escapeHtml(label)}</span>
+          <span style="font-size:14px;opacity:0.6;">${icon}</span>
+        </div>
+        <div class="stat-num" style="${color ? `color:${color};` : ''}">${escapeHtml(String(value))}</div>
+      </div>
+    `;
+  }
+  
+  function renderViewTabs() {
+    const inbox = inboxLeads().length;
+    const followups = state.contacts.filter(c => c.callback_at).length;
+    const booked = state.contacts.filter(c => {
+      const fs = (c.follow_up_status || '').toLowerCase();
+      const ls = (c.lead_status || '').toLowerCase();
+      return fs === 'booked' || fs === 'won' || ls === 'booked' || ls === 'demo_scheduled';
+    }).length;
+    
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:14px;flex-wrap:wrap;">
+        <div style="display:flex;gap:6px;">
+          <button class="tab ${state.view === 'inbox' ? 'active' : ''}" onclick="window.client.setView('inbox')">
+            Inbox <span class="count">${inbox}</span>
+          </button>
+          <button class="tab ${state.view === 'all' ? 'active' : ''}" onclick="window.client.setView('all')">
+            All Leads <span class="count">${state.contacts.length}</span>
+          </button>
+          <button class="tab ${state.view === 'followups' ? 'active' : ''}" onclick="window.client.setView('followups')">
+            Callbacks <span class="count">${followups}</span>
+          </button>
+          <button class="tab ${state.view === 'booked' ? 'active' : ''}" onclick="window.client.setView('booked')">
+            Booked <span class="count">${booked}</span>
+          </button>
+        </div>
+        <input 
+          type="text"
+          placeholder="Search by name, phone, business, notes…"
+          value="${escapeAttr(state.searchQuery)}"
+          oninput="window.client.search(this.value)"
+          class="input"
+          style="max-width:300px;"
+        />
+      </div>
+    `;
+  }
+  
+  function renderMainList() {
+    const list = filteredContacts();
+    
+    if (list.length === 0) {
+      return `
+        <div class="paper empty-state">
+          <div class="empty-icon">${state.view === 'inbox' ? '☕' : '📋'}</div>
+          <div style="font-size:15px;color:var(--ink);margin-bottom:6px;font-weight:500;">
+            ${state.view === 'inbox' ? "You're all caught up" : 'No leads match your filters'}
+          </div>
+          <div style="font-size:13px;color:var(--ink-mute);max-width:340px;margin:0 auto;line-height:1.5;">
+            ${state.view === 'inbox' 
+              ? "Riley will let you know when there's a new lead worth your time. In the meantime, enjoy the quiet."
+              : 'Try a different search or view.'}
+          </div>
+        </div>
+      `;
+    }
+    
+    return `<div class="paper" style="overflow:hidden;">${list.map(c => renderLeadCard(c)).join('')}</div>`;
+  }
+  
+  function renderLeadCard(c) {
+    const isSelected = c.id === state.selectedId;
+    const isUrgent = c.urgency === 'hot' && !c.last_action_at;
+    const fs = (c.follow_up_status || '').toLowerCase();
+    const isBooked = fs === 'booked' || fs === 'won';
+    
+    const lastInteraction = c.last_call_at || c.last_call || c.updated_at || c.created_at;
+    const calls = state.calls.filter(cc => cc.caller_phone === c.phone);
+    const latestCall = calls[0];
+    
+    let preview = '';
+    if (latestCall?.summary) {
+      preview = latestCall.summary.slice(0, 140);
+      if (latestCall.summary.length > 140) preview += '…';
+    } else if (c.pain_point) {
+      preview = `Pain: ${fmt.industry(c.pain_point)}` + (c.timeline ? ` · Timeline: ${fmt.industry(c.timeline)}` : '');
+    }
+    
+    return `
+      <div class="lead-card ${isUrgent ? 'urgent' : ''} ${c.urgency === 'hot' && !isUrgent ? 'hot' : ''} ${isBooked ? 'booked-card' : ''}"
+           onclick="window.client.select('${c.id}')"
+           style="${isSelected ? 'background:var(--bg);' : ''}border-bottom:1px solid var(--line);">
+        
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;">
+              <span style="font-weight:600;font-size:14.5px;">${c.name ? escapeHtml(c.name) : "<span style='color:var(--ink-dim);font-weight:400;'>Unnamed</span>"}</span>
+              ${c.business_name ? `<span style="color:var(--ink-dim);">·</span><span style="color:var(--ink-mute);font-size:13px;">${escapeHtml(c.business_name)}</span>` : ''}
+              ${urgencyChip(c)}
+              ${statusChip(c)}
+            </div>
+            
+            ${preview ? `<div style="font-size:13px;color:var(--ink-soft);line-height:1.5;margin-bottom:6px;">${escapeHtml(preview)}</div>` : ''}
+            
+            <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink-dim);font-family:'JetBrains Mono',monospace;flex-wrap:wrap;">
+              <span>${escapeHtml(fmt.phone(c.phone))}</span>
+              ${c.industry ? `<span>·</span><span>${escapeHtml(fmt.industry(c.industry))}</span>` : ''}
+              <span>·</span>
+              <span>${escapeHtml(fmt.when(lastInteraction))}</span>
+              ${c.callback_at ? `<span>·</span><span style="color:var(--gold);">⏰ ${escapeHtml(fmt.dateOnly(c.callback_at))}</span>` : ''}
+            </div>
+            
+            ${(c.tags && c.tags.length > 0) ? `
+              <div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap;">
+                ${c.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+          
+          <div style="text-align:right;font-size:11px;color:var(--ink-dim);font-family:'JetBrains Mono',monospace;white-space:nowrap;">
+            ${c.deal_value ? `<div style="font-size:14px;color:var(--ink);font-weight:600;margin-bottom:2px;font-family:'Inter Tight',sans-serif;">${escapeHtml(fmt.money(c.deal_value))}</div>` : ''}
+            ${c.call_count ? `<div>${c.call_count} call${c.call_count === 1 ? '' : 's'}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  function renderDetail(c) {
+    const convo = contactConversation(c);
+    const activity = contactActivity(c);
+    const canCall = c.phone && !c.phone.startsWith('web:');
+    
+    return `
+      <div class="paper" style="position:sticky;top:24px;max-height:calc(100vh - 80px);display:flex;flex-direction:column;overflow:hidden;">
+        
+        <!-- Header -->
+        <div style="padding:22px 22px 18px;border-bottom:1px solid var(--line);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+            <div style="flex:1;">
+              <h2 class="font-display" style="font-size:24px;font-weight:500;margin:0 0 4px 0;line-height:1.1;">${c.name ? escapeHtml(c.name) : 'Unnamed Lead'}</h2>
+              <div style="font-size:13px;color:var(--ink-mute);">${c.business_name ? escapeHtml(c.business_name) + ' · ' : ''}${escapeHtml(fmt.industry(c.industry))}</div>
+              <div style="font-size:12px;color:var(--ink-dim);font-family:'JetBrains Mono',monospace;margin-top:4px;">${escapeHtml(fmt.phone(c.phone))}${c.email ? ' · ' + escapeHtml(c.email) : ''}</div>
+            </div>
+            <button onclick="window.client.select(null)" style="background:transparent;border:none;color:var(--ink-mute);font-size:22px;cursor:pointer;padding:0;line-height:1;">×</button>
+          </div>
+          
+          <!-- Action row -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${canCall ? `
+              <a href="tel:${escapeAttr(c.phone)}" class="btn-action primary" onclick="window.client.logCall('${c.id}')">📞 Call</a>
+              <a href="sms:${escapeAttr(c.phone)}" class="btn-action" onclick="window.client.logText('${c.id}')">💬 Text</a>
+            ` : ''}
+            <button class="btn-action" onclick="window.client.openModal('reminder', '${c.id}')">⏰ Remind Me</button>
+            <button class="btn-action" onclick="window.client.markFollowedUp('${c.id}')">✓ Followed Up</button>
+          </div>
+        </div>
+        
+        <div style="overflow-y:auto;flex:1;">
+          
+          <!-- Status & Pipeline -->
+          <div style="padding:18px 22px;border-bottom:1px solid var(--line);">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <label class="eyebrow" style="display:block;margin-bottom:6px;">Status</label>
+                <select class="select" onchange="window.client.setStatus('${c.id}', this.value)">
+                  ${[
+                    ['', '— set status —'],
+                    ['new', 'New'],
+                    ['followed_up', 'Followed up'],
+                    ['booked', 'Booked'],
+                    ['won', 'Won'],
+                    ['lost', 'Lost']
+                  ].map(([v, l]) => `<option value="${v}" ${(c.follow_up_status||'')===v?'selected':''}>${l}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="eyebrow" style="display:block;margin-bottom:6px;">Est. Value</label>
+                <input type="number" class="input" placeholder="$0" 
+                       value="${c.deal_value || ''}"
+                       onblur="window.client.setDealValue('${c.id}', this.value)" />
+              </div>
+            </div>
+            
+            <div style="margin-top:12px;">
+              <label class="eyebrow" style="display:block;margin-bottom:6px;">Assigned to</label>
+              <input type="text" class="input" placeholder="Team member name or email"
+                     value="${escapeAttr(c.assigned_to || '')}"
+                     onblur="window.client.setAssignee('${c.id}', this.value)" />
+            </div>
+          </div>
+          
+          <!-- Notes -->
+          <div style="padding:18px 22px;border-bottom:1px solid var(--line);">
+            <label class="eyebrow" style="display:block;margin-bottom:6px;">Your Notes</label>
+            <textarea class="textarea" placeholder="Private notes about this lead — what they said, context, anything to remember…"
+                      onblur="window.client.saveNotes('${c.id}', this.value)">${escapeHtml(c.notes || '')}</textarea>
+          </div>
+          
+          <!-- Tags -->
+          <div style="padding:18px 22px;border-bottom:1px solid var(--line);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <label class="eyebrow">Tags</label>
+              <button class="btn-secondary" style="font-size:11px;padding:4px 10px;" onclick="window.client.openModal('tag', '${c.id}')">+ Add Tag</button>
+            </div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+              ${(c.tags || []).length === 0 ? `<span style="font-size:12px;color:var(--ink-dim);">No tags yet</span>` : 
+                c.tags.map(t => `
+                  <span class="tag">
+                    ${escapeHtml(t)}
+                    <button class="tag-remove" onclick="window.client.removeTag('${c.id}', '${escapeAttr(t)}')" title="Remove">×</button>
+                  </span>
+                `).join('')
+              }
+            </div>
+          </div>
+          
+          <!-- Qualification (from Riley) -->
+          ${(c.pain_point || c.timeline || c.budget || c.service_interest) ? `
+            <div style="padding:18px 22px;border-bottom:1px solid var(--line);">
+              <div class="eyebrow" style="margin-bottom:10px;">What Riley Learned</div>
+              ${c.pain_point ? `<div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--ink-mute);">Pain:</span> ${escapeHtml(fmt.industry(c.pain_point))}</div>` : ''}
+              ${c.timeline ? `<div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--ink-mute);">Timeline:</span> ${escapeHtml(fmt.industry(c.timeline))}</div>` : ''}
+              ${c.budget ? `<div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--ink-mute);">Budget:</span> ${escapeHtml(c.budget)}</div>` : ''}
+              ${c.service_interest ? `<div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--ink-mute);">Wants:</span> ${escapeHtml(c.service_interest)}</div>` : ''}
+            </div>
+          ` : ''}
+          
+          <!-- Conversation timeline -->
+          ${convo.length > 0 ? `
+            <div style="padding:0;">
+              <div style="padding:18px 22px 6px;">
+                <div class="eyebrow">Conversation History</div>
+              </div>
+              ${renderConversation(convo)}
+            </div>
+          ` : ''}
+          
+          <!-- Activity log -->
+          ${activity.length > 0 ? `
+            <div style="padding:18px 22px;border-top:1px solid var(--line);">
+              <div class="eyebrow" style="margin-bottom:10px;">Your Actions</div>
+              ${activity.slice(0, 10).map(a => `
+                <div style="display:flex;gap:10px;font-size:12px;margin-bottom:6px;">
+                  <span style="color:var(--ink-dim);font-family:'JetBrains Mono',monospace;white-space:nowrap;">${escapeHtml(fmt.when(a.created_at))}</span>
+                  <span style="color:var(--ink-soft);">${formatActivity(a)}</span>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+  
+  function renderConversation(items) {
+    return `
+      <div style="padding:8px 22px 18px;display:flex;flex-direction:column;gap:14px;">
+        ${items.map(item => {
+          if (item.type === 'call') {
+            const c = item.data;
+            return `
+              <div style="padding:11px 14px;background:var(--bg);border:1px solid var(--line);border-radius:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                  <span style="font-size:12px;font-weight:600;color:var(--ink);">
+                    📞 ${c.call_type === 'inbound' || !c.call_type ? 'Called in' : 'Riley called'} · ${escapeHtml(c.call_status || 'completed')}
+                  </span>
+                  <span style="font-size:11px;color:var(--ink-dim);font-family:'JetBrains Mono',monospace;">${escapeHtml(fmt.when(c.created_at))} · ${escapeHtml(fmt.duration(c.duration_seconds))}</span>
+                </div>
+                ${c.summary ? `<div style="font-size:12.5px;color:var(--ink-soft);line-height:1.55;">${escapeHtml(c.summary)}</div>` : ''}
+                ${c.recording_url ? `<a href="${escapeAttr(c.recording_url)}" target="_blank" style="font-size:11.5px;color:var(--accent);text-decoration:none;display:inline-block;margin-top:6px;">▶ Listen to recording</a>` : ''}
+              </div>
+            `;
+          } else {
+            const s = item.data;
+            const isInbound = s.direction === 'inbound';
+            return `
+              <div style="display:flex;flex-direction:column;align-items:${isInbound ? 'flex-start' : 'flex-end'};gap:2px;">
+                <div class="bubble ${isInbound ? 'bubble-them' : 'bubble-us'}">
+                  ${s.message ? escapeHtml(s.message) : "<span style='opacity:0.6;font-style:italic;'>(no content)</span>"}
+                </div>
+                <div class="bubble-meta">${escapeHtml(fmt.timeOnly(s.created_at))} · ${isInbound ? 'them' : 'sent'}</div>
+              </div>
+            `;
+          }
+        }).join('')}
+      </div>
+    `;
+  }
+  
+  function formatActivity(a) {
+    const type = a.action_type;
+    const data = a.action_data || {};
+    
+    if (type === 'note_added') return 'Added a note';
+    if (type === 'status_changed') return `Changed status to <strong>${escapeHtml(fmt.industry(data.follow_up_status || ''))}</strong>`;
+    if (type === 'call_logged') return 'Called the lead';
+    if (type === 'text_logged') return 'Texted the lead';
+    if (type === 'reminder_set') return `Set callback for ${data.callback_at ? escapeHtml(fmt.fullDate(data.callback_at)) : 'later'}`;
+    if (type === 'tag_added') return `Added tag: <strong>${escapeHtml(data.tag || '')}</strong>`;
+    if (type === 'tag_removed') return `Removed tag: <strong>${escapeHtml(data.tag || '')}</strong>`;
+    if (type === 'deal_value_set') return `Set value to ${escapeHtml(fmt.money(data.deal_value))}`;
+    if (type === 'assignee_set') return `Assigned to ${escapeHtml(data.assigned_to || 'someone')}`;
+    if (type === 'followed_up') return 'Marked as followed up';
+    return escapeHtml(type.replace(/_/g, ' '));
+  }
+  
+  function renderModal() {
+    const m = state.showModal;
+    const c = state.contacts.find(x => x.id === m.contactId);
+    if (!c) return '';
+    
+    if (m.type === 'reminder') {
+      return `
+        <div class="modal-overlay" onclick="window.client.closeModal()">
+          <div class="modal" onclick="event.stopPropagation()">
+            <h3 class="font-display" style="font-size:22px;margin:0 0 6px 0;font-weight:500;">Set a reminder</h3>
+            <p style="font-size:13px;color:var(--ink-mute);margin:0 0 18px 0;">Follow up with ${escapeHtml(c.name || 'this lead')} later.</p>
+            
+            <div style="margin-bottom:14px;">
+              <label class="eyebrow" style="display:block;margin-bottom:6px;">When?</label>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;">
+                <button class="btn-secondary" onclick="window.client.setReminder('${c.id}', 'tomorrow_9am')">Tomorrow 9am</button>
+                <button class="btn-secondary" onclick="window.client.setReminder('${c.id}', 'in_3_days')">In 3 days</button>
+                <button class="btn-secondary" onclick="window.client.setReminder('${c.id}', 'next_week')">Next week</button>
+              </div>
+              <input type="datetime-local" class="input" id="reminder-custom" />
+            </div>
+            
+            <div style="display:flex;justify-content:flex-end;gap:8px;">
+              <button class="btn-secondary" onclick="window.client.closeModal()">Cancel</button>
+              <button class="btn-primary" onclick="window.client.setReminderCustom('${c.id}')">Set Reminder</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    if (m.type === 'tag') {
+      return `
+        <div class="modal-overlay" onclick="window.client.closeModal()">
+          <div class="modal" onclick="event.stopPropagation()">
+            <h3 class="font-display" style="font-size:22px;margin:0 0 6px 0;font-weight:500;">Add a tag</h3>
+            <p style="font-size:13px;color:var(--ink-mute);margin:0 0 18px 0;">Tags help you organize and find leads later.</p>
+            
+            <input type="text" class="input" id="new-tag-input" placeholder="e.g., VIP, referral, returning..." autofocus
+                   onkeydown="if(event.key==='Enter') window.client.addTag('${c.id}', this.value)" />
+            
+            <div style="margin-top:12px;">
+              <div class="eyebrow" style="margin-bottom:6px;">Common tags</div>
+              <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                ${['VIP', 'Referral', 'Returning', 'Big Deal', 'Follow Up', 'Hot'].map(t => 
+                  `<button class="tag" style="cursor:pointer;" onclick="window.client.addTag('${c.id}', '${escapeAttr(t)}')">${escapeHtml(t)}</button>`
+                ).join('')}
+              </div>
+            </div>
+            
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px;">
+              <button class="btn-secondary" onclick="window.client.closeModal()">Cancel</button>
+              <button class="btn-primary" onclick="window.client.addTag('${c.id}', document.getElementById('new-tag-input').value)">Add Tag</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    return '';
+  }
+  
+  function fmtDuration(sec) {
+    if (!sec) return '—';
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  }
+  fmt.duration = fmtDuration;
+  
+  // ─────── Public API ───────
+  window.client = {
+    async login() {
+      const input = document.getElementById('pw-input');
+      const errEl = document.getElementById('login-err');
+      const pw = input?.value || '';
+      
+      if (pw === window.DASHBOARD_PASSWORD) {
+        sessionStorage.setItem(SESSION_KEY, 'authenticated');
+        state.authenticated = true;
+        await load();
+      } else {
+        if (errEl) {
+          errEl.textContent = 'Incorrect password';
+          errEl.style.display = 'block';
+        }
+        if (input) { input.value = ''; input.focus(); }
+      }
+    },
+    logout() {
+      sessionStorage.removeItem(SESSION_KEY);
+      location.reload();
+    },
+    refresh() { load(); },
+    setView(v) {
+      state.view = v;
+      state.selectedId = null;
+      render();
+    },
+    search(q) { state.searchQuery = q; render(); },
+    select(id) {
+      state.selectedId = state.selectedId === id ? null : id;
+      render();
+    },
+    
+    async saveNotes(id, text) {
+      const c = state.contacts.find(x => x.id === id);
+      if (c?.notes === text) return;
+      await updateContact(id, { notes: text }, 'note_added');
+    },
+    async setStatus(id, status) {
+      if (!status) return;
+      await updateContact(id, { follow_up_status: status }, 'status_changed');
+    },
+    async setDealValue(id, value) {
+      const v = value ? parseFloat(value) : null;
+      const c = state.contacts.find(x => x.id === id);
+      if ((c?.deal_value || null) === v) return;
+      await updateContact(id, { deal_value: v }, 'deal_value_set');
+    },
+    async setAssignee(id, person) {
+      const c = state.contacts.find(x => x.id === id);
+      if ((c?.assigned_to || '') === person) return;
+      await updateContact(id, { assigned_to: person || null }, 'assignee_set');
+    },
+    async markFollowedUp(id) {
+      await updateContact(id, { follow_up_status: 'followed_up' }, 'followed_up');
+    },
+    async logCall(id) {
+      await updateContact(id, { follow_up_status: 'followed_up' }, 'call_logged');
+    },
+    async logText(id) {
+      await updateContact(id, { follow_up_status: 'followed_up' }, 'text_logged');
+    },
+    
+    openModal(type, contactId) {
+      state.showModal = { type, contactId };
+      render();
+    },
+    closeModal() {
+      state.showModal = null;
+      render();
+    },
+    
+    async setReminder(id, preset) {
+      let dt = new Date();
+      if (preset === 'tomorrow_9am') {
+        dt.setDate(dt.getDate() + 1);
+        dt.setHours(9, 0, 0, 0);
+      } else if (preset === 'in_3_days') {
+        dt.setDate(dt.getDate() + 3);
+      } else if (preset === 'next_week') {
+        dt.setDate(dt.getDate() + 7);
+      }
+      await updateContact(id, { callback_at: dt.toISOString() }, 'reminder_set');
+      state.showModal = null;
+      render();
+    },
+    async setReminderCustom(id) {
+      const input = document.getElementById('reminder-custom');
+      if (!input?.value) return;
+      const dt = new Date(input.value);
+      await updateContact(id, { callback_at: dt.toISOString() }, 'reminder_set');
+      state.showModal = null;
+      render();
+    },
+    
+    async addTag(id, tag) {
+      const t = (tag || '').trim();
+      if (!t) return;
+      const c = state.contacts.find(x => x.id === id);
+      const current = c?.tags || [];
+      if (current.includes(t)) {
+        state.showModal = null;
+        render();
+        return;
+      }
+      const newTags = [...current, t];
+      await updateContact(id, { tags: newTags }, 'tag_added');
+      const input = document.getElementById('new-tag-input');
+      if (input) input.value = '';
+      state.showModal = null;
+      render();
+    },
+    async removeTag(id, tag) {
+      const c = state.contacts.find(x => x.id === id);
+      const current = c?.tags || [];
+      const newTags = current.filter(t => t !== tag);
+      await updateContact(id, { tags: newTags }, 'tag_removed');
+    }
+  };
+  
+  // ─────── Boot ───────
+  state.authenticated = sessionStorage.getItem(SESSION_KEY) === 'authenticated';
+  if (state.authenticated) {
+    load();
+    setInterval(load, 30000);
+  } else {
+    render();
+  }
+  
+})();
+</script>
+
+</body>
+</html>

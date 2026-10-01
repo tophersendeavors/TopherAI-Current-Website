@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Topher — It doesn't just answer. It knows how you feel.</title>
+<meta name="description" content="Topher is an AI phone agent with an Emotional Brain. Every AI can answer your phone. Topher takes care of your callers." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Quicksand:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<link rel="icon" type="image/svg+xml" href="assets/topher-heart.svg" />
+
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+<link rel="canonical" href="https://topherai.com/topher.html" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://topherai.com/topher.html" />
+<meta property="og:title" content="See Topher AI Think — The Emotional Reasoning Engine" />
+<meta property="og:description" content="Watch Topher AI reason through a live call in real time: what the caller said, what they meant, and what it decided to do next." />
+<meta property="og:image" content="https://topherai.com/og-image.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"Organization","@id":"https://topherai.com/#organization","name":"Topher AI","url":"https://topherai.com","logo":{"@type":"ImageObject","url":"https://topherai.com/favicon-512x512.png"},"telephone":"+1-213-898-6724"},
+{"@type":"TechArticle","@id":"https://topherai.com/topher.html","headline":"How Topher AI's Emotional Reasoning Engine Works","description":"A live view of the reasoning layer behind Topher AI's phone agent: transcription, intent and emotion inference, decision, and action.","about":[{"@type":"Thing","name":"Conversational AI"},{"@type":"Thing","name":"Emotional reasoning"},{"@type":"Thing","name":"AI voice agent"}],"publisher":{"@id":"https://topherai.com/#organization"},"isPartOf":{"@type":"WebSite","url":"https://topherai.com"}},
+{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://topherai.com/"},{"@type":"ListItem","position":2,"name":"See It Think"}]}]}
+</script>
+<link rel="stylesheet" href="topher.css" />
+<style id="topher-chrome">
+.tn{position:sticky;top:0;z-index:200;background:rgba(26,24,33,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 1px 0 rgba(243,233,221,.07);font-family:'Hanken Grotesk',sans-serif}
+.tn__in{max-width:1280px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.tn__brand{display:flex;align-items:center;gap:10px;font-family:'Quicksand',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.02em;color:#F2EEE9;text-decoration:none}
+.tn__mark{width:34px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center}
+.tn__ai{background:linear-gradient(135deg,#E8826B,#D26A52);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.tn__links{display:flex;align-items:center;gap:30px}
+.tn__item{position:relative}
+.tn__link{font-size:14px;font-weight:500;color:#B4ABAF;text-decoration:none;display:inline-flex;align-items:center;gap:5px;padding:9px 0;white-space:nowrap;transition:color .15s}
+.tn__link:hover,.tn__item:hover>.tn__link{color:#F2EEE9}
+.tn__car{font-size:9px;opacity:.6;transition:transform .18s}
+.tn__item:hover .tn__car{transform:rotate(180deg)}
+.tn__menu{position:absolute;top:100%;left:-14px;min-width:262px;background:#211E29;border:1px solid rgba(243,233,221,.09);border-radius:14px;padding:8px;box-shadow:0 18px 48px rgba(0,0,0,.5);opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .16s}
+.tn__item:hover .tn__menu,.tn__item:focus-within .tn__menu{opacity:1;visibility:visible;transform:translateY(0)}
+.tn__menu a{display:block;padding:9px 12px;border-radius:9px;font-size:13.5px;font-weight:500;color:#C6BCC2;line-height:1.35;text-decoration:none;transition:all .13s}
+.tn__menu a:hover{background:rgba(232,130,107,.11);color:#F2EEE9}
+.tn__menu a small{display:block;font-size:11.5px;color:#8C8289;font-weight:400;margin-top:2px}
+.tn__lbl{font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6E6571;padding:8px 12px 5px}
+.tn__menu hr{border:0;border-top:1px solid rgba(243,233,221,.07);margin:6px 8px}
+.tn__right{display:flex;align-items:center;gap:14px}
+.tn__tel{font-size:14px;font-weight:600;color:#D26A52;text-decoration:none;white-space:nowrap}
+.tn__cta{padding:10px 20px;border-radius:100px;font-size:14px;font-weight:600;color:#F3E9DD;text-decoration:none;background:linear-gradient(135deg,#D26A52,#E8826B);box-shadow:0 4px 20px rgba(232,130,107,.28);transition:all .18s;white-space:nowrap}
+.tn__cta:hover{box-shadow:0 8px 32px rgba(232,130,107,.45);transform:translateY(-1px)}
+.tn__burger{display:none;background:none;border:0;color:#B4ABAF;font-size:19px;cursor:pointer;padding:4px}
+.tn__mob{display:none;background:#1A1821;border-top:1px solid rgba(243,233,221,.08);padding:12px 0 18px}
+.tn__mob.open{display:block}
+.tn__mob a{display:block;padding:10px 32px;font-size:14px;color:#C6BCC2;text-decoration:none}
+.tn__mob a:hover{color:#F2EEE9;background:rgba(232,130,107,.08)}
+.tn__moblbl{font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6E6571;padding:13px 32px 4px}
+@media(max-width:1024px){.tn__links,.tn__tel{display:none}.tn__burger{display:block}.tn__in{padding:12px 20px}}
+</style>
+
+</head>
+<body>
+
+<!-- The Emotional Field — the page literally senses and adapts -->
+<div class="field" aria-hidden="true">
+  <div class="field__blob field__blob--a"></div>
+  <div class="field__blob field__blob--b"></div>
+  <div class="field__blob field__blob--c"></div>
+  <div class="field__veil"></div>
+  <div class="field__grain"></div>
+</div>
+
+<div class="shell">
+
+  <!-- Nav -->
+  <nav class="tn" aria-label="Main navigation">
+  <div class="tn__in">
+    <a class="tn__brand" href="/"><span class="tn__mark"><svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block" aria-hidden="true"><path d="M50 87 C22 66 7 50 7 30 C7 16.5 17 7.5 29 7.5 C39.5 7.5 46.5 14.5 50 22 C53.5 14.5 60.5 7.5 71 7.5 C83 7.5 93 16.5 93 30 C93 50 78 66 50 87 Z" fill="#E8826B"/><path d="M18 47 L35 47 L40 35 L47.5 59 L53.5 39 L57.5 47 L82 47" fill="none" stroke="#F3E9DD" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Topher <span class="tn__ai">AI</span></a>
+    <div class="tn__links">
+      <div class="tn__item"><a href="/solutions/ai-client-intake/" class="tn__link">Solutions <span class="tn__car">▾</span></a>
+        <div class="tn__menu"><div class="tn__lbl">By job to be done</div>
+      <a href="/solutions/ai-client-intake/">AI Client Intake<small>Qualify and capture every new inquiry</small></a>
+      <a href="/solutions/ai-answering-service/">AI Answering Service<small>Every call answered, 24/7</small></a>
+      <a href="/solutions/ai-receptionist/">AI Receptionist<small>A full front desk that never clocks out</small></a>
+          <hr>
+      <a href="/tools/missed-call-cost-calculator/">Missed Call Cost Calculator<small>See what unanswered calls cost you</small></a>
+        </div>
+      </div>
+      <div class="tn__item"><a href="/industries/law-firms/" class="tn__link">Industries <span class="tn__car">▾</span></a>
+        <div class="tn__menu"><div class="tn__lbl">Built for your intake</div>
+      <a href="/industries/law-firms/">Law Firms<small>Client intake, conflicts, consultations</small></a>
+      <a href="/knowledge/real-estate/ai-receptionist-for-realtors.html">Real Estate<small>Buyer and seller lead response</small></a>
+      <a href="/knowledge/industries/ai-receptionist-for-med-spas.html">Med Spas<small>Bookings, treatment FAQs, no-shows</small></a>
+      <a href="/knowledge/industries/ai-receptionist-for-insurance-agencies.html">Insurance<small>Quote requests and policy questions</small></a>
+        </div>
+      </div>
+      <div class="tn__item"><a href="/knowledge/" class="tn__link">Resources <span class="tn__car">▾</span></a>
+        <div class="tn__menu">
+      <a href="/knowledge/">Knowledge Center<small>Guides, comparisons, and answers</small></a>
+      <a href="/blog/">Blog<small>Field notes from thousands of calls</small></a>
+      <a href="/tools/missed-call-cost-calculator/">Missed Call Calculator<small>Your revenue leak, quantified</small></a>
+          <hr>
+      <a href="/topher.html">See It Think<small>Inside the emotional reasoning engine</small></a>
+        </div>
+      </div>
+      <a href="/#pricing" class="tn__link">Pricing</a>
+    </div>
+    <div class="tn__right">
+      <a class="tn__tel" href="tel:+12138986724">(213) 898-6724</a>
+      <a class="tn__cta" href="/#contact">Book Demo</a>
+      <button class="tn__burger" aria-label="Menu" onclick="document.getElementById('tnMob').classList.toggle('open')">☰</button>
+    </div>
+  </div>
+  <div class="tn__mob" id="tnMob">
+    <div class="tn__moblbl">Solutions</div>
+    <a href="/solutions/ai-client-intake/">AI Client Intake</a><a href="/solutions/ai-answering-service/">AI Answering Service</a><a href="/solutions/ai-receptionist/">AI Receptionist</a>
+    <div class="tn__moblbl">Industries</div>
+    <a href="/industries/law-firms/">Law Firms</a><a href="/knowledge/real-estate/ai-receptionist-for-realtors.html">Real Estate</a><a href="/knowledge/industries/ai-receptionist-for-med-spas.html">Med Spas</a><a href="/knowledge/industries/ai-receptionist-for-insurance-agencies.html">Insurance</a>
+    <div class="tn__moblbl">Resources</div>
+    <a href="/knowledge/">Knowledge Center</a><a href="/blog/">Blog</a><a href="/tools/missed-call-cost-calculator/">Missed Call Calculator</a><a href="/topher.html">See It Think</a>
+    <div class="tn__moblbl">Company</div>
+    <a href="/#pricing">Pricing</a><a href="tel:+12138986724">(213) 898-6724</a>
+  </div>
+  </nav>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section class="hero" data-screen-label="Hero">
+      <div class="brain" id="brain" aria-hidden="true">
+        <div class="brain__img"></div>
+        <div class="brain__tint"></div>
+        <div class="brain__glow"></div>
+        <canvas id="brainCanvas"></canvas>
+        <div class="brain__scrim"></div>
+      </div>
+      <div class="wrap">
+        <div class="hero__head">
+          <span class="eyebrow">The Emotional Brain · for the phone</span>
+          <h1>It doesn't just answer.<br />It knows <span class="em">how you feel</span>.</h1>
+          <p class="hero__sub">Topher is an AI phone agent that reads how each caller feels and responds the way a skilled human would. It always says it's AI — the goal is <strong>skill, not deception</strong>.</p>
+          <div class="hero__proof"><span class="dot"></span>Now answering after-hours calls for med&nbsp;spas, clinics &amp; law&nbsp;firms.</div>        </div>
+
+        <!-- The signature: Watch it think -->
+        <div class="console" id="console" data-screen-label="Watch it think console">
+          <div class="console__bar">
+            <span class="console__live"><span class="pip"></span>Watch it think · live</span>
+            <div class="tabs" id="tabs" role="tablist" aria-label="Call scenarios"></div>
+          </div>
+          <div class="console__body">
+            <div class="console__call">
+              <div class="panel-label"><span>The call</span><span>audio · transcribed</span></div>
+              <div class="turns" id="turns"></div>
+            </div>
+            <div class="console__brain">
+              <div class="panel-label"><span>The brain, thinking</span><span>emotional · trace</span></div>
+              <div class="trace" id="trace"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The shift -->
+    <section class="shift" data-emotion="care">
+      <div class="wrap reveal">
+        <p>Every AI can <span class="strike">answer your phone</span>. Topher <span class="em">takes care of your callers</span>.</p>
+      </div>
+    </section>
+
+    <!-- Three pillars -->
+    <section class="section" data-emotion="calm">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow">What it does between the lines</span>
+          <h2>It remembers everyone, and it tells you who needs you.</h2>
+        </div>
+        <div class="pillars">
+          <article class="pillar reveal d1" style="--tint: var(--grief)">
+            <div class="pillar__icon"></div>
+            <h3>Never forgets a <em>caller</em></h3>
+            <p>Every call is remembered forever. The next time Sally rings, Topher already knows her name, her history, and where you left off — no starting over.</p>
+            <div class="pillar__tag">Memory that persists</div>
+          </article>
+          <article class="pillar reveal d2" style="--tint: var(--warm)">
+            <div class="pillar__icon"></div>
+            <h3>Tells you where to spend your <em>warmth</em></h3>
+            <p>Topher flags the callers who need a personal follow-up — the anxious new patient, the loyal client having a hard week — so your attention lands where it matters.</p>
+            <div class="pillar__tag">Care, prioritized</div>
+          </article>
+          <article class="pillar reveal d3" style="--tint: var(--anger)">
+            <div class="pillar__icon"></div>
+            <h3>Catches the upset call before the bad <em>review</em></h3>
+            <p>When an everyday caller is frustrated, Topher steadies the conversation in the moment and flags it for you right away — so you hear about the hard call from Topher, not from a one-star review.</p>
+            <div class="pillar__tag">Reputation, protected</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- The Morning Care Brief -->
+    <section class="section" data-emotion="warm">
+      <div class="wrap">
+        <div class="brief">
+          <div class="brief__copy reveal">
+            <span class="eyebrow">Every morning, in your inbox</span>
+            <h2>Wake up to a <span class="em">care list</span>, not a call log.</h2>
+            <p>A plain list of who called overnight, how they felt, and the one or two people worth a personal word from you today.</p>
+            <ul class="brief__list">
+              <li><span class="tick">→</span><span>Sorted by who needs warmth, not by time stamp.</span></li>
+              <li><span class="tick">→</span><span>Each caller carries the emotion Topher heard.</span></li>
+              <li><span class="tick">→</span><span>Every call is auditable — read the full trace anytime.</span></li>
+            </ul>
+          </div>
+          <div class="brief__phone reveal d1">
+            <div class="phone">
+              <div class="phone__screen">
+                <div class="phone__notch"></div>
+                <div class="phone__top">
+                  <div class="phone__date">Thursday · 7:14 AM</div>
+                  <div class="phone__title">Your <em>care list</em></div>
+                  <div class="phone__meta">11 calls overnight · 3 need a personal word</div>
+                </div>
+                <div class="care-list">
+                  <div class="care-card" style="--ce: var(--anger)">
+                    <span class="care-card__dot"></span>
+                    <div>
+                      <div class="care-card__name">Tom B.<span>angry</span></div>
+                      <div class="care-card__why">Third call about billing. Topher resolved it — a quick check-in would close the loop.</div>
+                    </div>
+                  </div>
+                  <div class="care-card" style="--ce: var(--grief)">
+                    <span class="care-card__dot"></span>
+                    <div>
+                      <div class="care-card__name">Ruth M.<span>grieving</span></div>
+                      <div class="care-card__why">Cancelled her late husband's appointments. Handled with care — no callback needed.</div>
+                    </div>
+                  </div>
+                  <div class="care-card" style="--ce: var(--warm)">
+                    <span class="care-card__dot"></span>
+                    <div>
+                      <div class="care-card__name">Maria L.<span>anxious</span></div>
+                      <div class="care-card__why">Nervous about tomorrow's consult. A reassuring text from you would mean a lot.</div>
+                    </div>
+                  </div>
+                  <div class="care-card" style="--ce: var(--care)">
+                    <span class="care-card__dot"></span>
+                    <div>
+                      <div class="care-card__name">8 more<span>routine</span></div>
+                      <div class="care-card__why">Booked, confirmed, and closed. Nothing needs you.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Guarantees -->
+    <section class="section guarantees" data-emotion="grief">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow">Trust is the brand</span>
+          <h2>The promises that don't change with the plan.</h2>
+        </div>
+      </div>
+      <div class="guard-grid reveal d1">
+        <div class="guard">
+          <div class="guard__n">01</div>
+          <h3>Crisis protection in every plan</h3>
+          <p>A caller in genuine distress is a person, not a missed sale. Topher hands the call to a human — guaranteed, on every tier. This is separate from everyday upset; real crisis always reaches a person.</p>
+        </div>
+        <div class="guard">
+          <div class="guard__n">02</div>
+          <h3>Never claims to be human</h3>
+          <p>Topher identifies as AI on every call. The aim is human-level skill, never human-passing deception.</p>
+        </div>
+        <div class="guard">
+          <div class="guard__n">03</div>
+          <h3>Never sells to someone in distress</h3>
+          <p>When a caller is grieving or overwhelmed, Topher helps and steps back. It will not push an upsell on a hard day.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="section" data-emotion="calm">
+      <div class="wrap">
+        <div class="section__head reveal" style="max-width:600px">
+          <span class="eyebrow">Pricing</span>
+          <h2>Pick the depth of care your callers deserve.</h2>
+          <p>Caller memory, emotion detection, and crisis safety are included in <strong>every</strong> plan. The tiers add how much Topher does with what it remembers.</p>
+        </div>
+        <div class="tiers">
+          <div class="tier reveal d1">
+            <div class="tier__name">Essential</div>
+            <div class="tier__price">$397<sub>/mo</sub></div>
+            <div class="tier__setup">+ $1,000 one-time setup</div>
+            <div class="tier__line">Answers every call, books, and remembers — with crisis safety built in.</div>
+            <ul class="tier__feats">
+              <li><span class="tick">✓</span>24/7 answering &amp; booking</li>
+              <li><span class="tick">✓</span>Caller memory that never forgets</li>
+              <li><span class="tick">✓</span>Emotion detection on every call</li>
+              <li><span class="tick">✓</span>Crisis escalation to a human</li>
+            </ul>
+            <a class="tier__btn" href="tel:+12138986724">Hear it on the demo line</a>
+          </div>
+          <div class="tier tier--feat reveal d2">
+            <div class="tier__flag">Most chosen</div>
+            <div class="tier__name">Growth</div>
+            <div class="tier__price">$697<sub>/mo</sub></div>
+            <div class="tier__setup">+ $2,000 one-time setup</div>
+            <div class="tier__line">Adds the Morning Care Brief and the follow-up flags that grow relationships.</div>
+            <ul class="tier__feats">
+              <li><span class="tick">✓</span>Everything in Essential, plus:</li>
+              <li><span class="tick">✓</span>The Morning Care Brief</li>
+              <li><span class="tick">✓</span>Personal follow-up flags</li>
+              <li><span class="tick">✓</span>Upset-caller recovery alerts</li>
+            </ul>
+            <a class="tier__btn" href="tel:+12138986724">Hear it on the demo line</a>
+          </div>
+          <div class="tier reveal d3">
+            <div class="tier__name">Custom / Enterprise</div>
+            <div class="tier__price"><span class="tier__from">from</span>$1,500<sub>/mo</sub></div>
+            <div class="tier__setup">Setup quoted with scope</div>
+            <div class="tier__line">For multi-location practices and custom workflows, where every caller relationship is the business.</div>
+            <ul class="tier__feats">
+              <li><span class="tick">✓</span>Everything in Growth, plus:</li>
+              <li><span class="tick">✓</span>Bilingual care, English &amp; Spanish</li>
+              <li><span class="tick">✓</span>Custom voice &amp; tone</li>
+              <li><span class="tick">✓</span>Full call audits on demand</li>
+            </ul>
+            <a class="tier__btn" href="tel:+12138986724">Hear it on the demo line</a>
+          </div>
+        </div>
+        <div class="tiers__anchor reveal">
+          <p>One saved client pays for a year of the difference.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final" data-emotion="care">
+      <div class="wrap reveal">
+        <h2>Answered in 2 seconds. Remembered <span class="em">forever</span>.</h2>
+        <div class="final__dial">
+          <a class="dial" href="tel:+12138986724">
+            <span class="dial__ic" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </span>
+            <span class="dial__no">+1 (213) 898-6724</span>
+          </a>
+          <span class="dial__sub">Call it now — you'll hear the brain at work</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__top">
+        <div class="footer__brand"><span class="brand__mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 87 C22 66 7 50 7 30 C7 16.5 17 7.5 29 7.5 C39.5 7.5 46.5 14.5 50 22 C53.5 14.5 60.5 7.5 71 7.5 C83 7.5 93 16.5 93 30 C93 50 78 66 50 87 Z" fill="#E8826B"/><path d="M18 47 L35 47 L40 35 L47.5 59 L53.5 39 L57.5 47 L82 47" fill="none" stroke="#F3E9DD" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Topher<span class="brand__ai">&nbsp;AI</span></div>
+        <div class="footer__honesty">
+          <div class="honest">Topher always identifies itself as AI. It is built for human-level skill, never to pass as human.</div>
+          <div class="honest">The crisis feature is augmentative — it routes urgent calls to a person. It is not a substitute for emergency services.</div>
+          <div class="honest">Topher never uses emotional manipulation to sell, and will not pressure a caller in distress. Every call is auditable.</div>
+        </div>
+      </div>
+      <div class="footer__base">
+        <span>© 2026 Topher AI</span>
+        <span>Every AI can answer your phone. Topher takes care of your callers.</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Sticky mobile conversion — the phone number is the whole game -->
+<a class="mobile-call" href="tel:+12138986724">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+  Call the live demo
+</a>
+
+<script src="topher-brain.js"></script>
+<script src="topher.js"></script>
+</body>
+</html>

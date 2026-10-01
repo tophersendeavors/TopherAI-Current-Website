@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Topher AI — Sales Co-Pilot</title>
+<style>
+  :root {
+    --bg: #0a0b14;
+    --surface: rgba(255,255,255,0.03);
+    --surface-2: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.15);
+    --text: #e8eaf2;
+    --muted: #8b94aa;
+    --dim: #5a6378;
+    --accent: #8b7cf8;
+    --accent-bright: #a39afa;
+    --green: #34d399;
+    --orange: #fb923c;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --gold: #D4B068;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  /* ============ HEADER ============ */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #8b7cf8, #60a5fa);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 18px;
+  }
+  .brand-title {
+    font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
+  }
+  .brand-sub {
+    font-size: 11px; color: var(--muted);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .session-status {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; color: var(--muted);
+  }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--dim);
+    transition: background 0.2s;
+  }
+  .status-dot.live {
+    background: var(--green);
+    box-shadow: 0 0 12px rgba(52, 211, 153, 0.6);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  /* ============ SETUP CARD ============ */
+  .setup-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    max-width: 640px;
+    margin: 40px auto;
+  }
+  .setup-card h2 {
+    font-size: 22px; font-weight: 700; margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .setup-card p.lead {
+    color: var(--muted); font-size: 13.5px;
+    line-height: 1.55; margin-bottom: 20px;
+  }
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 11.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .field input, .field textarea {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 11px 13px;
+    font-size: 13.5px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field textarea:focus {
+    border-color: var(--accent);
+  }
+  .field textarea {
+    min-height: 120px;
+    resize: vertical;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .field .hint {
+    font-size: 11px; color: var(--dim); margin-top: 6px;
+  }
+  .field .hint a { color: var(--accent-bright); text-decoration: none; }
+  .field .hint a:hover { text-decoration: underline; }
+  .btn-row {
+    display: flex; gap: 10px;
+    margin-top: 24px;
+  }
+  .btn {
+    flex: 1;
+    padding: 13px 18px;
+    border-radius: 9px;
+    border: none;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.1s, box-shadow 0.2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #8b7cf8, #6b5dd6);
+    color: white;
+    box-shadow: 0 4px 16px rgba(139, 124, 248, 0.3);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(139, 124, 248, 0.5);
+    transform: translateY(-1px);
+  }
+  .btn-secondary {
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+  }
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.07);
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  /* ============ LIVE VIEW (two-column) ============ */
+  .live-view {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    min-height: 0;
+  }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title {
+    font-size: 11.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .panel-meta {
+    font-size: 11px;
+    color: var(--dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 18px;
+  }
+  /* ============ TRANSCRIPT ============ */
+  .turn {
+    margin-bottom: 14px;
+    line-height: 1.5;
+    animation: slide-in 0.3s ease-out;
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .turn .speaker {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .turn.you .speaker { color: var(--blue); }
+  .turn.prospect .speaker { color: var(--gold); }
+  .turn .text {
+    font-size: 13.5px;
+    color: var(--text);
+  }
+  .turn.interim .text {
+    color: var(--muted);
+    font-style: italic;
+  }
+  /* ============ SUGGESTIONS ============ */
+  .suggestion {
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    animation: slide-in 0.4s ease-out;
+  }
+  .suggestion .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .suggestion.objection .tag {
+    background: rgba(251, 146, 60, 0.15);
+    color: var(--orange);
+    border: 1px solid rgba(251, 146, 60, 0.3);
+  }
+  .suggestion.question .tag {
+    background: rgba(96, 165, 250, 0.15);
+    color: var(--blue);
+    border: 1px solid rgba(96, 165, 250, 0.3);
+  }
+  .suggestion.signal .tag {
+    background: rgba(52, 211, 153, 0.15);
+    color: var(--green);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+  }
+  .suggestion.prompt .tag {
+    background: rgba(139, 124, 248, 0.15);
+    color: var(--accent-bright);
+    border: 1px solid rgba(139, 124, 248, 0.3);
+  }
+  .suggestion .heading {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .suggestion .body {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .suggestion .body strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  /* ============ CONTROL BAR (bottom of live view) ============ */
+  .control-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 0;
+    margin-top: 14px;
+  }
+  .control-bar .pill {
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .control-bar .btn-end {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    padding: 11px 24px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
+  }
+  .control-bar .btn-end:hover {
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  }
+  /* ============ EMPTY STATE ============ */
+  .empty {
+    text-align: center;
+    color: var(--dim);
+    font-size: 13px;
+    padding: 60px 20px;
+  }
+  .empty .icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+  /* ============ ERROR ============ */
+  .error-banner {
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    color: var(--red);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    display: none;
+  }
+  .error-banner.show { display: block; }
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    .live-view { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="brand">
+      <div class="brand-mark">T</div>
+      <div>
+        <div class="brand-title">Topher AI — Sales Co-Pilot</div>
+        <div class="brand-sub">Real-time call intelligence</div>
+      </div>
+    </div>
+    <div class="session-status">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Idle</span>
+    </div>
+  </header>
+
+  <div id="errorBanner" class="error-banner"></div>
+
+  <!-- ============ SETUP VIEW ============ -->
+  <div id="setupView" class="setup-card">
+    <h2>Set up your co-pilot session</h2>
+    <p class="lead">Configure once. Saved locally to your browser — never sent anywhere except Deepgram (transcription) and Anthropic (suggestions).</p>
+
+    <div class="field">
+      <label>Deepgram API Key</label>
+      <input type="password" id="deepgramKey" placeholder="dg_xxx..." autocomplete="off" />
+      <div class="hint">Get yours free at <a href="https://console.deepgram.com" target="_blank">console.deepgram.com</a> ($200 credit, ~$0.0043/min)</div>
+    </div>
+
+    <div class="field">
+      <label>Anthropic API Key</label>
+      <input type="password" id="anthropicKey" placeholder="sk-ant-xxx..." autocomplete="off" />
+      <div class="hint">Your existing key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></div>
+    </div>
+
+    <div class="field">
+      <label>Prospect Context (optional)</label>
+      <textarea id="prospectContext" placeholder="e.g., Sarah Chen — Glow Aesthetics, single-location med spa in Beverly Hills, ~5 staff, currently uses voicemail for after-hours. Came from Instagram DM."></textarea>
+      <div class="hint">Helps the AI tailor suggestions. Paste anything you know about who you're calling.</div>
+    </div>
+
+    <div class="field">
+      <label>Battlecard (defaults to your Topher AI battlecard)</label>
+      <textarea id="battlecard"></textarea>
+      <div class="hint">The AI uses this as context for suggestions. Edit if needed — your changes save locally.</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="resetBtn">Reset Defaults</button>
+      <button class="btn btn-primary" id="startBtn">Start Listening →</button>
+    </div>
+  </div>
+
+  <!-- ============ LIVE VIEW ============ -->
+  <div id="liveView" class="live-view" style="display: none;">
+    <!-- LEFT: Transcript -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Live Transcript</div>
+        <div class="panel-meta" id="durationMeta">00:00</div>
+      </div>
+      <div class="panel-body" id="transcriptBody">
+        <div class="empty">
+          <div class="icon">🎙️</div>
+          Waiting for first words…
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: AI Suggestions -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Co-Pilot Suggestions</div>
+        <div class="panel-meta" id="suggestionStatus">Listening…</div>
+      </div>
+      <div class="panel-body" id="suggestionsBody">
+        <div class="empty">
+          <div class="icon">✨</div>
+          Suggestions will appear as the conversation unfolds.<br>
+          The AI listens, detects questions and objections, and prompts responses.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Control bar (live only) -->
+  <div id="controlBar" class="control-bar" style="display: none;">
+    <div class="pill" id="audioStatus">🎤 Capturing mic + system audio</div>
+    <button class="btn-end" id="endBtn">End Session</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// TOPHER AI SALES CO-PILOT
+// Real-time call intelligence using Deepgram + Anthropic
+// ════════════════════════════════════════════════════════════════
+
+// ============ DEFAULT BATTLECARD ============
+const DEFAULT_BATTLECARD = `You are an in-ear sales co-pilot for Christopher (Chris) Maretich, founder of Topher AI.
+
+PRODUCT: Topher AI is an AI receptionist for service businesses (med spas first). It answers every call in under 2 seconds, 24/7. Qualifies leads, books appointments, texts hot-lead alerts.
+
+PRICING:
+- Solo: $277/mo (1 location, 1 user)
+- Team: $597/mo (1 location, 5 users)
+- Multi: $1,497/mo (multi-location)
+- Spanish add-on: $197/mo (Sofía, Colombian dialect)
+- Free 60-day pilot for 3 med spas (current offer)
+
+DIFFERENTIATION:
+- Purpose-built for med spas (vs. generic answering services like Smith.ai)
+- True AI qualification (vs. message-takers)
+- Bilingual at the AI level — Riley (English) + Sofía (Spanish, native Colombian)
+- Honest about limits — Riley says "I don't know" rather than hallucinate
+
+KEY OBJECTIONS + RESPONSES:
+1. "I want a human" → "Call (213) 898-6724 — if Riley sounds robotic, walk away. Otherwise consider."
+2. "Patients prefer text" → "Topher handles both — calls AND missed-call SMS auto-followup."
+3. "I already have a marketing agency" → "Not a replacement — captures what they generate. If 30% goes to voicemail, you're losing 30% of their work."
+4. "HIPAA?" → "Not HIPAA-compliant yet. We're a lead capture tool, not a records system. PHI gets redirected to a consult."
+5. "Will you be around in a year?" → "Full-time business. Built on Anthropic + Vapi + Twilio. Can switch off in 10 seconds if needed."
+
+DISQUALIFIERS — flag if you hear:
+- 6+ locations (enterprise tier doesn't exist)
+- Need HIPAA-required PHI handling
+- Need white-label / API access for custom CRM
+- "What are your case studies?" (none yet — be honest, pivot to pilot)
+
+THE PILOT CLOSE:
+"Let's set you up on the pilot this week. 48 hours from today, Riley is answering your calls. If after 2 weeks you don't see a difference, we shut it off and I never bother you again. The only ask is 30 minutes for onboarding. When works in the next two days?"
+
+YOUR JOB AS CO-PILOT:
+- Listen to the live transcript
+- When the prospect asks a question or raises an objection, surface a SHORT suggested response (max 2 sentences for Chris to deliver)
+- When you detect a buying signal, flag it
+- When Chris forgets to ask a discovery question, gently prompt him
+- Be CONCISE. Chris is on a live call and can only glance.
+- Format responses as JSON only (see below).`;
+
+// ============ STATE ============
+const state = {
+  session: null,           // active session object
+  mediaStream: null,       // combined audio stream
+  micStream: null,
+  systemStream: null,
+  dgSocket: null,          // Deepgram WebSocket
+  transcript: [],          // array of {speaker, text, ts, final}
+  interimText: '',
+  suggestions: [],         // array of {tag, heading, body, ts}
+  lastAnalysisAt: 0,
+  analysisInterval: null,
+  durationTimer: null,
+  startedAt: null,
+  deepgramKey: null,
+  anthropicKey: null,
+  battlecard: '',
+  prospectContext: ''
+};
+
+// ============ DOM ============
+const $ = (id) => document.getElementById(id);
+const elements = {
+  setupView: $('setupView'),
+  liveView: $('liveView'),
+  controlBar: $('controlBar'),
+  startBtn: $('startBtn'),
+  resetBtn: $('resetBtn'),
+  endBtn: $('endBtn'),
+  deepgramKey: $('deepgramKey'),
+  anthropicKey: $('anthropicKey'),
+  prospectContext: $('prospectContext'),
+  battlecard: $('battlecard'),
+  transcriptBody: $('transcriptBody'),
+  suggestionsBody: $('suggestionsBody'),
+  durationMeta: $('durationMeta'),
+  suggestionStatus: $('suggestionStatus'),
+  statusDot: $('statusDot'),
+  statusText: $('statusText'),
+  errorBanner: $('errorBanner'),
+  audioStatus: $('audioStatus')
+};
+
+// ============ STORAGE ============
+const STORE = {
+  load() {
+    try {
+      const dg = localStorage.getItem('copilot.deepgramKey') || '';
+      const an = localStorage.getItem('copilot.anthropicKey') || '';
+      const bc = localStorage.getItem('copilot.battlecard') || DEFAULT_BATTLECARD;
+      return { deepgramKey: dg, anthropicKey: an, battlecard: bc };
+    } catch (e) {
+      return { deepgramKey: '', anthropicKey: '', battlecard: DEFAULT_BATTLECARD };
+    }
+  },
+  save({ deepgramKey, anthropicKey, battlecard }) {
+    try {
+      localStorage.setItem('copilot.deepgramKey', deepgramKey);
+      localStorage.setItem('copilot.anthropicKey', anthropicKey);
+      localStorage.setItem('copilot.battlecard', battlecard);
+    } catch (e) { console.warn('Save failed:', e); }
+  }
+};
+
+// ============ UI HELPERS ============
+function showError(msg) {
+  elements.errorBanner.textContent = msg;
+  elements.errorBanner.classList.add('show');
+  setTimeout(() => elements.errorBanner.classList.remove('show'), 6000);
+}
+function setStatus(text, live = false) {
+  elements.statusText.textContent = text;
+  elements.statusDot.classList.toggle('live', live);
+}
+function formatDuration(seconds) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const s = (seconds % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+// ============ AUDIO CAPTURE ============
+async function captureAudio() {
+  setStatus('Requesting audio…');
+
+  // Capture microphone (Chris's voice)
+  try {
+    state.micStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        sampleRate: 16000,
+        channelCount: 1
+      }
+    });
+  } catch (e) {
+    throw new Error('Microphone access denied. Please allow microphone access and try again.');
+  }
+
+  // Capture system audio (prospect's voice via tab share)
+  try {
+    state.systemStream = await navigator.mediaDevices.getDisplayMedia({
+      video: true,  // Required for getDisplayMedia
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        sampleRate: 16000
+      }
+    });
+    // Stop the video track immediately — we only need audio
+    state.systemStream.getVideoTracks().forEach(t => t.stop());
+    const audioTracks = state.systemStream.getAudioTracks();
+    if (!audioTracks.length) {
+      throw new Error('No audio track in shared tab. Make sure to check "Share tab audio" when sharing.');
+    }
+  } catch (e) {
+    state.micStream.getTracks().forEach(t => t.stop());
+    throw new Error(e.message || 'System audio capture failed. Make sure to share a tab with "Share tab audio" enabled.');
+  }
+
+  // Combine mic + system audio into one stream
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+  const destination = audioContext.createMediaStreamDestination();
+
+  const micSource = audioContext.createMediaStreamSource(state.micStream);
+  const systemSource = audioContext.createMediaStreamSource(state.systemStream);
+
+  // Connect both to destination
+  micSource.connect(destination);
+  systemSource.connect(destination);
+
+  state.mediaStream = destination.stream;
+  state.audioContext = audioContext;
+  setStatus('Audio captured', true);
+}
+
+// ============ DEEPGRAM STREAMING ============
+function startDeepgramStream() {
+  return new Promise((resolve, reject) => {
+    const url = `wss://api.deepgram.com/v1/listen?` +
+      `model=nova-2&` +
+      `language=en-US&` +
+      `smart_format=true&` +
+      `interim_results=true&` +
+      `endpointing=300&` +
+      `vad_events=true&` +
+      `diarize=true&` +
+      `encoding=linear16&` +
+      `sample_rate=16000&` +
+      `channels=1`;
+
+    const socket = new WebSocket(url, ['token', state.deepgramKey]);
+
+    socket.onopen = () => {
+      console.log('[Deepgram] Connected');
+      state.dgSocket = socket;
+
+      // Pipe audio to Deepgram via MediaRecorder
+      // We need to convert the WebAudio stream to PCM16
+      const ctx = state.audioContext;
+      const source = ctx.createMediaStreamSource(state.mediaStream);
+      const processor = ctx.createScriptProcessor(4096, 1, 1);
+
+      source.connect(processor);
+      processor.connect(ctx.destination);
+
+      processor.onaudioprocess = (e) => {
+        if (socket.readyState !== WebSocket.OPEN) return;
+        const float32 = e.inputBuffer.getChannelData(0);
+        const int16 = new Int16Array(float32.length);
+        for (let i = 0; i < float32.length; i++) {
+          const s = Math.max(-1, Math.min(1, float32[i]));
+          int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        }
+        socket.send(int16.buffer);
+      };
+
+      state.audioProcessor = processor;
+      resolve();
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        handleTranscript(data);
+      } catch (e) { console.warn('Failed to parse Deepgram message:', e); }
+    };
+
+    socket.onerror = (err) => {
+      console.error('[Deepgram] Error:', err);
+      reject(new Error('Deepgram connection failed. Check your API key.'));
+    };
+
+    socket.onclose = (e) => {
+      console.log('[Deepgram] Closed:', e.code, e.reason);
+      if (e.code !== 1000 && state.session) {
+        showError(`Transcription disconnected (code ${e.code}). Restart session.`);
+      }
+    };
+  });
+}
+
+// ============ TRANSCRIPT HANDLING ============
+function handleTranscript(data) {
+  if (!data.channel || !data.channel.alternatives || !data.channel.alternatives[0]) return;
+  const alt = data.channel.alternatives[0];
+  if (!alt.transcript || !alt.transcript.trim()) return;
+
+  const isFinal = data.is_final;
+  const text = alt.transcript.trim();
+
+  // Use diarization to attempt speaker separation
+  // Deepgram's speaker labels: 0, 1, 2... (we'll heuristic-map to "you" vs "prospect")
+  const speaker = inferSpeaker(alt);
+
+  if (isFinal) {
+    state.transcript.push({
+      speaker, text, ts: Date.now(), final: true
+    });
+    state.interimText = '';
+    renderTranscript();
+    maybeRequestSuggestion();
+  } else {
+    state.interimText = text;
+    renderTranscript();
+  }
+}
+
+function inferSpeaker(alt) {
+  // Heuristic: use first word's speaker label
+  // This isn't perfect — in v1 we use a simple rule:
+  // The first speaker we hear is "you" (you talk first when calling out)
+  // We could also use volume/source channel as a hint
+  if (alt.words && alt.words.length > 0 && alt.words[0].speaker !== undefined) {
+    const speakerId = alt.words[0].speaker;
+    if (state.firstSpeaker === undefined) state.firstSpeaker = speakerId;
+    return speakerId === state.firstSpeaker ? 'you' : 'prospect';
+  }
+  // Fallback: alternate (rough)
+  return state.transcript.length % 2 === 0 ? 'you' : 'prospect';
+}
+
+function renderTranscript() {
+  const body = elements.transcriptBody;
+  if (state.transcript.length === 0 && !state.interimText) return;
+
+  // Build only the new turns (efficient)
+  let html = '';
+  for (const turn of state.transcript) {
+    html += `
+      <div class="turn ${turn.speaker}">
+        <div class="speaker">${turn.speaker === 'you' ? '👤 You' : '🎯 Prospect'}</div>
+        <div class="text">${escapeHtml(turn.text)}</div>
+      </div>`;
+  }
+  if (state.interimText) {
+    const speaker = state.transcript.length % 2 === 0 ? 'you' : 'prospect';
+    html += `
+      <div class="turn ${speaker} interim">
+        <div class="speaker">${speaker === 'you' ? '👤 You' : '🎯 Prospect'} (typing…)</div>
+        <div class="text">${escapeHtml(state.interimText)}</div>
+      </div>`;
+  }
+
+  body.innerHTML = html;
+  body.scrollTop = body.scrollHeight;
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[ch]);
+}
+
+// ============ AI SUGGESTIONS ============
+// Strategy: every time a new "final" prospect turn arrives, OR
+// every 12 seconds, request fresh suggestions from Claude.
+function maybeRequestSuggestion() {
+  const now = Date.now();
+  const sinceLast = now - state.lastAnalysisAt;
+  const lastTurn = state.transcript[state.transcript.length - 1];
+
+  // Trigger only on prospect turns OR if it's been >15s since last analysis
+  if (!lastTurn) return;
+  if (lastTurn.speaker !== 'prospect' && sinceLast < 15000) return;
+  if (sinceLast < 3000) return; // Rate limit: at least 3s between calls
+
+  requestSuggestion();
+}
+
+async function requestSuggestion() {
+  state.lastAnalysisAt = Date.now();
+  elements.suggestionStatus.textContent = 'Analyzing…';
+
+  // Get last 30 turns of context
+  const recentTurns = state.transcript.slice(-30);
+  const transcriptText = recentTurns
+    .map(t => `${t.speaker === 'you' ? 'CHRIS' : 'PROSPECT'}: ${t.text}`)
+    .join('\n');
+
+  const userPrompt = `${state.prospectContext ? `PROSPECT CONTEXT:\n${state.prospectContext}\n\n` : ''}LIVE TRANSCRIPT (most recent at bottom):
+${transcriptText}
+
+Based on what the PROSPECT just said, provide co-pilot suggestions for Chris.
+
+Respond in JSON only, no preamble. Structure:
+{
+  "suggestions": [
+    {
+      "tag": "objection" | "question" | "signal" | "prompt",
+      "heading": "Short title (max 8 words)",
+      "body": "Specific suggested response or note for Chris (max 3 sentences). Use <strong> tags for emphasis on key words. Be concrete, not generic."
+    }
+  ]
+}
+
+RULES:
+- Return 1-2 suggestions only (don't overwhelm).
+- "objection" = prospect is pushing back; suggest a response.
+- "question" = prospect asked something; suggest a concise answer.
+- "signal" = buying signal detected; flag it and suggest next move.
+- "prompt" = Chris should ask a discovery question or steer the conversation.
+- If nothing important just happened, return {"suggestions": []}.
+- NEVER suggest something not grounded in the battlecard.
+- Be CONCISE. Chris glances at this mid-call.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.anthropicKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 800,
+        system: state.battlecard,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Anthropic API ${response.status}: ${errText}`);
+    }
+
+    const data = await response.json();
+    const text = data.content?.[0]?.text || '';
+
+    // Parse JSON response
+    const cleanText = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(cleanText);
+
+    if (parsed.suggestions && parsed.suggestions.length > 0) {
+      for (const s of parsed.suggestions) {
+        state.suggestions.push({
+          tag: s.tag || 'prompt',
+          heading: s.heading || 'Suggestion',
+          body: s.body || '',
+          ts: Date.now()
+        });
+      }
+      renderSuggestions();
+    }
+    elements.suggestionStatus.textContent = 'Listening…';
+  } catch (e) {
+    console.error('[Claude] Error:', e);
+    elements.suggestionStatus.textContent = 'Analysis error';
+    showError(`AI analysis failed: ${e.message}`);
+  }
+}
+
+function renderSuggestions() {
+  const body = elements.suggestionsBody;
+  if (state.suggestions.length === 0) {
+    body.innerHTML = `<div class="empty"><div class="icon">✨</div>Suggestions will appear as the conversation unfolds.</div>`;
+    return;
+  }
+  // Show most recent first
+  const recent = [...state.suggestions].reverse().slice(0, 12);
+  body.innerHTML = recent.map(s => `
+    <div class="suggestion ${s.tag}">
+      <div class="tag">${s.tag}</div>
+      <div class="heading">${escapeHtml(s.heading)}</div>
+      <div class="body">${s.body}</div>
+    </div>
+  `).join('');
+}
+
+// ============ SESSION LIFECYCLE ============
+async function startSession() {
+  // Validate inputs
+  const dg = elements.deepgramKey.value.trim();
+  const an = elements.anthropicKey.value.trim();
+  const bc = elements.battlecard.value.trim();
+  const pc = elements.prospectContext.value.trim();
+
+  if (!dg) { showError('Deepgram API key required.'); return; }
+  if (!an) { showError('Anthropic API key required.'); return; }
+  if (!bc) { showError('Battlecard required.'); return; }
+
+  state.deepgramKey = dg;
+  state.anthropicKey = an;
+  state.battlecard = bc;
+  state.prospectContext = pc;
+  STORE.save({ deepgramKey: dg, anthropicKey: an, battlecard: bc });
+
+  elements.startBtn.disabled = true;
+  elements.startBtn.textContent = 'Starting…';
+
+  try {
+    await captureAudio();
+    await startDeepgramStream();
+
+    // Switch to live view
+    elements.setupView.style.display = 'none';
+    elements.liveView.style.display = 'grid';
+    elements.controlBar.style.display = 'flex';
+
+    state.session = { startedAt: Date.now() };
+    state.startedAt = Date.now();
+    state.durationTimer = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - state.startedAt) / 1000);
+      elements.durationMeta.textContent = formatDuration(elapsed);
+    }, 1000);
+
+    setStatus('Live', true);
+  } catch (e) {
+    console.error('Start failed:', e);
+    showError(e.message);
+    elements.startBtn.disabled = false;
+    elements.startBtn.textContent = 'Start Listening →';
+    await cleanupSession();
+  }
+}
+
+async function endSession() {
+  setStatus('Ending…');
+  await cleanupSession();
+
+  // Export the session as a download
+  exportSession();
+
+  // Reset state for next session
+  state.transcript = [];
+  state.suggestions = [];
+  state.interimText = '';
+  state.firstSpeaker = undefined;
+  state.session = null;
+  state.startedAt = null;
+
+  // Switch back to setup
+  elements.liveView.style.display = 'none';
+  elements.controlBar.style.display = 'none';
+  elements.setupView.style.display = 'block';
+  elements.startBtn.disabled = false;
+  elements.startBtn.textContent = 'Start Listening →';
+  setStatus('Idle');
+}
+
+async function cleanupSession() {
+  if (state.durationTimer) { clearInterval(state.durationTimer); state.durationTimer = null; }
+  if (state.dgSocket) {
+    try { state.dgSocket.send(JSON.stringify({ type: 'CloseStream' })); } catch (e) {}
+    try { state.dgSocket.close(); } catch (e) {}
+    state.dgSocket = null;
+  }
+  if (state.audioProcessor) { try { state.audioProcessor.disconnect(); } catch (e) {} state.audioProcessor = null; }
+  if (state.audioContext) { try { await state.audioContext.close(); } catch (e) {} state.audioContext = null; }
+  if (state.micStream) { state.micStream.getTracks().forEach(t => t.stop()); state.micStream = null; }
+  if (state.systemStream) { state.systemStream.getTracks().forEach(t => t.stop()); state.systemStream = null; }
+  state.mediaStream = null;
+}
+
+function exportSession() {
+  if (state.transcript.length === 0) return;
+
+  const date = new Date().toISOString().split('T')[0];
+  const time = new Date().toTimeString().split(' ')[0].replace(/:/g, '-');
+  const duration = Math.floor((Date.now() - state.startedAt) / 1000);
+
+  let md = `# Sales Call — ${date} ${time}\n\n`;
+  md += `**Duration:** ${formatDuration(duration)}\n`;
+  if (state.prospectContext) md += `**Prospect:** ${state.prospectContext}\n`;
+  md += `\n---\n\n## Transcript\n\n`;
+
+  for (const turn of state.transcript) {
+    md += `**${turn.speaker === 'you' ? 'Chris' : 'Prospect'}:** ${turn.text}\n\n`;
+  }
+
+  md += `\n---\n\n## Co-Pilot Suggestions\n\n`;
+  for (const s of state.suggestions) {
+    md += `### [${s.tag.toUpperCase()}] ${s.heading}\n${s.body.replace(/<\/?strong>/g, '**')}\n\n`;
+  }
+
+  // Trigger download
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `sales-call-${date}-${time}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ============ INIT ============
+function init() {
+  const saved = STORE.load();
+  elements.deepgramKey.value = saved.deepgramKey;
+  elements.anthropicKey.value = saved.anthropicKey;
+  elements.battlecard.value = saved.battlecard;
+
+  elements.startBtn.addEventListener('click', startSession);
+  elements.endBtn.addEventListener('click', endSession);
+  elements.resetBtn.addEventListener('click', () => {
+    if (confirm('Reset battlecard to default? (Keys will be kept.)')) {
+      elements.battlecard.value = DEFAULT_BATTLECARD;
+    }
+  });
+
+  // Warn before unload during active session
+  window.addEventListener('beforeunload', (e) => {
+    if (state.session) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>

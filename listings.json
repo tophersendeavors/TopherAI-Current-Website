@@ -1,0 +1,114 @@
+{
+  "name": "Property Listings Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "property-listings",
+        "options": {}
+      },
+      "id": "Webhook1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = JSON.parse($json.body || '{}');\n\nreturn [{\n  json: {\n    email: body.email,\n    budget: parseInt(body.budget, 10),\n    bedrooms: parseInt(body.bedrooms, 10),\n    bathrooms: parseFloat(body.bathrooms),\n    location: body.location\n  }\n}];"
+      },
+      "id": "Function1",
+      "name": "Parse Inputs",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "sheetId": "",
+        "options": {}
+      },
+      "id": "GoogleSheets1",
+      "name": "Get Listings",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [720, 300],
+      "credentials": {
+        "googleApi": "Google Account"
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const user = $items(\"Parse Inputs\")[0].json;\n\nconst filtered = items.filter(i => {\n  const row = i.json;\n  const price = parseInt(row.price, 10);\n  const bedrooms = parseInt(row.bedrooms, 10);\n  const bathrooms = parseFloat(row.bathrooms);\n\n  return (\n    price >= user.budget - 50000 &&\n    price <= user.budget + 100000 &&\n    bedrooms === user.bedrooms &&\n    bathrooms === user.bathrooms &&\n    row.neighborhood.toLowerCase().includes(user.location.toLowerCase())\n  );\n});\n\nconst top3 = filtered.slice(0,3);\n\nreturn top3.map(f => ({\n  json: {\n    address: f.json.address,\n    price: f.json.price,\n    bedrooms: f.json.bedrooms,\n    bathrooms: f.json.bathrooms,\n    neighborhood: f.json.neighborhood,\n    image: f.json.image_url,\n    email: user.email\n  }\n}));"
+      },
+      "id": "Function2",
+      "name": "Filter Listings",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [960, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "your@email.com",
+        "toEmail": "={{$json[\"email\"]}}",
+        "subject": "Your Property Matches",
+        "text": "Here are your top listings:\n\nAddress: {{$json[\"address\"]}}\nPrice: {{$json[\"price\"]}}\nBedrooms: {{$json[\"bedrooms\"]}}\nBathrooms: {{$json[\"bathrooms\"]}}\nNeighborhood: {{$json[\"neighborhood\"]}}\nImage: {{$json[\"image\"]}}\n\n---"
+      },
+      "id": "Email1",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [1200, 300],
+      "credentials": {
+        "smtp": "Your SMTP"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Parse Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Inputs": {
+      "main": [
+        [
+          {
+            "node": "Get Listings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Listings": {
+      "main": [
+        [
+          {
+            "node": "Filter Listings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Listings": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

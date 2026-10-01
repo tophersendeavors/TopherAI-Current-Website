@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "name": "QuoteBot",
+  "description": "Automated quote generator and email sender",
+  "flows": [
+    {
+      "name": "main",
+      "nodes": [
+        {"id": "start", "type": "start", "next": "askName"},
+        {"id": "askName", "type": "text", "props": {"text": "Hi! Let’s get you a quote. What’s your full name?"}, "next": "storeName"},
+        {"id": "storeName", "type": "setVariable", "props": {"variable": "name", "value": "{{event.payload.text}}"}, "next": "askEmail"},
+        {"id": "askEmail", "type": "text", "props": {"text": "Great, {{state.name}}! What’s your email address?"}, "next": "storeEmail"},
+        {"id": "storeEmail", "type": "setVariable", "props": {"variable": "email", "value": "{{event.payload.text}}"}, "next": "askPhone"},
+        {"id": "askPhone", "type": "text", "props": {"text": "What’s the best phone number to reach you?"}, "next": "storePhone"},
+        {"id": "storePhone", "type": "setVariable", "props": {"variable": "phone", "value": "{{event.payload.text}}"}, "next": "askBusiness"},
+        {"id": "askBusiness", "type": "text", "props": {"text": "Tell me your business name."}, "next": "storeBusiness"},
+        {"id": "storeBusiness", "type": "setVariable", "props": {"variable": "business", "value": "{{event.payload.text}}"}, "next": "askWebsite"},
+        {"id": "askWebsite", "type": "text", "props": {"text": "Do you have a website?"}, "next": "storeWebsite"},
+        {"id": "storeWebsite", "type": "setVariable", "props": {"variable": "website", "value": "{{event.payload.text}}"}, "next": "askService"},
+        {"id": "askService", "type": "single-choice", "props": {"text": "Which solution are you most interested in?","choices": [
+          {"title": "Chatbot", "value": "chatbot"},
+          {"title": "Receptionist", "value": "receptionist"},
+          {"title": "Video Agent", "value": "video"},
+          {"title": "Full Suite", "value": "suite"},
+          {"title": "Custom Quote", "value": "custom"}
+        ]}, "next": "storeService"},
+        {"id": "storeService", "type": "setVariable", "props": {"variable": "plan", "value": "{{event.payload.text}}"}, "next": "calcQuote"},
+        {"id": "calcQuote", "type": "code", "props": {"code": "const prices = { chatbot: 99, receptionist: 199, video: 299, suite: 499 }\nif (state.plan === 'custom') { state.quote = 'Custom pricing – depends on needs'; } else { state.quote = `$${prices[state.plan]}/mo`; }"}, "next": "showQuote"},
+        {"id": "showQuote", "type": "text", "props": {"text": "Here’s your personalized quote: {{state.quote}} (valid 7 days). Would you like me to send it to your email {{state.email}}?"}, "next": "confirmEmail"},
+        {"id": "confirmEmail", "type": "single-choice", "props": {"choices": [
+          {"title": "Yes, send it", "value": "yes"},
+          {"title": "No thanks", "value": "no"}
+        ]}, "next": "handleEmail"},
+        {"id": "handleEmail", "type": "code", "props": {"code": "if (event.payload.text === 'yes') { state.sendEmail = true } else { state.sendEmail = false }"}, "next": "maybeSendEmail"},
+        {"id": "maybeSendEmail", "type": "execute", "props": {"function": "sendQuoteEmail"}, "next": "end"},
+        {"id": "end", "type": "text", "props": {"text": "Thanks {{state.name}}! Your quote is on its way. If you’d like, you can book a demo anytime from our site."}}
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "sendQuoteEmail",
+      "type": "code",
+      "code": "const nodemailer = require('nodemailer');\nif (state.sendEmail) {\n  const transporter = nodemailer.createTransport({\n    host: process.env.SMTP_HOST,\n    port: parseInt(process.env.SMTP_PORT),\n    secure: true,\n    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }\n  });\n  const mailOptions = {\n    from: process.env.SMTP_USER,\n    to: state.email,\n    subject: `Your Quote from TopherAI`,\n    text: `Hello ${state.name},\\n\\nHere’s your personalized quote for the ${state.plan} plan: ${state.quote}.\\nThis quote is valid for 7 days.\\n\\nBusiness: ${state.business}\\nWebsite: ${state.website}\\nPhone: ${state.phone}\\n\\nIf you’d like to move forward, visit https://www.topherai.com/#pricing.\\n\\nThank you,\\nThe TopherAI Team`\n  };\n  await transporter.sendMail(mailOptions);\n}\nreturn state;"
+    }
+  ]
+}

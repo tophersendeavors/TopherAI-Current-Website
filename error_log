@@ -1,0 +1,17 @@
+[20-Sep-2025 22:14:52 UTC] PHP Warning:  file_get_contents(https://script.google.com/macros/s/AKfycbzcKXAqUEABuOEKp6dR4PvFUdgKUeEbwOyeuIOGQ9C3oEp4oR7eoojbsr6r2ijDVmDS/exec): Failed to open stream: HTTP request failed! HTTP/1.1 403 Forbidden
+ in /home/soluykqf/topherai.com/mail.php on line 22
+[14-May-2026 16:17:29 UTC] PHP Warning:  require(/home/soluykqf/topherai.com/vendor/autoload.php): Failed to open stream: No such file or directory in /home/soluykqf/topherai.com/submit.php on line 5
+[14-May-2026 16:17:29 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/soluykqf/topherai.com/vendor/autoload.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/soluykqf/topherai.com/submit.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/soluykqf/topherai.com/submit.php on line 5
+[14-May-2026 16:17:36 UTC] PHP Warning:  require(/home/soluykqf/topherai.com/vendor/autoload.php): Failed to open stream: No such file or directory in /home/soluykqf/topherai.com/submit.php on line 5
+[14-May-2026 16:17:36 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/soluykqf/topherai.com/vendor/autoload.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/soluykqf/topherai.com/submit.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/soluykqf/topherai.com/submit.php on line 5
+[14-May-2026 16:18:53 UTC] PHP Warning:  require(/home/soluykqf/topherai.com/vendor/autoload.php): Failed to open stream: No such file or directory in /home/soluykqf/topherai.com/submit.php on line 5
+[14-May-2026 16:18:53 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/soluykqf/topherai.com/vendor/autoload.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/soluykqf/topherai.com/submit.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/soluykqf/topherai.com/submit.php on line 5

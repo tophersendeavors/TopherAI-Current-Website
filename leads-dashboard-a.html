@@ -1,0 +1,2849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Topher AI — Lead Command Center</title>
+  <script>
+    window.SUPABASE_URL = 'https://wvhnfnmndtnkjrhxfqbf.supabase.co';
+    window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2aG5mbm1uZHRua2pyaHhmcWJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTM0NDMsImV4cCI6MjA5NDUyOTQ0M30.NSKjVFKLozxb-mpGlPkw7Tw7HDL9hbUFXmtF3Ek33Gc';
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: {
+          sans:    ['Hanken Grotesk','system-ui','sans-serif'],
+          display: ['Quicksand','system-ui','sans-serif'],
+          mono:    ['JetBrains Mono','ui-monospace','monospace'],
+        },
+        colors: {
+          // Plum Ink ramp (was slate): light end = warm cream, dark end = plum
+          slate: { 50:'#F7F1EA',100:'#F3E9DD',200:'#E6D9C9',300:'#CDBDAB',400:'#B3A799',
+                   500:'#8E8377',600:'#6E6459',700:'#48424E',800:'#211E29',900:'#1A1821',950:'#141219' },
+          // Heart Coral ramp (was indigo): primary accent
+          indigo:{ 50:'#FCEEE9',100:'#FAD9CF',200:'#F4BBAA',300:'#F0B6A6',400:'#EE9A86',
+                   500:'#E8826B',600:'#D26A52',700:'#B85540',800:'#8F4231',900:'#5E3328',950:'#3A1F18' },
+          // Warm peach ramp (was cyan): secondary accent (demo / SMS)
+          cyan:  { 50:'#FDF0E9',100:'#FBDDCF',200:'#F6C3AE',300:'#F2BCA6',400:'#EFA98F',
+                   500:'#E89376',600:'#D2785C',700:'#B05F46',800:'#8A4A37',900:'#5F3326',950:'#3A1F16' },
+        }
+      } }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    :root{
+      --bg:#141219;
+      --surface:rgba(255,255,255,0.035);
+      --border:rgba(255,255,255,0.07);
+      --border-strong:rgba(255,255,255,0.10);
+      --text:#F3E9DD;
+      --muted:#B3A799;
+      --dim:#7A6F70;
+      --indigo:#EE9A86;
+      --indigo-deep:#E8826B;
+      --cyan:#EFA98F;
+      --emerald:#34d399;
+      --amber:#fbbf24;
+      --coral:#fb7185;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      letter-spacing: -0.005em;
+      min-height: 100vh;
+    }
+    .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    /* Page backdrop */
+    .app-bg {
+      position: fixed; inset: 0; z-index: -1; overflow: hidden;
+      background:
+        radial-gradient(900px 600px at 8% -10%, rgba(232,130,107,0.20), transparent 60%),
+        radial-gradient(900px 600px at 95% 5%, rgba(239,169,143,0.10), transparent 60%),
+        radial-gradient(700px 500px at 60% 110%, rgba(210,106,82,0.08), transparent 60%),
+        var(--bg);
+    }
+    .app-bg::after{
+      content:""; position:absolute; inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+      opacity:.35;
+    }
+
+    /* Surfaces */
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+      border: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .glass-strong {
+      background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025));
+      border: 1px solid var(--border-strong);
+      backdrop-filter: blur(18px);
+    }
+    .glass-flat { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 8px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    /* Pills / badges */
+    .pill { display:inline-flex; align-items:center; gap:5px; padding:2.5px 8px; border-radius:999px; font-size:10.5px; font-weight:500; letter-spacing:.01em; line-height:1.2; }
+    .pill-lg { padding:3.5px 10px; font-size:11.5px; gap:6px; }
+    .badge-hot     { background:rgba(251,113,133,.12); color:#fda4af; border:1px solid rgba(251,113,133,.30); }
+    .badge-warm    { background:rgba(251,191,36,.10); color:#fcd34d; border:1px solid rgba(251,191,36,.26); }
+    .badge-cold    { background:rgba(142,148,166,.12); color:#AEB4C6; border:1px solid rgba(142,148,166,.30); }
+    .badge-spam    { background:rgba(126,119,104,.12); color:#A89E8E; border:1px solid rgba(126,119,104,.28); }
+    .badge-ok      { background:rgba(52,211,153,.10); color:#6ee7b7; border:1px solid rgba(52,211,153,.26); }
+    .badge-fail    { background:rgba(251,113,133,.10); color:#fda4af; border:1px solid rgba(251,113,133,.25); }
+    .badge-muted   { background:rgba(255,255,255,0.04); color:#B3A799; border:1px solid rgba(255,255,255,0.07); }
+    .badge-cyan    { background:rgba(239,169,143,.10);  color:#F2BCA6; border:1px solid rgba(239,169,143,.26); }
+    .badge-indigo  { background:rgba(238,154,134,.12); color:#F0B6A6; border:1px solid rgba(238,154,134,.30); }
+
+    .dot { width:6px; height:6px; border-radius:999px; display:inline-block; flex-shrink:0; }
+
+    /* Inputs */
+    .field {
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 11px;
+      font-size: 12.5px;
+      outline: none;
+      transition: border-color .15s ease, background .15s ease;
+      width: 100%;
+    }
+    .field:focus { border-color: rgba(238,154,134,.6); background: rgba(255,255,255,0.05); }
+    .field::placeholder { color: var(--dim); }
+    select.field { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B3A799' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat:no-repeat; background-position:right 10px center; padding-right:28px; }
+
+    /* Buttons */
+    .btn { display:inline-flex; align-items:center; gap:6px; padding:7px 11px; border-radius:9px; font-size:12px; font-weight:500; transition:all .15s ease; cursor:pointer; border:1px solid transparent; white-space:nowrap; }
+    .btn-ghost { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.07); color:#CDBDAB; }
+    .btn-ghost:hover { background:rgba(255,255,255,0.07); color:#fff; }
+    .btn-primary { background:linear-gradient(180deg,#E8826B,#D26A52); color:#fff; border-color:rgba(255,255,255,0.08); box-shadow: 0 4px 14px -4px rgba(232,130,107,.55), inset 0 1px 0 rgba(255,255,255,.18); }
+    .btn-primary:hover { background:linear-gradient(180deg,#EE9A86,#D26A52); }
+    .btn-danger { background:rgba(251,113,133,.10); border-color:rgba(251,113,133,.25); color:#fda4af; }
+    .btn-danger:hover { background:rgba(251,113,133,.16); color:#fff; }
+
+    /* Animations */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; display:inline-block; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+    .fade { animation: fadeIn .25s ease both; }
+    @keyframes slideInRight { from{opacity:0;transform:translateX(24px)} to{opacity:1;transform:translateX(0)} }
+    .slide-in-right { animation: slideInRight .22s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.55;transform:scale(.85)} }
+    .pulse-dot { animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+    .skel {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.10) 40%, rgba(255,255,255,0.04) 80%);
+      background-size: 800px 100%;
+      animation: shimmer 1.4s linear infinite;
+      border-radius: 8px;
+    }
+
+    /* HOT LEAD aura — subtle, premium */
+    @keyframes hotAura {
+      0%,100% { box-shadow: 0 0 0 1px rgba(251,113,133,.30), 0 0 24px -8px rgba(251,113,133,.45), 0 6px 18px -10px rgba(0,0,0,.5); }
+      50%     { box-shadow: 0 0 0 1px rgba(251,113,133,.55), 0 0 36px -6px rgba(251,113,133,.70), 0 6px 18px -10px rgba(0,0,0,.5); }
+    }
+    .hot-aura { animation: hotAura 2.6s ease-in-out infinite; }
+    .hot-corner {
+      position:absolute; top:0; right:0; width:42px; height:42px; pointer-events:none;
+      background: radial-gradient(circle at top right, rgba(251,113,133,.55), transparent 70%);
+      border-top-right-radius: inherit;
+    }
+    .hot-strip {
+      position:absolute; left:0; top:8%; bottom:8%; width:2.5px; border-radius:0 2px 2px 0;
+      background: linear-gradient(180deg, #fb7185, #f43f5e 60%, transparent);
+      box-shadow: 0 0 8px rgba(251,113,133,.55);
+    }
+
+    /* Sidebar */
+    .nav-item { display:flex; align-items:center; gap:10px; padding:8px 11px; border-radius:9px; color:#B3A799; font-size:12.5px; font-weight:500; cursor:pointer; transition: all .15s ease; border:1px solid transparent; }
+    .nav-item:hover { color:#E6D9C9; background:rgba(255,255,255,0.035); }
+    .nav-item.active { color:#fff; background:linear-gradient(180deg, rgba(238,154,134,.18), rgba(238,154,134,.06)); border-color:rgba(238,154,134,.30); box-shadow: inset 0 1px 0 rgba(255,255,255,.05); }
+    .nav-item .nav-count { margin-left:auto; font-size:10px; padding:1px 7px; border-radius:999px; background:rgba(255,255,255,.05); color:#B3A799; font-weight:600; font-family:'JetBrains Mono', monospace; }
+    .nav-item.active .nav-count { background:rgba(238,154,134,.22); color:#F4C7B8; }
+    .nav-icon-wrap { width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:6px; background:rgba(255,255,255,.025); transition: all .15s ease; }
+    .nav-item.active .nav-icon-wrap { background:rgba(238,154,134,.20); color:#F4C7B8; }
+
+    /* Sidebar brand mark — animated subtle */
+    .brand-mark {
+      width:38px; height:38px; border-radius:11px; position:relative; overflow:hidden;
+      background: conic-gradient(from 200deg at 50% 50%, #E8826B, #D26A52, #EFA98F, #E8826B);
+      box-shadow: 0 8px 22px -8px rgba(232,130,107,.65), inset 0 1px 0 rgba(255,255,255,.15);
+    }
+    .brand-mark::before {
+      content:""; position:absolute; inset:2px; border-radius:9px;
+      background: linear-gradient(180deg, #211E29, #141219);
+    }
+    .brand-mark::after {
+      content:""; position:absolute; inset:0; border-radius:11px;
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.30), transparent 55%);
+      pointer-events:none;
+    }
+    .brand-mark span { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:15px; letter-spacing:-.5px; z-index:1; text-shadow: 0 1px 0 rgba(0,0,0,.4); }
+
+    /* Pipeline */
+    .pipe-col { background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.005)); border:1px solid var(--border); border-radius:14px; }
+    .pipe-card { background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02)); border:1px solid var(--border); border-radius:11px; transition:all .18s ease; position:relative; overflow:hidden; }
+    .pipe-card:hover { transform: translateY(-2px); border-color:var(--border-strong); box-shadow:0 10px 30px -10px rgba(0,0,0,.55); }
+    .pipe-card.hot {
+      background: linear-gradient(180deg, rgba(251,113,133,0.10), rgba(255,255,255,0.02));
+      border-color: rgba(251,113,133,.45);
+    }
+    .col-stripe { height:3px; border-radius:14px 14px 0 0; }
+
+    /* Mobile leads card */
+    .lead-card { background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015)); border:1px solid var(--border); border-radius:12px; }
+    .lead-card.hot { background:linear-gradient(180deg, rgba(251,113,133,0.10), rgba(255,255,255,0.02)); border-color: rgba(251,113,133,.45); }
+
+    /* Row hover */
+    .row-hover { transition: background .15s ease; }
+    .row-hover:hover { background:rgba(255,255,255,0.025); }
+
+    /* Drawer */
+    .drawer-backdrop { position:fixed; inset:0; background:rgba(4,5,12,0.55); backdrop-filter: blur(4px); z-index:60; animation: fadeIn .18s ease both; }
+    .drawer-panel {
+      position:fixed; top:0; right:0; bottom:0; width:min(440px, 92vw); z-index:61;
+      background: linear-gradient(180deg, #1A1821, #141219);
+      border-left:1px solid rgba(255,255,255,.07);
+      box-shadow: -24px 0 64px -16px rgba(0,0,0,.6);
+      animation: slideInRight .22s cubic-bezier(.2,.7,.2,1) both;
+      overflow-y:auto;
+    }
+
+    /* Mobile sidebar */
+    .mobile-nav-backdrop { position:fixed; inset:0; background:rgba(4,5,12,0.55); z-index:50; backdrop-filter: blur(4px); animation: fadeIn .15s ease both; }
+    .mobile-nav-panel { position:fixed; top:0; left:0; bottom:0; width:260px; z-index:51; background:#1A1821; border-right:1px solid rgba(255,255,255,.07); animation: slideInRight .2s cubic-bezier(.2,.7,.2,1) both; }
+
+    /* SMS bubbles */
+    .bubble-in  { background:linear-gradient(180deg, rgba(239,169,143,.10), rgba(239,169,143,.04)); border:1px solid rgba(239,169,143,.22); }
+    .bubble-out { background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); border:1px solid var(--border); }
+
+    /* Sparkline-y mini bars */
+    .spark-bar { width:3px; border-radius:2px; }
+
+    .clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .clamp-1 { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    /* ── CSS-shape empty-state illustrations ─────────── */
+    .illus { position:relative; width:108px; height:108px; margin:0 auto; }
+    .illus .ring {
+      position:absolute; inset:0; border-radius:50%; border:1px dashed rgba(255,255,255,.07);
+    }
+    .illus .ring.r2 { inset:14px; border-color:rgba(238,154,134,.18); }
+    .illus .ring.r3 { inset:28px; border-color:rgba(238,154,134,.10); }
+    .illus .glow {
+      position:absolute; inset:18%; border-radius:50%;
+      background: radial-gradient(circle at 35% 30%, rgba(238,154,134,.30), transparent 65%);
+      filter: blur(8px);
+    }
+    .illus .core {
+      position:absolute; inset:36%; border-radius:50%;
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
+      border:1px solid rgba(238,154,134,.30);
+      box-shadow: 0 6px 18px -8px rgba(232,130,107,.55), inset 0 1px 0 rgba(255,255,255,.18);
+    }
+    .illus .speck { position:absolute; width:6px; height:6px; border-radius:50%; }
+    .illus .speck.s1 { top:8%; left:18%; background:#EFA98F; box-shadow:0 0 10px #EFA98F; }
+    .illus .speck.s2 { top:14%; right:12%; background:#fbbf24; box-shadow:0 0 10px #fbbf24; }
+    .illus .speck.s3 { bottom:10%; left:30%; background:#34d399; box-shadow:0 0 10px #34d399; }
+    .illus .speck.s4 { bottom:18%; right:8%; background:#fb7185; box-shadow:0 0 10px #fb7185; }
+
+    /* Empty illus variants */
+    .illus.phone .core { background: linear-gradient(180deg, rgba(239,169,143,.16), rgba(255,255,255,.02)); border-color: rgba(239,169,143,.35); }
+    .illus.phone .glow { background: radial-gradient(circle at 35% 30%, rgba(239,169,143,.30), transparent 65%); }
+    .illus.msg .core { background: linear-gradient(180deg, rgba(240,182,166,.16), rgba(255,255,255,.02)); border-color: rgba(240,182,166,.35); }
+    .illus.msg .glow { background: radial-gradient(circle at 35% 30%, rgba(240,182,166,.30), transparent 65%); }
+    .illus.flame .core { background: linear-gradient(180deg, rgba(251,113,133,.16), rgba(255,255,255,.02)); border-color: rgba(251,113,133,.35); }
+    .illus.flame .glow { background: radial-gradient(circle at 35% 30%, rgba(251,113,133,.30), transparent 65%); }
+    h1,h2,h3,.font-display{ font-family:'Quicksand', system-ui, sans-serif; letter-spacing:-.01em; }
+  </style>
+</head>
+<body>
+<div class="app-bg"></div>
+<div id="root">
+  <div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#B3A799;font-family:Inter,sans-serif;font-size:13px;">Loading Topher AI…</div>
+</div>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback, useMemo, useRef, Fragment } = React;
+
+/* ─────── Supabase init (preserved) ─────── */
+let db = null;
+try {
+  const factory = window.supabase?.createClient || window.supabaseJs?.createClient;
+  if (factory) db = factory(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+} catch (e) { console.error('Supabase init error', e); }
+
+const isConfigured = () =>
+  window.SUPABASE_URL && window.SUPABASE_ANON_KEY &&
+  !window.SUPABASE_URL.includes('YOUR_PROJECT') &&
+  !window.SUPABASE_ANON_KEY.includes('YOUR_ANON_PUBLIC_KEY');
+
+/* ─────── Utils ─────── */
+const fmtPhone = p => {
+  if (!p) return '—';
+  const d = String(p).replace(/\D/g, '');
+  if (d.length === 11) return `(${d.slice(1,4)}) ${d.slice(4,7)}-${d.slice(7)}`;
+  if (d.length === 10) return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+  return p;
+};
+const fmtAgo = s => {
+  if (!s) return '—';
+  const sec = (Date.now() - new Date(s)) / 1000;
+  if (sec < 60) return 'just now';
+  if (sec < 3600) return `${Math.floor(sec/60)}m ago`;
+  if (sec < 86400) return `${Math.floor(sec/3600)}h ago`;
+  return `${Math.floor(sec/86400)}d ago`;
+};
+const fmtDate = s => !s ? '—' : new Date(s).toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+const fmtDur = s => { const n=+s||0; if(!n) return ''; const m=Math.floor(n/60), x=n%60; return m?`${m}m ${x}s`:`${x}s`; };
+const today = () => new Date().toDateString();
+const isToday = s => s && new Date(s).toDateString() === today();
+const getLeadType = r => (r.urgency || r.lead_type || '').toLowerCase();
+const initials = name => {
+  if (!name) return '—';
+  return name.trim().split(/\s+/).slice(0,2).map(w => w[0]?.toUpperCase()).join('');
+};
+
+const URGENCY_OPTIONS = ['hot','warm','cold','spam'];
+const PIPELINE_STAGES = [
+  { key:'new',            label:'New',            color:'#EE9A86' },
+  { key:'contacted',      label:'Contacted',      color:'#fbbf24' },
+  { key:'demo_scheduled', label:'Demo Scheduled', color:'#EFA98F' },
+  { key:'closed',         label:'Closed',         color:'#34d399' },
+];
+const STAGE_BY_KEY = Object.fromEntries(PIPELINE_STAGES.map(s => [s.key, s]));
+const fmtName = (o, fb='Lead') => (o && (o.name || o.business_name || o.full_name || o.contact_name || o.phone || o.caller_phone || o.email)) || fb;
+
+/* ─────── Ambassador applicant statuses ─────── */
+// Lifecycle stages. "Priority" is intentionally NOT here — it's a flag (see `priority` boolean),
+// so an applicant can be flagged Priority at any stage.
+const AMBASSADOR_STATUSES = [
+  { key:'New',        color:'#EE9A86' },
+  { key:'Contacted',  color:'#fbbf24' },
+  { key:'Approved',   color:'#34d399' },
+  { key:'Onboarded',  color:'#EFA98F' },
+  { key:'Rejected',   color:'#B3A799' },
+];
+const AMB_STATUS_BY_KEY = Object.fromEntries(AMBASSADOR_STATUSES.map(s => [s.key, s]));
+const scoreColor = n => { const v = Number(n)||0; return v >= 8 ? '#34d399' : v >= 5 ? '#fbbf24' : '#fb7185'; };
+const yesNo = v => v === true ? 'Yes' : v === false ? 'No' : '—';
+
+/* ─────── Icons (lucide-style) ─────── */
+const Icon = ({ name, size=14, className='', strokeWidth=1.75 }) => {
+  const p = { width:size, height:size, viewBox:'0 0 24 24', fill:'none', stroke:'currentColor', strokeWidth, strokeLinecap:'round', strokeLinejoin:'round', className };
+  switch(name){
+    case 'spark':    return <svg {...p}><path d="M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M3 12h3M18 12h3M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>;
+    case 'home':     return <svg {...p}><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>;
+    case 'kanban':   return <svg {...p}><rect x="3" y="4" width="5" height="13" rx="1.5"/><rect x="10" y="4" width="5" height="9" rx="1.5"/><rect x="17" y="4" width="4" height="16" rx="1.5"/></svg>;
+    case 'users':    return <svg {...p}><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.4 2.7-5.5 6-5.5s6 2.1 6 5.5"/><path d="M16 4.3a3.2 3.2 0 0 1 0 6"/><path d="M20.5 20c0-3-2-4.6-4.5-5.2"/></svg>;
+    case 'phone':    return <svg {...p}><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 6 6L15 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>;
+    case 'phone-in': return <svg {...p}><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 6 6L15 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/><polyline points="17 8 21 4 21 8 17 8" transform="translate(-2 1)"/></svg>;
+    case 'msg':      return <svg {...p}><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.2A8 8 0 1 1 21 12z"/></svg>;
+    case 'settings': return <svg {...p}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>;
+    case 'refresh':  return <svg {...p}><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.3L3 16"/><path d="M3 21v-5h5"/></svg>;
+    case 'logout':   return <svg {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
+    case 'search':   return <svg {...p}><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.5" y2="16.5"/></svg>;
+    case 'menu':     return <svg {...p}><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>;
+    case 'close':    return <svg {...p}><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>;
+    case 'mail':     return <svg {...p}><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>;
+    case 'flame':    return <svg {...p}><path d="M12 22a7 7 0 0 0 7-7c0-3-2-5-3-7 0 2-1 3-2 3-1-3 0-6-4-9-1 5-5 6-5 11a7 7 0 0 0 7 9z"/></svg>;
+    case 'clock':    return <svg {...p}><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>;
+    case 'calendar': return <svg {...p}><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>;
+    case 'check':    return <svg {...p}><polyline points="20 6 9 17 4 12"/></svg>;
+    case 'trend-up': return <svg {...p}><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>;
+    case 'trend-dn': return <svg {...p}><polyline points="3 7 9 13 13 9 21 17"/><polyline points="14 17 21 17 21 10"/></svg>;
+    case 'chevron-r':return <svg {...p}><polyline points="9 6 15 12 9 18"/></svg>;
+    case 'chevron-d':return <svg {...p}><polyline points="6 9 12 15 18 9"/></svg>;
+    case 'arrow-r':  return <svg {...p}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>;
+    case 'arrow-in': return <svg {...p}><line x1="20" y1="12" x2="6" y2="12"/><polyline points="12 6 6 12 12 18"/></svg>;
+    case 'arrow-out':return <svg {...p}><line x1="4" y1="12" x2="18" y2="12"/><polyline points="12 6 18 12 12 18"/></svg>;
+    case 'play':     return <svg {...p}><polygon points="6 4 20 12 6 20 6 4"/></svg>;
+    case 'mic':      return <svg {...p}><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>;
+    case 'target':   return <svg {...p}><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>;
+    case 'building': return <svg {...p}><rect x="4" y="3" width="16" height="18" rx="1.5"/><line x1="9" y1="7" x2="9" y2="7.01"/><line x1="15" y1="7" x2="15" y2="7.01"/><line x1="9" y1="11" x2="9" y2="11.01"/><line x1="15" y1="11" x2="15" y2="11.01"/><line x1="9" y1="15" x2="9" y2="15.01"/><line x1="15" y1="15" x2="15" y2="15.01"/></svg>;
+    case 'warning':  return <svg {...p}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r=".5"/></svg>;
+    case 'inbox':    return <svg {...p}><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5 5h14l3 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/></svg>;
+    case 'bolt':     return <svg {...p}><polygon points="13 2 4 14 11 14 9 22 20 10 13 10 13 2"/></svg>;
+    case 'cmd':      return <svg {...p}><path d="M9 6V4a2 2 0 1 0-2 2zM15 6h-6v6m6-6V4a2 2 0 1 1 2 2zm0 0v6m0 0h2a2 2 0 1 1-2 2zm0 0H9m0 0v2a2 2 0 1 1-2-2z"/></svg>;
+    case 'pin':      return <svg {...p}><path d="M12 17v5"/><path d="M5 8h14l-2 6H7z"/><path d="M9 8V4h6v4"/></svg>;
+    default: return null;
+  }
+};
+
+/* ─────── Atoms ─────── */
+/* ─────── Tooltips & onboarding ─────── */
+const KPI_TIPS = {
+  'Total':'Every contact captured — the full size of your lead list.',
+  'Hot Leads':'Leads the AI flagged as high-intent or urgent. Work these first.',
+  'Demo Booked':'Leads who have a demo on the calendar.',
+  'Calls Today':'Calls your AI receptionist handled since midnight.',
+  'Inbound SMS':'Texts customers sent in (vs. texts you sent out).',
+  'Follow-ups':'Leads still New or Contacted — waiting on your next touch.',
+  'Conversion':'Share of all leads that reached Closed. Climbs as you win deals.',
+};
+const STAGE_TIPS = {
+  new:'Fresh leads nobody has worked yet. Reach out, then move to Contacted.',
+  contacted:'You’re in conversation. Move to Demo Scheduled once a demo is booked.',
+  demo_scheduled:'A demo is set. Move to Closed after they sign on.',
+  closed:'Won — this lead became a customer. Counts toward Conversion.',
+};
+
+const Tip = ({ text, align='left', label }) => {
+  const [open, setOpen] = useState(false);
+  if (!text) return null;
+  return (
+    <span className="relative inline-flex align-middle" style={{ lineHeight:0 }}>
+      <button type="button" aria-label={label ? label+' — info' : 'More info'}
+        onClick={(e)=>{ e.stopPropagation(); setOpen(o=>!o); }}
+        className="inline-flex items-center justify-center rounded-full text-slate-400 hover:text-indigo-300 transition-colors"
+        style={{ width:14, height:14, fontSize:9, fontWeight:700, lineHeight:1, border:'1px solid rgba(255,255,255,.16)', fontStyle:'italic', fontFamily:'Georgia, serif', textTransform:'none' }}>
+        i
+      </button>
+      {open && (
+        <Fragment>
+          <span onClick={(e)=>{ e.stopPropagation(); setOpen(false); }} className="fixed inset-0 z-[90]" style={{ display:'block' }}/>
+          <span onClick={(e)=>e.stopPropagation()} className="absolute z-[91] fade"
+            style={{ display:'block', top:'calc(100% + 6px)', [align==='left'?'left':'right']:0,
+                     width:184, maxWidth:'72vw', padding:'9px 10px', borderRadius:10,
+                     fontSize:11, lineHeight:1.45, fontWeight:400, textTransform:'none', letterSpacing:0,
+                     background:'#211E29', color:'#E6D9C9', border:'1px solid rgba(232,130,107,.32)',
+                     boxShadow:'0 14px 32px -12px rgba(0,0,0,.75)' }}>
+            {text}
+          </span>
+        </Fragment>
+      )}
+    </span>
+  );
+};
+
+const HelpFab = () => (
+  <button type="button" aria-label="How this dashboard works"
+    onClick={()=>window.dispatchEvent(new Event('topher:help'))}
+    className="fixed z-[80] flex items-center justify-center transition-transform hover:scale-105"
+    style={{ bottom:20, right:20, width:44, height:44, borderRadius:999,
+             fontFamily:"'Quicksand', sans-serif", fontWeight:700, fontSize:19, color:'#fff',
+             background:'linear-gradient(180deg,#E8826B,#D26A52)',
+             boxShadow:'0 10px 26px -8px rgba(232,130,107,.7), inset 0 1px 0 rgba(255,255,255,.28)' }}>
+    ?
+  </button>
+);
+
+function HelpModal() {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const onHelp = () => setOpen(true);
+    window.addEventListener('topher:help', onHelp);
+    try { if (!localStorage.getItem('topher_help_seen')) { setOpen(true); localStorage.setItem('topher_help_seen','1'); } } catch (e) {}
+    return () => window.removeEventListener('topher:help', onHelp);
+  }, []);
+  if (!open) return null;
+  const Section = ({ title, children }) => (
+    <div className="space-y-2">
+      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-indigo-300">{title}</h3>
+      <div className="space-y-1.5">{children}</div>
+    </div>
+  );
+  const Row = ({ k, color, children }) => (
+    <div className="flex gap-2.5 text-[12px] leading-snug">
+      <span className="font-semibold text-slate-100 flex items-center gap-1.5 flex-shrink-0" style={{ width:104 }}>
+        {color && <span className="dot" style={{ background:color, flexShrink:0 }}/>}<span className="truncate">{k}</span>
+      </span>
+      <span className="text-slate-400">{children}</span>
+    </div>
+  );
+  return (
+    <div className="fixed inset-0 z-[95] flex items-end sm:items-center justify-center sm:p-4"
+      style={{ background:'rgba(10,8,14,.62)', backdropFilter:'blur(4px)', WebkitBackdropFilter:'blur(4px)' }}
+      onClick={()=>setOpen(false)}>
+      <div onClick={(e)=>e.stopPropagation()}
+        className="w-full sm:max-w-lg overflow-y-auto rounded-t-2xl sm:rounded-2xl p-5 space-y-5 slide-in-right"
+        style={{ maxHeight:'88vh', background:'linear-gradient(180deg,#211E29,#141219)', border:'1px solid rgba(255,255,255,.08)', boxShadow:'0 -20px 60px -20px rgba(0,0,0,.7)' }}>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-[17px] font-semibold text-slate-100">How this dashboard works</h2>
+            <p className="text-[11.5px] text-slate-400 mt-1">A quick tour of your lead command center.</p>
+          </div>
+          <button onClick={()=>setOpen(false)} className="btn btn-ghost flex-shrink-0" style={{ padding:'5px 9px', fontSize:14, lineHeight:1 }}>✕</button>
+        </div>
+        <Section title="The numbers up top">
+          {Object.keys(KPI_TIPS).map(k => <Row key={k} k={k}>{KPI_TIPS[k]}</Row>)}
+        </Section>
+        <Section title="Pipeline stages">
+          <Row k="New" color="#EE9A86">{STAGE_TIPS.new}</Row>
+          <Row k="Contacted" color="#fbbf24">{STAGE_TIPS.contacted}</Row>
+          <Row k="Demo Scheduled" color="#EFA98F">{STAGE_TIPS.demo_scheduled}</Row>
+          <Row k="Closed" color="#34d399">{STAGE_TIPS.closed}</Row>
+        </Section>
+        <Section title="Urgency labels">
+          <Row k="Hot" color="#fb7185">High intent or time-sensitive — act now.</Row>
+          <Row k="Warm" color="#fbbf24">Interested but not urgent — keep nurturing.</Row>
+          <Row k="Cold" color="#8E94A6">Low intent for now — low priority.</Row>
+          <Row k="Spam" color="#7E7768">Junk or wrong number — safe to ignore.</Row>
+        </Section>
+        <Section title="Priority Queue">
+          <p className="text-[12px] text-slate-400 leading-snug">The five leads most worth your attention right now. It ranks by urgency (hot first), how long they’ve gone untouched, and whether they’re still open — so you always know who to call next.</p>
+        </Section>
+        <Section title="Moving a lead">
+          <p className="text-[12px] text-slate-400 leading-snug">On any lead card, tap the small <span className="text-indigo-300 font-medium">→ stage</span> buttons to move it down the pipeline, or tap a lead to open it and change its urgency or status.</p>
+        </Section>
+        <button onClick={()=>setOpen(false)} className="btn btn-primary w-full justify-center">Got it</button>
+      </div>
+    </div>
+  );
+}
+
+const LeadBadge = ({ type, lg=false }) => {
+  const t = (type||'').toLowerCase();
+  const map = {
+    hot:  { cls:'badge-hot',  label:'Hot',  icon:'flame' },
+    warm: { cls:'badge-warm', label:'Warm', icon:'spark' },
+    cold: { cls:'badge-cold', label:'Cold', icon:'clock' },
+    spam: { cls:'badge-spam', label:'Spam', icon:'warning' },
+  };
+  const m = map[t] || map.cold;
+  return (
+    <span className={`pill ${lg?'pill-lg':''} ${m.cls}`}>
+      <Icon name={m.icon} size={lg?12:10} strokeWidth={2.1}/>{m.label}
+    </span>
+  );
+};
+
+const StatusBadge = ({ status }) => {
+  const s = (status||'unknown').toLowerCase();
+  const ok = ['sent','delivered','queued','processed','received'].includes(s);
+  return <span className={`pill ${ok?'badge-ok':'badge-fail'}`}>{s}</span>;
+};
+
+const StagePill = ({ stage }) => {
+  const s = STAGE_BY_KEY[stage] || STAGE_BY_KEY.new;
+  return (
+    <span className="pill" style={{ background:`${s.color}1A`, color:s.color, border:`1px solid ${s.color}40`}}>
+      <span className="dot" style={{ background:s.color }}/>{s.label}
+    </span>
+  );
+};
+
+/* Friendly labels for where a lead came from (the `source` column). */
+const SOURCE_LABELS = {
+  'hvac-landing': 'HVAC ad',
+  'inbound-call': 'Call',
+  'manual': 'Manual',
+};
+const SourceBadge = ({ source }) => {
+  if (!source) return null;
+  const label = SOURCE_LABELS[source] || source;
+  return (
+    <span className="pill badge-cyan" title={`Source: ${source}`}>
+      <Icon name="target" size={9} strokeWidth={2.1}/>{label}
+    </span>
+  );
+};
+
+const Avatar = ({ name, type, size=32 }) => {
+  const t = (type||'').toLowerCase();
+  const colorMap = { hot:'#fb7185', warm:'#fbbf24', cold:'#8E94A6', spam:'#7E7768' };
+  const c = colorMap[t] || '#EE9A86';
+  return (
+    <div className="flex items-center justify-center rounded-full font-semibold flex-shrink-0 relative"
+      style={{
+        width:size, height:size,
+        background:`linear-gradient(135deg, ${c}30, ${c}10)`,
+        border:`1px solid ${c}40`,
+        color: c, fontSize: size*0.36
+      }}>
+      {initials(name)}
+      {t==='hot' && (
+        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full pulse-dot" style={{ background:'#fb7185', boxShadow:'0 0 8px #fb7185' }}/>
+      )}
+    </div>
+  );
+};
+
+const Spinner = ({ size=22, color='#EE9A86' }) => (
+  <div className="flex justify-center items-center py-12">
+    <div className="rounded-full border-2 spin" style={{ width:size, height:size, borderColor:`${color}55`, borderTopColor:color }} />
+  </div>
+);
+
+const SkeletonRow = () => (
+  <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5">
+    <div className="skel h-8 w-8 rounded-full"/>
+    <div className="flex-1 space-y-2">
+      <div className="skel h-3 w-32"/>
+      <div className="skel h-2 w-48"/>
+    </div>
+    <div className="skel h-5 w-14 rounded-full"/>
+  </div>
+);
+
+/* CSS-shape empty-state illustration */
+const Illustration = ({ variant='default' }) => (
+  <div className={`illus ${variant}`} aria-hidden>
+    <div className="ring"/>
+    <div className="ring r2"/>
+    <div className="ring r3"/>
+    <div className="glow"/>
+    <div className="core"/>
+    <span className="speck s1"/>
+    <span className="speck s2"/>
+    <span className="speck s3"/>
+    <span className="speck s4"/>
+  </div>
+);
+
+const Empty = ({ variant='default', title='Nothing here yet', msg='New activity will surface here automatically.', action }) => (
+  <div className="flex flex-col items-center justify-center py-12 px-6 text-center fade">
+    <Illustration variant={variant}/>
+    <p className="text-[13px] font-semibold text-slate-200 mt-4">{title}</p>
+    <p className="text-[11.5px] text-slate-500 mt-1 max-w-xs">{msg}</p>
+    {action && <div className="mt-3">{action}</div>}
+  </div>
+);
+
+const ErrorPanel = ({ error, onRetry }) => (
+  <div className="flex items-center justify-center min-h-[60vh] p-6 fade">
+    <div className="glass rounded-2xl p-7 max-w-md w-full text-center space-y-4">
+      <Illustration variant="flame"/>
+      <div>
+        <h3 className="text-base font-semibold text-slate-100">Something went wrong</h3>
+        <p className="text-xs text-slate-500 mt-1">We couldn't reach the data layer. This may be a network or auth hiccup.</p>
+      </div>
+      <pre className="text-[11px] text-rose-300/90 font-mono bg-rose-500/5 border border-rose-500/15 rounded-xl p-3 text-left whitespace-pre-wrap">{error}</pre>
+      <button onClick={onRetry} className="btn btn-primary mx-auto"><Icon name="refresh" size={13}/> Retry</button>
+    </div>
+  </div>
+);
+
+/* ─────── Login ─────── */
+function LoginScreen({ onLogin }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState(null);
+  const signIn = async e => {
+    e.preventDefault(); setLoading(true); setErr(null);
+    const { error } = await db.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (error) setErr(error.message); else onLogin();
+  };
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6 fade">
+      <div className="w-full max-w-md">
+        <form onSubmit={signIn} className="glass-strong rounded-2xl p-7 space-y-5">
+          <div className="text-center space-y-3">
+            <div className="brand-mark mx-auto" style={{ width:54, height:54, borderRadius:14 }}><span style={{ fontSize:20 }}>T</span></div>
+            <div>
+              <h1 className="text-lg font-semibold text-slate-100 tracking-tight">Topher AI</h1>
+              <p className="text-[11px] text-slate-500 mt-0.5 uppercase tracking-widest font-medium">Lead Command Center</p>
+            </div>
+          </div>
+          {err && <div className="text-xs text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 flex gap-2 items-start"><Icon name="warning" size={13}/><span>{err}</span></div>}
+          <div className="space-y-2.5">
+            <div>
+              <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest block mb-1.5">Email</label>
+              <input value={email} onChange={e=>setEmail(e.target.value)} type="email" placeholder="you@company.com" required className="field"/>
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest block mb-1.5">Password</label>
+              <input value={password} onChange={e=>setPassword(e.target.value)} type="password" placeholder="••••••••" required className="field"/>
+            </div>
+          </div>
+          <button disabled={loading} className="btn btn-primary w-full justify-center py-2.5 text-[13px] disabled:opacity-50">
+            {loading ? <><span className="spin"><Icon name="refresh" size={13}/></span> Signing in…</> : <>Sign in <Icon name="arrow-r" size={13}/></>}
+          </button>
+          <p className="text-[10.5px] text-slate-600 text-center">Secure session · Supabase Auth</p>
+        </form>
+        <p className="text-[10.5px] text-slate-600 text-center mt-3">© Topher AI</p>
+      </div>
+    </div>
+  );
+}
+
+/* ─────── Sidebar ─────── */
+const NAV_ITEMS = [
+  { key:'overview',  label:'Command Center', icon:'cmd'      },
+  { key:'pipeline',  label:'Pipeline',       icon:'kanban'   },
+  { key:'leads',     label:'Leads',          icon:'users'    },
+  { key:'prospecting',label:'Prospecting',    icon:'building' },
+  { key:'calls',     label:'Calls',          icon:'phone'    },
+  { key:'sms',       label:'SMS',            icon:'msg'      },
+  { key:'ambassador',label:'Ambassadors',    icon:'target'   },
+  { key:'settings',  label:'Settings',       icon:'settings' },
+];
+
+function Sidebar({ tab, setTab, counts, user, onSignOut, onClose }) {
+  return (
+    <aside className="flex flex-col h-full">
+      {/* Brand */}
+      <div className="p-4 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="brand-mark"><span>T</span></div>
+          <div>
+            <div className="text-[13.5px] font-bold text-slate-100 leading-none tracking-tight">Topher<span className="text-indigo-300">.AI</span></div>
+            <div className="flex items-center gap-1 mt-1.5">
+              <span className="text-[9.5px] text-slate-500 tracking-widest uppercase font-semibold">Command Center</span>
+              <span className="pill badge-indigo" style={{ padding:'0 5px', fontSize:'8.5px', letterSpacing:'.08em' }}>v2</span>
+            </div>
+          </div>
+        </div>
+        {onClose && (
+          <button onClick={onClose} className="lg:hidden text-slate-400 hover:text-white p-1 rounded-lg"><Icon name="close" size={17}/></button>
+        )}
+      </div>
+
+      {/* Nav */}
+      <nav className="flex-1 px-2.5 pt-2 space-y-0.5 overflow-y-auto">
+        <div className="px-3 pb-1.5 text-[9.5px] font-semibold text-slate-600 uppercase tracking-widest">Workspace</div>
+        {NAV_ITEMS.map(item => {
+          const count = counts[item.key];
+          return (
+            <button key={item.key}
+              onClick={() => !item.disabled && setTab(item.key)}
+              disabled={item.disabled}
+              className={`nav-item w-full text-left ${tab===item.key?'active':''} ${item.disabled?'opacity-50 cursor-not-allowed':''}`}>
+              <span className="nav-icon-wrap"><Icon name={item.icon} size={13}/></span>
+              <span>{item.label}</span>
+              {item.disabled && <span className="ml-auto text-[9px] uppercase tracking-wider text-slate-600 font-semibold">Soon</span>}
+              {!item.disabled && count !== undefined && <span className="nav-count">{count}</span>}
+            </button>
+          );
+        })}
+
+        <div className="px-3 pt-4 pb-1.5 text-[9.5px] font-semibold text-slate-600 uppercase tracking-widest">Status</div>
+        <div className="px-3 py-2.5 rounded-xl glass-flat flex items-center gap-2.5">
+          <span className="relative flex">
+            <span className="absolute inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 opacity-50 pulse-dot"/>
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400"/>
+          </span>
+          <div className="text-[11.5px] leading-none">
+            <div className="text-slate-200 font-medium">All systems live</div>
+            <div className="text-[10px] text-slate-500 mt-1">Auto-syncing every 30s</div>
+          </div>
+        </div>
+
+        <div className="mt-4 p-3 rounded-xl relative overflow-hidden" style={{ background:'linear-gradient(135deg, rgba(232,130,107,.12), rgba(239,169,143,.08))', border:'1px solid rgba(238,154,134,.20)' }}>
+          <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full" style={{ background:'radial-gradient(circle, rgba(238,154,134,.35), transparent 70%)' }}/>
+          <div className="relative">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Icon name="bolt" size={12} className="text-indigo-300"/>
+              <div className="text-[11px] font-semibold text-slate-100">AI Receptionist</div>
+            </div>
+            <div className="text-[10.5px] text-slate-400 leading-snug">Answering calls 24/7. Classifying every lead.</div>
+            <div className="text-[10px] text-emerald-300 mt-1.5 flex items-center gap-1"><span className="dot bg-emerald-400 pulse-dot"/> Active</div>
+          </div>
+        </div>
+      </nav>
+
+      {/* User */}
+      <div className="p-2.5 border-t border-white/5">
+        <div className="flex items-center gap-2.5 px-2 py-1.5">
+          <Avatar name={user?.email || 'A'} type="cold" size={30}/>
+          <div className="flex-1 min-w-0">
+            <div className="text-[11.5px] font-medium text-slate-200 truncate">{user?.email || 'Operator'}</div>
+            <div className="text-[10px] text-slate-500">Admin · Online</div>
+          </div>
+          <button onClick={onSignOut} className="text-slate-500 hover:text-rose-300 p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors" title="Sign out">
+            <Icon name="logout" size={14}/>
+          </button>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/* ─────── Top bar ─────── */
+function TopBar({ title, subtitle, lastRefresh, onRefresh, spinning, onMenu, contacts }) {
+  const hot = contacts.filter(c => getLeadType(c)==='hot').length;
+  return (
+    <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-white/5">
+      <div className="flex items-center gap-3 min-w-0">
+        <button onClick={onMenu} className="lg:hidden btn btn-ghost !p-2"><Icon name="menu" size={17}/></button>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <h1 className="text-[19px] sm:text-[21px] font-semibold text-slate-100 leading-tight tracking-tight truncate">{title}</h1>
+            {hot > 0 && (
+              <span className="pill pill-lg" style={{ background:'rgba(251,113,133,.14)', color:'#fda4af', border:'1px solid rgba(251,113,133,.35)' }}>
+                <span className="dot pulse-dot" style={{ background:'#fb7185', boxShadow:'0 0 6px #fb7185' }}/>
+                <span className="font-mono">{hot}</span> hot lead{hot===1?'':'s'}
+              </span>
+            )}
+          </div>
+          <p className="text-[11.5px] text-slate-500 mt-0.5">{subtitle}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-full glass-flat">
+          <span className="relative flex">
+            <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-50 pulse-dot"/>
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400"/>
+          </span>
+          <span className="text-[10.5px] text-slate-300 font-semibold tracking-widest uppercase">Live</span>
+        </div>
+        <span className="text-[10.5px] text-slate-500 hidden md:inline">
+          {lastRefresh ? <>Updated <span className="text-slate-400 font-mono">{fmtAgo(lastRefresh)}</span></> : 'Awaiting sync'}
+        </span>
+        <button onClick={onRefresh} disabled={spinning} className="btn btn-ghost">
+          <span className={spinning?'spin':''}><Icon name="refresh" size={13}/></span>
+          <span className="hidden sm:inline">Refresh</span>
+        </button>
+      </div>
+    </header>
+  );
+}
+
+/* ─────── Compact KPI strip ─────── */
+function KpiStrip({ contacts, calls, sms }) {
+  const stats = useMemo(() => {
+    const hot = contacts.filter(c => getLeadType(c)==='hot').length;
+    const booked = contacts.filter(c => c.lead_status==='demo_scheduled').length;
+    const closed = contacts.filter(c => c.lead_status==='closed').length;
+    const todayCalls = calls.filter(c => isToday(c.created_at||c.started_at)).length;
+    const newToday = contacts.filter(c => isToday(c.created_at)).length;
+    const followup = contacts.filter(c => ['new','contacted'].includes(c.lead_status||'new')).length;
+    const conv = contacts.length ? Math.round((closed / contacts.length) * 100) : 0;
+    const smsIn = sms.filter(s => { const t=(s.direction||s.message_type||'').toLowerCase(); return t.includes('in')||t.includes('reply')||t.includes('received'); }).length;
+    return { hot, booked, todayCalls, newToday, followup, conv, smsIn };
+  }, [contacts, calls, sms]);
+
+  const items = [
+    { label:'Total',           value: contacts.length,        icon:'users',    color:'#EE9A86', sub: stats.newToday>0?`+${stats.newToday} today`:'No new today' },
+    { label:'Hot Leads',       value: stats.hot,              icon:'flame',    color:'#fb7185', sub: stats.hot>0?'Need action':'None right now' },
+    { label:'Demo Booked',     value: stats.booked,           icon:'calendar', color:'#EFA98F', sub:'Scheduled' },
+    { label:'Calls Today',     value: stats.todayCalls,       icon:'phone',    color:'#F0B6A6', sub:`${calls.length} total` },
+    { label:'Inbound SMS',     value: stats.smsIn,            icon:'arrow-in', color:'#34d399', sub:`${sms.length-stats.smsIn} sent` },
+    { label:'Follow-ups',      value: stats.followup,         icon:'clock',    color:'#fda4af', sub:'Awaiting touch' },
+    { label:'Conversion',      value: `${stats.conv}%`,       icon:'trend-up', color:'#fbbf24', sub:'All-time' },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+      {items.map((it, i) => (
+        <div key={i} className="glass rounded-xl p-3 relative overflow-hidden group">
+          <div className="absolute -top-6 -right-6 w-16 h-16 rounded-full opacity-50 pointer-events-none"
+            style={{ background:`radial-gradient(circle, ${it.color}30, transparent 70%)` }}/>
+          <div className="flex items-center justify-between mb-2 relative">
+            <span className="flex items-center gap-1 text-[9.5px] font-semibold uppercase tracking-widest text-slate-500">{it.label}<Tip align="left" label={it.label} text={KPI_TIPS[it.label]}/></span>
+            <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background:`${it.color}18`, color:it.color }}>
+              <Icon name={it.icon} size={11}/>
+            </span>
+          </div>
+          <div className="font-mono text-[22px] font-semibold text-slate-100 leading-none tracking-tight relative">{it.value}</div>
+          <div className="text-[10px] text-slate-500 mt-1.5 relative truncate">{it.sub}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─────── PRIORITY QUEUE — flagship card ─────── */
+function PriorityQueue({ contacts, sms, onOpenLead, onTab }) {
+  const queue = useMemo(() => {
+    // Score: hot=100, warm=40, has phone+10, has email+5, untouched (status=new) +25, idle bonus
+    const scored = contacts.map(c => {
+      const t = getLeadType(c);
+      const status = c.lead_status || 'new';
+      let score = 0;
+      if (t === 'hot') score += 100;
+      else if (t === 'warm') score += 40;
+      else if (t === 'cold') score += 10;
+      if (c.phone) score += 5;
+      if (c.email) score += 3;
+      if (status === 'new') score += 25;
+      else if (status === 'contacted') score += 10;
+      else if (status === 'closed') score -= 100;
+      // urgency by idle
+      const idle = (Date.now() - new Date(c.created_at||0)) / 86400000;
+      if (idle < 1) score += 8;
+      else if (idle > 5 && status === 'new') score += 12; // stale untouched
+      // reason
+      let reason = 'Worth a touch';
+      if (t==='hot') reason = 'Hot lead — call now';
+      else if (status==='new' && t!=='spam') reason = 'Untouched new lead';
+      else if (status==='contacted' && idle > 1) reason = 'Awaiting next touch';
+      return { ...c, _score: score, _reason: reason };
+    }).filter(c => getLeadType(c) !== 'spam' && c.lead_status !== 'closed');
+    return scored.sort((a,b) => b._score - a._score).slice(0, 5);
+  }, [contacts]);
+
+  const hotCount = contacts.filter(c => getLeadType(c)==='hot').length;
+
+  return (
+    <div className="glass rounded-2xl relative overflow-hidden">
+      <div className="absolute -top-24 -left-12 w-[360px] h-[280px] pointer-events-none opacity-50"
+        style={{ background:'radial-gradient(ellipse, rgba(251,113,133,.20), transparent 60%)' }}/>
+      <div className="absolute -top-24 right-0 w-[360px] h-[280px] pointer-events-none opacity-40"
+        style={{ background:'radial-gradient(ellipse, rgba(238,154,134,.22), transparent 60%)' }}/>
+
+      <div className="relative flex items-center justify-between px-4 py-3 border-b border-white/5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background:'rgba(251,113,133,.14)', border:'1px solid rgba(251,113,133,.30)', color:'#fda4af' }}>
+            <Icon name="pin" size={13}/>
+          </div>
+          <div>
+            <h2 className="text-[13px] font-semibold text-slate-100 leading-tight tracking-tight flex items-center gap-1.5">Priority Queue<Tip align="left" text="The 5 leads most worth attention now — ranked by urgency, how long they’ve gone untouched, and whether they’re still open."/></h2>
+            <p className="text-[10.5px] text-slate-500 mt-0.5">{queue.length} lead{queue.length===1?'':'s'} need your attention right now</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {hotCount > 0 && (
+            <span className="pill" style={{ background:'rgba(251,113,133,.14)', color:'#fda4af', border:'1px solid rgba(251,113,133,.35)' }}>
+              <span className="dot pulse-dot" style={{ background:'#fb7185' }}/>
+              <span className="font-mono">{hotCount}</span> hot
+            </span>
+          )}
+          <button onClick={() => onTab('leads')} className="text-[10.5px] text-slate-400 hover:text-slate-100 flex items-center gap-1">All leads <Icon name="arrow-r" size={11}/></button>
+        </div>
+      </div>
+
+      {queue.length === 0 ? (
+        <Empty variant="flame" title="Inbox zero" msg="Every active lead is in a good state. Beautiful."/>
+      ) : (
+        <div className="relative divide-y divide-white/[0.04]">
+          {queue.map((c, i) => {
+            const isHot = getLeadType(c) === 'hot';
+            return (
+              <button key={c.id} onClick={() => onOpenLead(c)}
+                className="relative w-full text-left flex items-center gap-3 px-4 py-3 row-hover transition-colors group">
+                {isHot && <div className="hot-strip"/>}
+                <div className="flex items-center justify-center w-7 h-7 rounded-md font-mono text-[10.5px] font-semibold flex-shrink-0"
+                  style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)', color:'#B3A799' }}>
+                  {String(i+1).padStart(2,'0')}
+                </div>
+                <Avatar name={c.name} type={getLeadType(c)} size={34}/>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="text-[13px] font-semibold text-slate-100 truncate">{fmtName(c)}</div>
+                    <LeadBadge type={getLeadType(c)}/>
+                    <StagePill stage={c.lead_status || 'new'}/>
+                    <SourceBadge source={c.source}/>
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-2.5 flex-wrap">
+                    <span className="flex items-center gap-1 truncate"><Icon name="building" size={10}/>{c.industry || c.business_name || '—'}</span>
+                    {c.phone && <span className="font-mono text-slate-400 hidden sm:inline">{fmtPhone(c.phone)}</span>}
+                    <span className="text-rose-300/90 font-medium hidden md:inline">{c._reason}</span>
+                  </div>
+                </div>
+                <div className="hidden sm:flex flex-col items-end gap-1 flex-shrink-0">
+                  <span className="text-[10.5px] text-slate-600 flex items-center gap-1"><Icon name="clock" size={10}/>{fmtAgo(c.created_at)}</span>
+                  <div className="flex items-center gap-1">
+                    {c.phone && <a href={`tel:${c.phone}`} onClick={e=>e.stopPropagation()} className="w-7 h-7 rounded-md flex items-center justify-center text-indigo-300 hover:text-white hover:bg-indigo-500/20 transition-colors" title="Call"><Icon name="phone" size={12}/></a>}
+                    {c.email && <a href={`mailto:${c.email}`} onClick={e=>e.stopPropagation()} className="w-7 h-7 rounded-md flex items-center justify-center text-cyan-300 hover:text-white hover:bg-cyan-500/20 transition-colors" title="Email"><Icon name="mail" size={12}/></a>}
+                  </div>
+                </div>
+                <Icon name="chevron-r" size={13} className="text-slate-600 group-hover:text-slate-300 transition-colors flex-shrink-0"/>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────── Recent Activity rail ─────── */
+function RecentActivityRail({ calls, sms }) {
+  const events = useMemo(() => {
+    const e = [];
+    calls.slice(0, 8).forEach(c => e.push({
+      kind:'call', id:c.id||c.call_id, ts:c.created_at||c.started_at,
+      title: fmtPhone(c.caller_phone),
+      sub: c.summary || c.call_status || 'Call',
+      tone:'#EFA98F', icon:'phone',
+      tag: c.call_status || 'completed', type: c.classification || c.urgency,
+    }));
+    sms.slice(0, 8).forEach(s => {
+      const t = (s.direction || s.message_type || '').toLowerCase();
+      const inbound = t.includes('in')||t.includes('reply')||t.includes('received');
+      e.push({
+        kind:'sms', id:s.id, ts:s.created_at||s.sent_at,
+        title: fmtPhone(s.to_number||s.phone||s.from_number),
+        sub: s.message || s.body || '(empty)',
+        tone: inbound ? '#34d399' : '#F0B6A6',
+        icon: inbound ? 'arrow-in' : 'arrow-out',
+        tag: inbound ? 'inbound' : 'outbound', status: s.status,
+      });
+    });
+    return e.sort((a,b) => new Date(b.ts||0) - new Date(a.ts||0)).slice(0, 10);
+  }, [calls, sms]);
+
+  return (
+    <div className="glass rounded-2xl overflow-hidden h-full flex flex-col">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background:'rgba(239,169,143,.12)', border:'1px solid rgba(239,169,143,.25)', color:'#F2BCA6' }}>
+            <Icon name="spark" size={13}/>
+          </div>
+          <div>
+            <h3 className="text-[13px] font-semibold text-slate-100 tracking-tight">Live Activity</h3>
+            <p className="text-[10px] text-slate-500 mt-0.5">Calls · SMS · auto-refreshing</p>
+          </div>
+        </div>
+        <span className="flex items-center gap-1.5 text-[10px] text-emerald-300 font-medium"><span className="dot bg-emerald-400 pulse-dot"/>Live</span>
+      </div>
+      <div className="flex-1 overflow-y-auto px-4 py-3" style={{ maxHeight: 520 }}>
+        {events.length === 0 ? (
+          <Empty variant="msg" title="No activity yet" msg="Calls and SMS will stream into this rail in real-time."/>
+        ) : (
+          <ol className="relative space-y-0">
+            {events.map((e, i) => (
+              <li key={`${e.kind}-${e.id||i}`} className="relative pl-7 pb-4 last:pb-1">
+                {/* timeline line */}
+                {i < events.length - 1 && <span className="absolute left-[10px] top-7 bottom-0 w-px bg-white/5"/>}
+                {/* dot */}
+                <span className="absolute left-0 top-1 w-[22px] h-[22px] rounded-full flex items-center justify-center"
+                  style={{ background:`${e.tone}18`, border:`1px solid ${e.tone}40`, color:e.tone }}>
+                  <Icon name={e.icon} size={10}/>
+                </span>
+                <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                  <span className="text-[11.5px] text-slate-200 font-mono">{e.title}</span>
+                  <span className="pill" style={{ background:`${e.tone}14`, color:e.tone, border:`1px solid ${e.tone}30`, padding:'1px 6px', fontSize:'9.5px' }}>{e.tag}</span>
+                </div>
+                <div className="text-[11px] text-slate-400 clamp-2 leading-snug">{e.sub}</div>
+                <div className="text-[10px] text-slate-600 mt-0.5">{fmtAgo(e.ts)}</div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─────── PIPELINE board ─────── */
+function PipelineBoard({ contacts, loading, onUpdate, onOpenLead, compact=false }) {
+  const [moving, setMoving] = useState(null);
+  const move = async (contact, newStatus, e) => {
+    e?.stopPropagation();
+    setMoving(contact.id);
+    await onUpdate(contact.id, { lead_status: newStatus });
+    setMoving(null);
+  };
+
+  if (loading) return (
+    <div className="p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {PIPELINE_STAGES.map(s => (
+        <div key={s.key} className="pipe-col p-3 space-y-2">
+          <div className="skel h-3 w-24"/>
+          {Array.from({length:3}).map((_,i)=><div key={i} className="skel h-24 rounded-xl"/>)}
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-start fade">
+      {PIPELINE_STAGES.map(stage => {
+        const items = contacts.filter(c => (c.lead_status || 'new') === stage.key);
+        const hotInCol = items.filter(c => getLeadType(c)==='hot').length;
+        return (
+          <div key={stage.key} className="pipe-col flex flex-col">
+            <div className="col-stripe" style={{ background:`linear-gradient(90deg, ${stage.color}, ${stage.color}55)` }}/>
+            <div className="px-3 py-2.5 flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="dot" style={{ background:stage.color }}/>
+                <span className="text-[11px] font-semibold uppercase tracking-wider truncate" style={{ color:stage.color }}>{stage.label}</span><Tip align="left" text={STAGE_TIPS[stage.key]}/>
+              </div>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                {hotInCol > 0 && (
+                  <span className="pill" style={{ background:'rgba(251,113,133,.14)', color:'#fda4af', border:'1px solid rgba(251,113,133,.30)', padding:'1px 5px', fontSize:'9.5px' }}>
+                    <Icon name="flame" size={9} strokeWidth={2.2}/>{hotInCol}
+                  </span>
+                )}
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full" style={{ background:`${stage.color}1A`, color:stage.color }}>{items.length}</span>
+              </div>
+            </div>
+            <div className="px-2 pb-2.5 flex flex-col gap-2 min-h-[100px]">
+              {items.length === 0 ? (
+                <div className="text-center py-6 px-2 rounded-lg border border-dashed border-white/[0.06] flex flex-col items-center gap-1.5">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background:`${stage.color}10`, color:stage.color }}>
+                    <Icon name={stage.key==='closed'?'check':stage.key==='demo_scheduled'?'calendar':stage.key==='contacted'?'phone':'inbox'} size={12}/>
+                  </div>
+                  <div className="text-slate-600 text-[10.5px]">No leads in {stage.label.toLowerCase()}</div>
+                </div>
+              ) : items.map(c => {
+                const isHot = getLeadType(c) === 'hot';
+                return (
+                  <div key={c.id}
+                    className={`pipe-card p-2.5 space-y-2 cursor-pointer ${isHot?'hot hot-aura':''}`}
+                    onClick={() => onOpenLead(c)}>
+                    {isHot && <div className="hot-corner"/>}
+                    <div className="flex items-start justify-between gap-2 relative">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Avatar name={c.name} type={getLeadType(c)} size={28}/>
+                        <div className="min-w-0">
+                          <div className="text-[12.5px] font-semibold text-slate-100 truncate leading-tight">{fmtName(c)}</div>
+                          <div className="text-[10.5px] text-slate-500 truncate mt-0.5 flex items-center gap-1">
+                            <Icon name="building" size={9}/>{c.industry || c.business_name || '—'}
+                          </div>
+                        </div>
+                      </div>
+                      <LeadBadge type={getLeadType(c)}/>
+                    </div>
+
+                    <div className="space-y-0.5 relative">
+                      {c.phone && (
+                        <a href={`tel:${c.phone}`} className="flex items-center gap-1.5 text-[11px] text-indigo-300 hover:text-indigo-200" onClick={e=>e.stopPropagation()}>
+                          <Icon name="phone" size={10}/><span className="font-mono">{fmtPhone(c.phone)}</span>
+                        </a>
+                      )}
+                      {c.email && (
+                        <a href={`mailto:${c.email}`} className="flex items-center gap-1.5 text-[11px] text-cyan-300 hover:text-cyan-200 truncate" onClick={e=>e.stopPropagation()}>
+                          <Icon name="mail" size={10}/><span className="truncate">{c.email}</span>
+                        </a>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1.5 border-t border-white/5 relative">
+                      <span className="text-[10px] text-slate-600 flex items-center gap-1"><Icon name="clock" size={9}/>{fmtAgo(c.created_at)}</span>
+                      <div className="flex gap-1">
+                        {PIPELINE_STAGES.filter(s => s.key !== stage.key).slice(0, 2).map(s => (
+                          <button key={s.key} onClick={(e) => move(c, s.key, e)} disabled={moving === c.id}
+                            className="text-[9.5px] font-medium px-1.5 py-0.5 rounded-md transition-all disabled:opacity-50 flex items-center gap-0.5"
+                            style={{ background:`${s.color}14`, color:s.color, border:`1px solid ${s.color}28` }}
+                            title={`Move to ${s.label}`}>
+                            <Icon name="arrow-r" size={8} strokeWidth={2.2}/>{s.label.split(' ')[0]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ─────── Toolbar ─────── */
+function Toolbar({ search, setSearch, filters, filter, setFilter, right, placeholder='Search by name, phone, email…' }) {
+  return (
+    <div className="flex flex-col lg:flex-row lg:items-center gap-2.5 px-4 py-3 border-b border-white/5">
+      <div className="relative flex-1 max-w-md">
+        <Icon name="search" size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"/>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder={placeholder} className="field pl-9"/>
+      </div>
+      {filters && (
+        <div className="flex items-center gap-1 overflow-x-auto -mx-1 px-1 pb-1 lg:pb-0">
+          {filters.map(f => (
+            <button key={f.key} onClick={() => setFilter(f.key)}
+              className={`text-[11px] px-2.5 py-1.5 rounded-full whitespace-nowrap transition-all flex items-center gap-1.5 border ${filter===f.key
+                ? 'bg-indigo-500/15 text-indigo-200 border-indigo-400/30'
+                : 'bg-white/[0.025] text-slate-400 border-white/5 hover:text-slate-200 hover:bg-white/5'}`}>
+              {f.label}
+              {f.count !== undefined && <span className={`text-[9.5px] px-1.5 py-0.5 rounded-full font-mono ${filter===f.key?'bg-indigo-500/25 text-indigo-100':'bg-white/5 text-slate-500'}`}>{f.count}</span>}
+            </button>
+          ))}
+        </div>
+      )}
+      {right && <div className="lg:ml-auto flex items-center gap-2">{right}</div>}
+    </div>
+  );
+}
+
+/* ─────── COMMAND CENTER (default tab) ─────── */
+function CommandCenter({ contacts, calls, sms, businesses, engineRuns, loading, onOpenLead, onTab, onUpdate }) {
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+          {Array.from({length:7}).map((_,i) => <div key={i} className="glass rounded-xl p-3 space-y-2"><div className="skel h-2 w-16"/><div className="skel h-6 w-12"/><div className="skel h-2 w-20"/></div>)}
+        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4">
+          <div className="glass rounded-2xl p-4 space-y-3"><div className="skel h-4 w-32"/>{Array.from({length:3}).map((_,i)=><div key={i} className="skel h-14 rounded-xl"/>)}</div>
+          <div className="glass rounded-2xl p-4 space-y-3"><div className="skel h-4 w-24"/>{Array.from({length:4}).map((_,i)=><div key={i} className="skel h-10 rounded-xl"/>)}</div>
+        </div>
+        <div className="glass rounded-2xl p-3"><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">{Array.from({length:4}).map((_,i)=><div key={i} className="skel h-44 rounded-xl"/>)}</div></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* KPI strip */}
+      <KpiStrip contacts={contacts} calls={calls} sms={sms}/>
+
+      {/* AI Prospecting (outbound) */}
+      <ProspectingPanel businesses={businesses} engineRuns={engineRuns}/>
+
+      {/* Priority Queue + Activity Rail */}
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-4 items-start">
+        <PriorityQueue contacts={contacts} sms={sms} onOpenLead={onOpenLead} onTab={onTab}/>
+        <RecentActivityRail calls={calls} sms={sms}/>
+      </div>
+
+      {/* PIPELINE — the emotional center */}
+      <div className="glass rounded-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background:'rgba(238,154,134,.14)', border:'1px solid rgba(238,154,134,.30)', color:'#F0B6A6' }}>
+              <Icon name="kanban" size={13}/>
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-[13px] font-semibold text-slate-100 tracking-tight">Pipeline</h2>
+              <p className="text-[10.5px] text-slate-500 mt-0.5 truncate">Every lead, every stage — the heartbeat of the operation</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="hidden md:flex items-center gap-3 text-[10.5px] text-slate-500">
+              {PIPELINE_STAGES.map(s => {
+                const n = contacts.filter(c => (c.lead_status||'new')===s.key).length;
+                return (
+                  <span key={s.key} className="flex items-center gap-1.5">
+                    <span className="dot" style={{ background:s.color }}/>
+                    <span className="font-mono text-slate-300">{n}</span>
+                    <span className="hidden xl:inline">{s.label}</span>
+                  </span>
+                );
+              })}
+            </div>
+            <button onClick={() => onTab('pipeline')} className="text-[10.5px] text-slate-400 hover:text-slate-100 flex items-center gap-1">Focus view <Icon name="arrow-r" size={11}/></button>
+          </div>
+        </div>
+        <PipelineBoard contacts={contacts} loading={loading} onUpdate={onUpdate} onOpenLead={onOpenLead}/>
+      </div>
+    </div>
+  );
+}
+
+/* ─────── Pipeline tab (focused) ─────── */
+function PipelineTab({ contacts, loading, onUpdate, onOpenLead, search, setSearch }) {
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return contacts.filter(r => !q
+      || (r.name||'').toLowerCase().includes(q)
+      || (r.email||'').toLowerCase().includes(q)
+      || (r.phone||'').includes(q));
+  }, [contacts, search]);
+
+  return (
+    <div className="fade">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 border-b border-white/5">
+        <div className="flex items-center gap-3 flex-wrap">
+          {PIPELINE_STAGES.map(s => {
+            const n = contacts.filter(c => (c.lead_status||'new')===s.key).length;
+            const pct = contacts.length ? Math.round((n/contacts.length)*100) : 0;
+            return (
+              <div key={s.key} className="flex items-center gap-2 px-2.5 py-1 rounded-lg glass-flat">
+                <span className="dot" style={{ background:s.color }}/>
+                <span className="text-[10.5px] text-slate-400">{s.label}</span>
+                <span className="font-mono text-[11px] text-slate-200">{n}</span>
+                <span className="text-[9.5px] text-slate-600">{pct}%</span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="relative max-w-xs w-full sm:w-72">
+          <Icon name="search" size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"/>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Filter pipeline…" className="field pl-9"/>
+        </div>
+      </div>
+      <PipelineBoard contacts={filtered} loading={loading} onUpdate={onUpdate} onOpenLead={onOpenLead}/>
+    </div>
+  );
+}
+
+/* ─────── Lead Drawer ─────── */
+function LeadDrawer({ lead, onClose, onUpdate, onDelete, calls=[], sms=[], settings={} }) {
+  const [urgency, setUrgency] = useState(lead?.urgency || 'warm');
+  const [stage, setStage] = useState(lead?.lead_status || 'new');
+  const [notes, setNotes] = useState(lead?.notes || '');
+  const [name, setName] = useState(lead?.name || '');
+  const [business, setBusiness] = useState(lead?.business_name || '');
+  const [industry, setIndustry] = useState(lead?.industry || '');
+  const [service, setService] = useState(lead?.service_interest || '');
+  const [email, setEmail] = useState(lead?.email || '');
+  const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const timeline = useMemo(() => {
+    const dg = s => (String(s||'').match(/\d/g)||[]).join('');
+    const key = dg(lead?.phone).slice(-10);
+    if (!key) return [];
+    const ev = [];
+    (calls||[]).forEach(c => {
+      const cand = [c.caller_phone, c.caller_number, c.phone].map(x=>dg(x).slice(-10));
+      if (cand.includes(key)) ev.push({ kind:'call', at: c.started_at||c.created_at||c.ended_at,
+        title: (c.is_missed||c.call_status==='missed') ? 'Missed call' : (c.call_type==='outbound'?'Outbound call':'Inbound call'),
+        body: c.summary||c.inquiry||'', meta: fmtDur(c.duration_seconds||c.duration), booked: !!c.booked, rec: c.recording_url||'', color:'#EFA98F' });
+    });
+    (sms||[]).forEach(m => {
+      const dir = (m.direction||m.message_type||m.type||'').toLowerCase();
+      const inbound = dir.includes('in')||dir.includes('reply')||dir.includes('receiv');
+      const cand = [m.from_number, m.to_number, m.from, m.to].map(x=>dg(x).slice(-10));
+      if (cand.includes(key)) ev.push({ kind:'sms', at: m.created_at, inbound,
+        title: inbound?'Inbound text':'Sent text', body: m.message||m.body||'', color: inbound?'#34d399':'#B3A799' });
+    });
+    return ev.filter(e=>e.at).sort((a,b)=> new Date(b.at)-new Date(a.at)).slice(0,40);
+  }, [lead, calls, sms]);
+
+  useEffect(() => {
+    if (lead) { setUrgency(lead.urgency || 'warm'); setStage(lead.lead_status || 'new'); setNotes(lead.notes || '');
+      setName(lead.name || ''); setBusiness(lead.business_name || ''); setIndustry(lead.industry || ''); setService(lead.service_interest || ''); setEmail(lead.email || ''); }
+    setConfirmDelete(false); setDeleting(false);
+  }, [lead]);
+
+  if (!lead) return null;
+
+  const save = async () => {
+    setSaving(true);
+    await onUpdate(lead.id, { urgency, lead_status: stage, notes,
+      name: name.trim() || null, business_name: business.trim() || null, industry: industry.trim() || null,
+      service_interest: service.trim() || null, email: email.trim() || null });
+    setSaving(false);
+    onClose();
+  };
+
+  const remove = async () => {
+    if (!onDelete) return;
+    setDeleting(true);
+    await onDelete(lead.id);
+    setDeleting(false);
+    onClose();
+  };
+
+  return (
+    <Fragment>
+      <div className="drawer-backdrop" onClick={onClose}/>
+      <div className="drawer-panel">
+        <div className="p-4 border-b border-white/5 flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <Avatar name={lead.name} type={getLeadType(lead)} size={44}/>
+            <div className="min-w-0">
+              <h2 className="text-[15px] font-semibold text-slate-100 truncate tracking-tight">{fmtName(lead)}</h2>
+              <p className="text-[11.5px] text-slate-500 truncate">{lead.industry || lead.business_name || 'No business'}</p>
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <LeadBadge type={getLeadType(lead)}/>
+                <StagePill stage={lead.lead_status || 'new'}/>
+              </div>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-slate-500 hover:text-white p-1.5 rounded-lg hover:bg-white/5"><Icon name="close" size={17}/></button>
+        </div>
+
+        <div className="p-4 space-y-4">
+          <div className="grid grid-cols-2 gap-2">
+            {lead.phone && <a href={`tel:${lead.phone}`} className="btn btn-ghost justify-center"><Icon name="phone" size={13}/>Call</a>}
+            {lead.email && <a href={`mailto:${lead.email}`} className="btn btn-ghost justify-center"><Icon name="mail" size={13}/>Email</a>}
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500">Contact</div>
+            <div className="glass-flat rounded-xl divide-y divide-white/5">
+              {[
+                { label:'Phone',    val: lead.phone ? <a href={`tel:${lead.phone}`} className="font-mono text-indigo-300 hover:text-indigo-200">{fmtPhone(lead.phone)}</a> : '—', icon:'phone' },
+                { label:'Email',    val: lead.email ? <a href={`mailto:${lead.email}`} className="text-cyan-300 hover:text-cyan-200 break-all">{lead.email}</a> : '—', icon:'mail' },
+                { label:'Industry', val: lead.industry || lead.business_name || '—', icon:'building' },
+                { label:'Service',  val: lead.service_interest || '—', icon:'target' },
+              ].map((row,i) => (
+                <div key={i} className="px-3 py-2.5 flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 flex-shrink-0 bg-white/[0.025] border border-white/5"><Icon name={row.icon} size={12}/></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">{row.label}</div>
+                    <div className="text-[12.5px] text-slate-200 mt-0.5 break-words">{row.val}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500">Edit details</div>
+            <div className="space-y-2.5">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium block mb-1.5">Name</label>
+                  <input className="field" value={name} onChange={e=>setName(e.target.value)} placeholder="Contact name"/>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium block mb-1.5">Business</label>
+                  <input className="field" value={business} onChange={e=>setBusiness(e.target.value)} placeholder="Business name"/>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium block mb-1.5">Industry</label>
+                  <input className="field" list="industry-options" value={industry} onChange={e=>setIndustry(e.target.value)} placeholder="e.g. Med spa"/>
+                  <datalist id="industry-options">{((settings.lists && settings.lists.industries) || ['Med spa','Legal','Real estate','Contractor','Insurance','Dental','Other']).map(o => <option key={o} value={o}/>)}</datalist>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium block mb-1.5">Service interest</label>
+                  <input className="field" value={service} onChange={e=>setService(e.target.value)} placeholder="What they want"/>
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium block mb-1.5">Email</label>
+                <input className="field" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@business.com"/>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500">Update</div>
+            <div className="space-y-2.5">
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium block mb-1.5">Urgency</label>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {URGENCY_OPTIONS.map(u => (
+                    <button key={u} onClick={() => setUrgency(u)}
+                      className={`text-[11px] py-1.5 rounded-lg capitalize border transition-all ${urgency===u
+                        ? 'bg-indigo-500/15 text-indigo-200 border-indigo-400/30'
+                        : 'bg-white/[0.025] text-slate-400 border-white/5 hover:text-slate-200'}`}>
+                      {u}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium block mb-1.5">Pipeline Stage</label>
+                <select className="field" value={stage} onChange={e=>setStage(e.target.value)}>
+                  {PIPELINE_STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium block mb-1.5">Notes</label>
+                <textarea className="field" rows={3} value={notes} onChange={e=>setNotes(e.target.value)}
+                  placeholder="Jot anything — e.g. spoke w/ her, deciding between us and a competitor, follow up Friday."
+                  style={{ resize:"vertical", minHeight:64, lineHeight:1.5 }}/>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500">History</div>
+              <span className="text-[10px] text-slate-600 font-mono">{timeline.length} event{timeline.length===1?'':'s'}</span>
+            </div>
+            {timeline.length === 0 ? (
+              <div className="glass-flat rounded-xl px-3 py-4 text-[11.5px] text-slate-500 text-center">No calls or texts matched to this number yet.</div>
+            ) : (
+              <div className="relative pl-4">
+                <div className="absolute left-[5px] top-1 bottom-1 w-px" style={{ background:"rgba(255,255,255,.08)" }}/>
+                <div className="space-y-3">
+                  {timeline.map((e,i) => (
+                    <div key={i} className="relative">
+                      <span className="absolute -left-4 top-1 w-2.5 h-2.5 rounded-full" style={{ background:e.color, boxShadow:`0 0 8px ${e.color}66`, border:"2px solid #141219" }}/>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Icon name={e.kind==='call'?'phone':(e.inbound?'arrow-in':'arrow-out')} size={11}/>
+                        <span className="text-[12px] font-semibold text-slate-200">{e.title}</span>
+                        {e.booked && <span className="pill badge-ok" style={{ fontSize:"9px" }}>Booked</span>}
+                        {e.meta && <span className="text-[10px] text-slate-500 font-mono">{e.meta}</span>}
+                        <span className="text-[10px] text-slate-600 ml-auto whitespace-nowrap">{fmtDate(e.at)}</span>
+                      </div>
+                      {e.body && <div className="text-[11.5px] text-slate-400 mt-1 leading-snug" style={{ display:"-webkit-box", WebkitLineClamp:3, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{e.body}</div>}
+                      {e.rec && <a href={e.rec} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[10.5px] text-indigo-300 hover:text-indigo-200 mt-1"><Icon name="play" size={10}/>Recording</a>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {lead.message && (
+            <div>
+              <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500 mb-2">Inbound Message</div>
+              <div className="glass-flat rounded-xl p-3 text-[12.5px] text-slate-300 leading-relaxed italic">“{lead.message}”</div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 pt-1">
+            <button onClick={onClose} className="btn btn-ghost flex-1 justify-center">Cancel</button>
+            <button onClick={save} disabled={saving} className="btn btn-primary flex-1 justify-center disabled:opacity-50">
+              {saving ? <><span className="spin"><Icon name="refresh" size={12}/></span>Saving</> : <><Icon name="check" size={12}/>Save changes</>}
+            </button>
+          </div>
+
+          {onDelete && (
+            <div className="pt-1">
+              {!confirmDelete ? (
+                <button onClick={() => setConfirmDelete(true)} className="btn btn-danger w-full justify-center">
+                  <Icon name="close" size={12}/>Delete this contact
+                </button>
+              ) : (
+                <div className="rounded-xl p-3" style={{ background:'rgba(251,113,133,.08)', border:'1px solid rgba(251,113,133,.30)' }}>
+                  <div className="text-[12px] text-slate-200 mb-2.5">Permanently delete <span className="font-semibold">{fmtName(lead)}</span>? This can’t be undone.</div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => setConfirmDelete(false)} disabled={deleting} className="btn btn-ghost flex-1 justify-center">Keep</button>
+                    <button onClick={remove} disabled={deleting} className="btn btn-danger flex-1 justify-center disabled:opacity-50">
+                      {deleting ? <><span className="spin"><Icon name="refresh" size={12}/></span>Deleting</> : <><Icon name="close" size={12}/>Yes, delete</>}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="pt-2 border-t border-white/5 text-[10.5px] text-slate-600 flex items-center justify-between">
+            <span>Added {fmtDate(lead.created_at)}</span>
+            <span className="font-mono">#{String(lead.id).slice(-8)}</span>
+          </div>
+        </div>
+      </div>
+    </Fragment>
+  );
+}
+
+/* ─────── Leads tab — desktop table + mobile cards ─────── */
+function LeadsTab({ rows, loading, onOpenLead, search, setSearch, filter, setFilter, contacts }) {
+  const counts = useMemo(() => {
+    const c = (k) => contacts.filter(x => getLeadType(x) === k).length;
+    const newToday = contacts.filter(x => isToday(x.created_at)).length;
+    const followup = contacts.filter(x => ['new','contacted'].includes(x.lead_status||'new')).length;
+    return { all: contacts.length, hot:c('hot'), warm:c('warm'), cold:c('cold'), spam:c('spam'), newToday, followup };
+  }, [contacts]);
+
+  const filters = [
+    { key:'all',       label:'All',           count: counts.all },
+    { key:'hot',       label:'Hot',           count: counts.hot },
+    { key:'warm',      label:'Warm',          count: counts.warm },
+    { key:'cold',      label:'Cold',          count: counts.cold },
+    { key:'spam',      label:'Spam',          count: counts.spam },
+    { key:'newToday',  label:'New today',     count: counts.newToday },
+    { key:'followup',  label:'Needs follow-up', count: counts.followup },
+  ];
+
+  return (
+    <div className="fade">
+      <Toolbar search={search} setSearch={setSearch} filters={filters} filter={filter} setFilter={setFilter}/>
+
+      {loading ? (
+        <div>{Array.from({length:6}).map((_,i)=><SkeletonRow key={i}/>)}</div>
+      ) : rows.length === 0 ? (
+        <Empty variant="default" title="No leads match your filters" msg="Try clearing the search or switching to All."/>
+      ) : (
+        <Fragment>
+          {/* Mobile cards */}
+          <div className="md:hidden p-3 space-y-2">
+            {rows.map(r => {
+              const isHot = getLeadType(r)==='hot';
+              return (
+                <button key={r.id} onClick={() => onOpenLead(r)} className={`relative lead-card w-full text-left p-3 ${isHot?'hot hot-aura':''}`}>
+                  {isHot && <div className="hot-strip"/>}
+                  <div className="flex items-start gap-3">
+                    <Avatar name={r.name} type={getLeadType(r)} size={36}/>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <div className="text-[13px] font-semibold text-slate-100 truncate">{fmtName(r,'Applicant')}</div>
+                        <LeadBadge type={getLeadType(r)}/>
+                      </div>
+                      <div className="text-[11px] text-slate-500 truncate">{r.industry || r.business_name || '—'}</div>
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
+                        <StagePill stage={r.lead_status||'new'}/>
+                        <SourceBadge source={r.source}/>
+                        <span className="text-[10.5px] text-slate-600">{fmtAgo(r.created_at)}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-2 pt-2 border-t border-white/5 text-[11px]">
+                        {r.phone && <a href={`tel:${r.phone}`} onClick={e=>e.stopPropagation()} className="font-mono text-indigo-300 flex items-center gap-1"><Icon name="phone" size={11}/>{fmtPhone(r.phone)}</a>}
+                        {r.email && <a href={`mailto:${r.email}`} onClick={e=>e.stopPropagation()} className="text-cyan-300 flex items-center gap-1 truncate"><Icon name="mail" size={11}/><span className="truncate">{r.email}</span></a>}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 z-10" style={{ background:'rgba(8,10,18,0.85)', backdropFilter:'blur(10px)' }}>
+                <tr className="border-b border-white/5 text-left text-[10px] text-slate-500 uppercase tracking-widest">
+                  <th className="px-4 py-2.5 font-semibold">Lead</th>
+                  <th className="px-4 py-2.5 font-semibold">Phone</th>
+                  <th className="px-4 py-2.5 font-semibold hidden lg:table-cell">Email</th>
+                  <th className="px-4 py-2.5 font-semibold hidden xl:table-cell">Industry</th>
+                  <th className="px-4 py-2.5 font-semibold">Urgency</th>
+                  <th className="px-4 py-2.5 font-semibold">Stage</th>
+                  <th className="px-4 py-2.5 font-semibold">Added</th>
+                  <th className="px-4 py-2.5 font-semibold w-8"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.04]">
+                {rows.map(r => {
+                  const isHot = getLeadType(r) === 'hot';
+                  return (
+                    <tr key={r.id}
+                      className={`row-hover transition-colors cursor-pointer relative ${isHot?'bg-rose-500/[0.04]':''}`}
+                      style={isHot ? { boxShadow: 'inset 2px 0 0 #fb7185' } : {}}
+                      onClick={() => onOpenLead(r)}>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Avatar name={r.name} type={getLeadType(r)} size={30}/>
+                          <div className="min-w-0">
+                            <div className="text-[12.5px] font-medium text-slate-100 truncate">{r.name || <span className="text-slate-500">{fmtName(r,'Applicant')}</span>}</div>
+                            {r.source && <div className="mt-0.5"><SourceBadge source={r.source}/></div>}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3" onClick={e=>e.stopPropagation()}>
+                        {r.phone
+                          ? <a href={`tel:${r.phone}`} className="font-mono text-[11.5px] text-indigo-300 hover:text-indigo-200">{fmtPhone(r.phone)}</a>
+                          : <span className="text-slate-600 text-[11.5px]">—</span>}
+                      </td>
+                      <td className="px-4 py-3 hidden lg:table-cell" onClick={e=>e.stopPropagation()}>
+                        {r.email
+                          ? <a href={`mailto:${r.email}`} className="text-cyan-300 text-[11.5px] hover:text-cyan-200 truncate max-w-[200px] block">{r.email}</a>
+                          : <span className="text-slate-600 text-[11.5px]">—</span>}
+                      </td>
+                      <td className="px-4 py-3 text-slate-400 text-[11.5px] hidden xl:table-cell">{r.industry || r.business_name || '—'}</td>
+                      <td className="px-4 py-3"><LeadBadge type={getLeadType(r)}/></td>
+                      <td className="px-4 py-3"><StagePill stage={r.lead_status || 'new'}/></td>
+                      <td className="px-4 py-3 text-slate-500 text-[11px]">{fmtAgo(r.created_at || r.updated_at)}</td>
+                      <td className="px-4 py-3 text-slate-600"><Icon name="chevron-r" size={13}/></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Fragment>
+      )}
+    </div>
+  );
+}
+
+/* ─────── Calls tab ─────── */
+function CallsTab({ rows, loading, search, setSearch }) {
+  const [open, setOpen] = useState(null);
+  return (
+    <div className="fade">
+      <Toolbar search={search} setSearch={setSearch} placeholder="Search calls by phone or summary…"/>
+      {loading ? (
+        <div className="p-3 space-y-2.5">{Array.from({length:4}).map((_,i)=><div key={i} className="skel h-16 rounded-2xl"/>)}</div>
+      ) : rows.length === 0 ? (
+        <Empty variant="phone" title="No call activity yet" msg="Once your AI receptionist picks up a call, the transcript and summary will appear here."/>
+      ) : (
+        <div className="p-3 space-y-2">
+          {rows.map((r, i) => {
+            const id = r.id || r.call_id || i;
+            const isOpen = open === id;
+            const status = (r.call_status || 'completed').toLowerCase();
+            const tone = status.includes('miss') || status.includes('fail') ? '#fb7185'
+                       : status.includes('voicemail') ? '#fbbf24'
+                       : '#34d399';
+            return (
+              <div key={id} className="glass rounded-xl overflow-hidden">
+                <button onClick={() => setOpen(isOpen ? null : id)} className="w-full text-left p-3 flex items-center gap-3 row-hover">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ background:`${tone}18`, border:`1px solid ${tone}30`, color:tone }}>
+                    <Icon name="phone" size={14}/>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-mono text-[12.5px] text-slate-100">{fmtPhone(r.caller_phone)}</span>
+                      <span className="pill" style={{ background:`${tone}14`, color:tone, border:`1px solid ${tone}30` }}>
+                        <span className="dot" style={{ background:tone }}/>{r.call_status || 'completed'}
+                      </span>
+                      {(r.classification || r.urgency || r.lead_type) && <LeadBadge type={r.classification||r.urgency||r.lead_type}/>}
+                    </div>
+                    <div className="text-[11.5px] text-slate-400 mt-1 clamp-1">{r.summary || 'No summary available'}</div>
+                  </div>
+                  <div className="text-right hidden sm:block flex-shrink-0">
+                    <div className="text-[11px] text-slate-400">{fmtAgo(r.created_at||r.started_at)}</div>
+                    <div className="text-[9.5px] text-slate-600 mt-0.5">{fmtDate(r.created_at||r.started_at)}</div>
+                  </div>
+                  <Icon name={isOpen?'chevron-d':'chevron-r'} size={14} className="text-slate-500 flex-shrink-0"/>
+                </button>
+                {isOpen && (
+                  <div className="px-3 pb-3 fade space-y-3 border-t border-white/5 pt-3">
+                    {r.summary && (
+                      <div>
+                        <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500 mb-1.5 flex items-center gap-1.5"><Icon name="spark" size={10} strokeWidth={2.2}/> AI Summary</div>
+                        <p className="text-[12.5px] text-slate-200 leading-relaxed">{r.summary}</p>
+                      </div>
+                    )}
+                    {r.transcript && (
+                      <div>
+                        <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500 mb-1.5 flex items-center gap-1.5"><Icon name="mic" size={10} strokeWidth={2.2}/> Transcript</div>
+                        <div className="bg-black/30 border border-white/5 rounded-lg p-3 max-h-60 overflow-y-auto">
+                          <pre className="text-[11.5px] text-slate-300 whitespace-pre-wrap font-mono leading-relaxed">{r.transcript}</pre>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between flex-wrap gap-2 text-[10.5px] text-slate-600 pt-1">
+                      <span className="font-mono">Call ID · {r.call_id || r.id}</span>
+                      {r.recording_url && (
+                        <a href={r.recording_url} target="_blank" rel="noreferrer" className="btn btn-ghost"><Icon name="play" size={11}/>Open recording</a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────── SMS tab ─────── */
+function SMSTab({ rows, loading, search, setSearch }) {
+  const isInbound = r => {
+    const t = (r.direction || r.message_type || '').toLowerCase();
+    return t.includes('in') || t.includes('reply') || t.includes('received');
+  };
+
+  return (
+    <div className="fade">
+      <Toolbar search={search} setSearch={setSearch} placeholder="Search messages by number or text…"/>
+      {loading ? (
+        <div className="p-3 space-y-2">{Array.from({length:5}).map((_,i)=><div key={i} className="skel h-14 rounded-xl"/>)}</div>
+      ) : rows.length === 0 ? (
+        <Empty variant="msg" title="No SMS activity yet" msg="Outbound texts and inbound replies will appear in this log."/>
+      ) : (
+        <div className="p-3 space-y-2">
+          {rows.map((r, i) => {
+            const inbound = isInbound(r);
+            const tone = inbound ? '#EFA98F' : '#F0B6A6';
+            return (
+              <div key={r.id||i} className={`rounded-xl p-3 flex items-start gap-3 ${inbound?'bubble-in':'bubble-out'} hover:border-white/15 transition-all`}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background:`${tone}18`, border:`1px solid ${tone}30`, color:tone }}>
+                  <Icon name={inbound?'arrow-in':'arrow-out'} size={13}/>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                    <span className="pill" style={{ background:`${tone}14`, color:tone, border:`1px solid ${tone}30` }}>
+                      {inbound ? 'Inbound' : 'Outbound'}
+                    </span>
+                    <span className="font-mono text-[11.5px] text-slate-200">{fmtPhone(r.to_number||r.phone||r.from_number)}</span>
+                    <StatusBadge status={r.status}/>
+                    {r.message_type && <span className="pill badge-muted">{(r.message_type).replace(/_/g,' ')}</span>}
+                    <span className="text-[10px] text-slate-600 ml-auto">{fmtAgo(r.created_at||r.sent_at)}</span>
+                  </div>
+                  <p className="text-[12.5px] text-slate-200 leading-snug">{r.message || r.body || <span className="text-slate-600 italic">(empty)</span>}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────── Ambassadors tab — applicant intake pipeline ─────── */
+const AmbStatusPill = ({ status }) => {
+  const s = AMB_STATUS_BY_KEY[status] || AMB_STATUS_BY_KEY.New;
+  return (
+    <span className="pill" style={{ background:`${s.color}1A`, color:s.color, border:`1px solid ${s.color}40` }}>
+      <span className="dot" style={{ background:s.color }}/>{s.key}
+    </span>
+  );
+};
+
+const ScorePill = ({ score }) => {
+  const c = scoreColor(score);
+  return (
+    <span className="pill" style={{ background:`${c}1A`, color:c, border:`1px solid ${c}40`, fontFamily:"'JetBrains Mono', monospace" }}>
+      {(score ?? '—')}/10
+    </span>
+  );
+};
+
+function AmbassadorsTab({ rows, loading, search, setSearch, filter, setFilter, onUpdate }) {
+  const [open, setOpen] = useState(null);
+
+  const filters = [
+    { key:'all',      label:'All',       count: rows.length },
+    { key:'priority', label:'Priority',  count: rows.filter(r => r.priority || (Number(r.applicant_score)||0) >= 8).length },
+    ...AMBASSADOR_STATUSES.map(s => ({ key:s.key, label:s.key, count: rows.filter(r => r.status === s.key).length })),
+  ];
+
+  const visible = rows.filter(r => {
+    if (filter === 'priority') return r.priority || (Number(r.applicant_score)||0) >= 8;
+    if (filter !== 'all') return r.status === filter;
+    return true;
+  });
+
+  return (
+    <div className="fade">
+      <Toolbar search={search} setSearch={setSearch} filters={filters} filter={filter} setFilter={setFilter}
+        placeholder="Search applicants by name, location, email…"/>
+      {loading ? (
+        <div className="p-3 space-y-2.5">{Array.from({length:4}).map((_,i)=><div key={i} className="skel h-16 rounded-2xl"/>)}</div>
+      ) : visible.length === 0 ? (
+        <Empty variant="users" title="No ambassador applicants yet" msg="When someone applies by phone, their profile, score and call recording will appear here automatically."/>
+      ) : (
+        <div className="p-3 space-y-2">
+          {visible.map((r, i) => {
+            const id = r.id || i;
+            const isOpen = open === id;
+            const sc = scoreColor(r.applicant_score);
+            const isPriority = r.priority || (Number(r.applicant_score)||0) >= 8;
+            return (
+              <div key={id} className="glass rounded-xl overflow-hidden">
+                <button onClick={() => setOpen(isOpen ? null : id)} className="w-full text-left p-3 flex items-center gap-3 row-hover">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 font-semibold text-[12px]"
+                    style={{ background:`${sc}18`, border:`1px solid ${sc}30`, color:sc }}>
+                    {initials(r.full_name)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[13px] font-medium text-slate-100">{r.full_name || '—'}</span>
+                      {isPriority && <span className="pill badge-hot"><Icon name="flame" size={10} strokeWidth={2.1}/>Priority</span>}
+                      <AmbStatusPill status={r.status}/>
+                      {(r.followup_count > 0) && <span className="pill badge-indigo"><Icon name="refresh" size={10} strokeWidth={2.1}/>{r.followup_count}× follow-up</span>}
+                    </div>
+                    <div className="text-[11.5px] text-slate-400 mt-1 clamp-1">
+                      {[r.city, r.country].filter(Boolean).join(', ') || '—'}
+                      {r.english_level ? ` · ${r.english_level} English` : ''}
+                      {r.hours_per_day ? ` · ${r.hours_per_day} hrs/day` : ''}
+                    </div>
+                  </div>
+                  <div className="hidden sm:block flex-shrink-0"><ScorePill score={r.applicant_score}/></div>
+                  <div className="text-right hidden md:block flex-shrink-0">
+                    <div className="text-[11px] text-slate-400">{fmtAgo(r.created_at)}</div>
+                    <div className="text-[9.5px] text-slate-600 mt-0.5">{fmtDate(r.created_at)}</div>
+                  </div>
+                  <Icon name={isOpen?'chevron-d':'chevron-r'} size={14} className="text-slate-500 flex-shrink-0"/>
+                </button>
+
+                {isOpen && (
+                  <div className="px-3 pb-3 fade space-y-3 border-t border-white/5 pt-3">
+                    {/* Controls */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Status</span>
+                        <select className="field" style={{ width:'auto', minWidth:'140px' }} value={r.status || 'New'}
+                          onChange={e => onUpdate(r.id, { status: e.target.value })}>
+                          {AMBASSADOR_STATUSES.map(s => <option key={s.key} value={s.key}>{s.key}</option>)}
+                        </select>
+                      </div>
+                      <button onClick={() => onUpdate(r.id, { priority: !r.priority })}
+                        className={`btn ${r.priority ? 'btn-danger' : 'btn-ghost'}`}>
+                        <Icon name="flame" size={12} strokeWidth={2.1}/>{r.priority ? 'Priority' : 'Mark priority'}
+                      </button>
+                      <div className="ml-auto"><ScorePill score={r.applicant_score}/></div>
+                    </div>
+
+                    {(r.followup_count > 0) && (
+                      <div className="rounded-lg px-3 py-2 text-[11.5px] flex items-center gap-2" style={{ background:'rgba(238,154,134,.10)', border:'1px solid rgba(238,154,134,.25)', color:'#F4C7B8' }}>
+                        <Icon name="refresh" size={12}/>
+                        Already applied — followed up <span className="font-semibold">{r.followup_count}×</span>{r.last_followup_at ? <span> · last {fmtAgo(r.last_followup_at)}</span> : null}. Original application preserved.
+                      </div>
+                    )}
+
+                    {/* Contact + profile grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                      {[
+                        ['Email', r.email, 'mail'],
+                        ['WhatsApp', r.whatsapp, 'msg'],
+                        ['Best contact', r.best_contact_method, 'phone'],
+                        ['Availability', [r.hours_per_day && `${r.hours_per_day} hrs/day`, r.days_per_week && `${r.days_per_week} days/wk`].filter(Boolean).join(' · ') || '—', 'clock'],
+                        ['Can start', r.start_date, 'calendar'],
+                        ['English', r.english_level, 'spark'],
+                      ].map(([label, val, icon]) => (
+                        <div key={label} className="glass-flat rounded-lg p-2.5">
+                          <div className="text-[9.5px] uppercase tracking-widest text-slate-500 font-semibold flex items-center gap-1.5 mb-1"><Icon name={icon} size={10}/>{label}</div>
+                          <div className="text-[12px] text-slate-200 break-words">{val || '—'}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Experience flags */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        ['U.S. calling', r.us_calling_experience],
+                        ['Voicemails', r.voicemail_experience],
+                        ['Computer', r.has_computer],
+                        ['Internet', r.has_internet],
+                        ['Commission OK', r.commission_comfort],
+                      ].map(([label, v]) => (
+                        <span key={label} className={`pill ${v===true?'badge-ok':v===false?'badge-fail':'badge-muted'}`}>{label}: {yesNo(v)}</span>
+                      ))}
+                    </div>
+
+                    {r.motivation && (
+                      <div>
+                        <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500 mb-1.5">Motivation</div>
+                        <p className="text-[12.5px] text-slate-200 leading-relaxed">{r.motivation}</p>
+                      </div>
+                    )}
+
+                    {r.call_summary && (
+                      <div>
+                        <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500 mb-1.5 flex items-center gap-1.5"><Icon name="spark" size={10} strokeWidth={2.2}/> AI Call Summary</div>
+                        <p className="text-[12.5px] text-slate-200 leading-relaxed">{r.call_summary}</p>
+                      </div>
+                    )}
+
+                    {r.call_transcript && (
+                      <div>
+                        <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500 mb-1.5 flex items-center gap-1.5"><Icon name="mic" size={10} strokeWidth={2.2}/> Transcript</div>
+                        <div className="bg-black/30 border border-white/5 rounded-lg p-3 max-h-60 overflow-y-auto">
+                          <pre className="text-[11.5px] text-slate-300 whitespace-pre-wrap font-mono leading-relaxed">{r.call_transcript}</pre>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between flex-wrap gap-2 text-[10.5px] text-slate-600 pt-1">
+                      <span className="font-mono">{r.source_phone_number ? `Called ${fmtPhone(r.source_phone_number)}` : ''}</span>
+                      {r.call_recording_url && (
+                        <a href={r.call_recording_url} target="_blank" rel="noreferrer" className="btn btn-ghost"><Icon name="play" size={11}/>Open recording</a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────── Outbound Prospecting (businesses) — Phase 1 ─────── */
+const PROSPECT_STAGES = [
+  { key:'found',             label:'Found',             color:'#94a3b8' },
+  { key:'website_analyzed',  label:'Website Analyzed',  color:'#a5b4fc' },
+  { key:'qualified',         label:'Qualified',         color:'#818cf8' },
+  { key:'draft_ready',       label:'Draft Ready',       color:'#fbbf24' },
+  { key:'awaiting_approval', label:'Awaiting Approval', color:'#f59e0b' },
+  { key:'sent',              label:'Sent',              color:'#22d3ee' },
+  { key:'replied',           label:'Replied',           color:'#2dd4bf' },
+  { key:'demo_booked',       label:'Demo Booked',       color:'#34d399' },
+  { key:'customer',          label:'Customer',          color:'#10b981' },
+];
+const PROSPECT_STAGE_BY_KEY = Object.fromEntries(PROSPECT_STAGES.map(s => [s.key, s]));
+
+// Derived from existing signals — no DB column yet. Auto-advances as WF2/WF3 (and later outreach) write data.
+const deriveProspectStage = b => {
+  if (b.became_customer_at) return 'customer';
+  if (b.demo_booked_at)     return 'demo_booked';
+  if (b.replied_at)         return 'replied';
+  if (b.sent_at)            return 'sent';
+  if (b.outreach_status === 'pending_approval') return 'awaiting_approval';
+  if (b.outreach_status === 'draft' || b.outreach_subject) return 'draft_ready';
+  if (b.qualification_score != null) return 'qualified';
+  if (b.website_analyzed_at) return 'website_analyzed';
+  return 'found';
+};
+
+const ProspectStagePill = ({ stage }) => {
+  const s = PROSPECT_STAGE_BY_KEY[stage] || PROSPECT_STAGE_BY_KEY.found;
+  return (
+    <span className="pill" style={{ background:`${s.color}1a`, color:s.color, border:`1px solid ${s.color}40` }}>
+      <span className="dot" style={{ background:s.color }}/>{s.label}
+    </span>
+  );
+};
+
+const AnalysisPill = ({ status }) => {
+  const s = (status||'').toLowerCase();
+  const map = {
+    analyzed:          { c:'#34d399', label:'Analyzed' },
+    analyzed_no_email: { c:'#fbbf24', label:'No email' },
+    fetch_failed:      { c:'#fb7185', label:'Fetch failed' },
+  };
+  const m = map[s];
+  if (!m) return <span className="text-slate-600 text-[11.5px]">—</span>;
+  return <span className="pill" style={{ background:`${m.c}1a`, color:m.c, border:`1px solid ${m.c}40` }}>{m.label}</span>;
+};
+
+const ScoreCell = ({ score }) => {
+  if (score == null) return <span className="pill badge-muted">Pending</span>;
+  const c = score >= 70 ? '#34d399' : score >= 40 ? '#fbbf24' : '#fb7185';
+  return <span className="font-mono text-[12.5px] font-semibold" style={{ color:c }}>{score}</span>;
+};
+
+const PriorityCell = ({ priority }) => {
+  if (!priority) return <span className="text-slate-600 text-[11.5px]">—</span>;
+  const c = priority==='High' ? '#fb7185' : priority==='Medium' ? '#fbbf24' : '#94a3b8';
+  return <span className="pill" style={{ background:`${c}1a`, color:c, border:`1px solid ${c}40` }}>{priority}</span>;
+};
+
+const ProspectSection = ({ title, children }) => (
+  <div className="space-y-2">
+    <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500">{title}</div>
+    {children}
+  </div>
+);
+
+const ProspectRows = ({ rows }) => (
+  <div className="glass-flat rounded-xl divide-y divide-white/5">
+    {rows.map((row,i) => (
+      <div key={i} className="px-3 py-2.5 flex items-start gap-3">
+        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 flex-shrink-0 bg-white/[0.025] border border-white/5"><Icon name={row.icon} size={12}/></div>
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">{row.label}</div>
+          <div className="text-[12.5px] text-slate-200 mt-0.5 break-words">{row.val}</div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+/* Dashboard panel — AI Prospecting */
+function ProspectingPanel({ businesses, engineRuns = [] }) {
+  const stats = useMemo(() => {
+    const found        = businesses.length;
+    const analyzed     = businesses.filter(b => b.website_analyzed_at).length;
+    const qualified    = businesses.filter(b => b.qualification_score != null).length;
+    const awaitingQual = businesses.filter(b => b.website_analyzed_at && b.qualification_score == null).length;
+    const highPriority = businesses.filter(b => b.recommended_priority === 'High').length;
+    const lastRun      = businesses.reduce((acc, b) => {
+      const t = b.website_analyzed_at ? new Date(b.website_analyzed_at).getTime() : 0;
+      return t > acc ? t : acc;
+    }, 0);
+    return { found, analyzed, qualified, awaitingQual, highPriority, lastRun };
+  }, [businesses]);
+
+  /* Workflow Health + Last Successful Run — derived from engine_runs (one completion row per run, written by WF1/WF2/WF3) */
+  const engine = useMemo(() => {
+    const KEYS = ['sourcing','website_analysis','qualification'];
+    const rows = Array.isArray(engineRuns) ? engineRuns : [];
+    // latest row per workflow key (by created_at, newest first)
+    const latest = {};
+    for (const r of rows) {
+      const k = r && r.workflow_key;
+      if (KEYS.indexOf(k) === -1) continue;
+      const ts = new Date(r.created_at || r.finished_at || r.started_at || 0).getTime();
+      if (!latest[k] || ts > latest[k]._ts) latest[k] = { status: r.status, _ts: ts };
+    }
+    const present  = KEYS.filter(k => latest[k]);
+    const statuses = present.map(k => latest[k].status);
+
+    let health;
+    if (rows.length === 0)                       health = { label:'—',        color:'#94a3b8', sub:'No runs logged yet' };
+    else if (statuses.indexOf('error') !== -1)   health = { label:'Degraded', color:'#fb7185', sub:'A workflow reported an error' };
+    else if (statuses.indexOf('running') !== -1) health = { label:'Running',  color:'#fbbf24', sub:'A workflow is in progress' };
+    else if (present.length === KEYS.length && statuses.every(s => s === 'success'))
+                                                 health = { label:'Healthy',  color:'#34d399', sub:'All engines succeeded' };
+    else                                         health = { label:'—',        color:'#94a3b8', sub:present.length + '/' + KEYS.length + ' engines reporting' };
+
+    // Last successful run = latest finished_at among rows with status === 'success'
+    let lastSuccess = 0;
+    for (const r of rows) {
+      if (!r || r.status !== 'success' || !r.finished_at) continue;
+      const t = new Date(r.finished_at).getTime();
+      if (t > lastSuccess) lastSuccess = t;
+    }
+    return { health, lastSuccess };
+  }, [engineRuns]);
+
+  const items = [
+    { label:'Businesses Found',       value: stats.found,        icon:'building', color:'#818cf8', sub:'Sourced by AI' },
+    { label:'Businesses Analyzed',    value: stats.analyzed,     icon:'check',    color:'#a5b4fc', sub:`${Math.max(stats.found - stats.analyzed,0)} pending` },
+    { label:'Businesses Qualified',   value: stats.qualified,    icon:'target',   color:'#34d399', sub:`${stats.found ? Math.round(stats.qualified/stats.found*100) : 0}% of found` },
+    { label:'High Priority Prospects',value: stats.highPriority, icon:'flame',    color:'#fb7185', sub: stats.highPriority ? 'Top targets' : 'After qualification' },
+    { label:'Awaiting Qualification', value: stats.awaitingQual, icon:'clock',    color:'#fbbf24', sub: stats.awaitingQual ? 'Ready for scoring' : 'All caught up' },
+    { label:'Workflow Health',        value: engine.health.label, icon:'bolt',     color: engine.health.color, sub: engine.health.sub },
+    { label:'Last Successful Run',    value: engine.lastSuccess ? fmtAgo(new Date(engine.lastSuccess)) : '—', icon:'refresh', color:'#60a5fa', sub:'From engine_runs' },
+  ];
+
+  return (
+    <div className="glass rounded-2xl overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background:'rgba(129,140,248,.14)', border:'1px solid rgba(129,140,248,.30)', color:'#a5b4fc' }}>
+            <Icon name="building" size={13}/>
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-[13px] font-semibold text-slate-100 tracking-tight">AI Prospecting</h2>
+            <p className="text-[10.5px] text-slate-500 mt-0.5 truncate">Outbound engine — sourcing, website analysis & qualification</p>
+          </div>
+        </div>
+      </div>
+      <div className="p-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+          {items.map((it,i) => (
+            <div key={i} className="glass rounded-xl p-3 relative overflow-hidden">
+              <div className="absolute -top-6 -right-6 w-16 h-16 rounded-full opacity-50 pointer-events-none" style={{ background:`radial-gradient(circle, ${it.color}30, transparent 70%)` }}/>
+              <div className="flex items-center justify-between mb-2 relative">
+                <span className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500">{it.label}</span>
+                <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background:`${it.color}18`, color:it.color }}><Icon name={it.icon} size={11}/></span>
+              </div>
+              <div className="font-mono text-[22px] font-semibold text-slate-100 leading-none tracking-tight relative">{it.value}</div>
+              <div className="text-[10px] text-slate-500 mt-1.5 relative truncate">{it.sub}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Prospecting tab — desktop table + mobile cards (mirrors LeadsTab) */
+function ProspectingTab({ rows, loading, onOpenProspect, search, setSearch }) {
+  const cleanUrl = u => u ? u.replace(/^https?:\/\//,'').replace(/\/$/,'') : '';
+  return (
+    <div className="fade">
+      <Toolbar search={search} setSearch={setSearch} filters={null} filter={null} setFilter={()=>{}} placeholder="Search by name, phone, email, website…"/>
+
+      {loading ? (
+        <div>{Array.from({length:6}).map((_,i)=><SkeletonRow key={i}/>)}</div>
+      ) : rows.length === 0 ? (
+        <Empty variant="default" title="No prospects yet" msg="Businesses sourced by the outbound engine will appear here automatically."/>
+      ) : (
+        <Fragment>
+          {/* Mobile cards */}
+          <div className="md:hidden p-3 space-y-2">
+            {rows.map(b => (
+              <button key={b.id} onClick={() => onOpenProspect(b)} className="lead-card w-full text-left p-3">
+                <div className="flex items-start gap-3">
+                  <Avatar name={b.name} type="cold" size={36}/>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <div className="text-[13px] font-semibold text-slate-100 truncate">{b.name || 'Unnamed'}</div>
+                      <ScoreCell score={b.qualification_score}/>
+                    </div>
+                    <div className="text-[11px] text-slate-500 truncate">{b.city || b.industry || '—'}</div>
+                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                      <PriorityCell priority={b.recommended_priority}/>
+                      <AnalysisPill status={b.website_analysis_status}/>
+                      {Array.isArray(b.pain_points) && b.pain_points.slice(0,2).map((p,i) => (
+                        <span key={i} className="pill badge-muted" style={{fontSize:'9.5px'}}>{String(p).replace(/_/g,' ')}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 z-10" style={{ background:'rgba(8,10,18,0.85)', backdropFilter:'blur(10px)' }}>
+                <tr className="border-b border-white/5 text-left text-[10px] text-slate-500 uppercase tracking-widest">
+                  <th className="px-4 py-2.5 font-semibold">Business</th>
+                  <th className="px-4 py-2.5 font-semibold">Phone</th>
+                  <th className="px-4 py-2.5 font-semibold hidden lg:table-cell">Website</th>
+                  <th className="px-4 py-2.5 font-semibold hidden lg:table-cell">Email</th>
+                  <th className="px-4 py-2.5 font-semibold">Rating</th>
+                  <th className="px-4 py-2.5 font-semibold hidden xl:table-cell">Review Count</th>
+                  <th className="px-4 py-2.5 font-semibold">Score</th>
+                  <th className="px-4 py-2.5 font-semibold">Priority</th>
+                  <th className="px-4 py-2.5 font-semibold hidden lg:table-cell">Pain Points</th>
+                  <th className="px-4 py-2.5 font-semibold hidden xl:table-cell">Analysis</th>
+                  <th className="px-4 py-2.5 font-semibold w-8"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.04]">
+                {rows.map(b => (
+                  <tr key={b.id} className="row-hover transition-colors cursor-pointer" onClick={() => onOpenProspect(b)}>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Avatar name={b.name} type="cold" size={30}/>
+                        <div className="min-w-0"><div className="text-[12.5px] font-medium text-slate-100 truncate">{b.name || <span className="text-slate-600">Unnamed</span>}</div></div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3" onClick={e=>e.stopPropagation()}>
+                      {b.phone ? <a href={`tel:${b.phone}`} className="font-mono text-[11.5px] text-indigo-300 hover:text-indigo-200">{fmtPhone(b.phone)}</a> : <span className="text-slate-600 text-[11.5px]">—</span>}
+                    </td>
+                    <td className="px-4 py-3 hidden lg:table-cell" onClick={e=>e.stopPropagation()}>
+                      {b.website ? <a href={b.website} target="_blank" rel="noreferrer" className="text-cyan-300 text-[11.5px] hover:text-cyan-200 truncate max-w-[180px] block">{cleanUrl(b.website)}</a> : <span className="text-slate-600 text-[11.5px]">—</span>}
+                    </td>
+                    <td className="px-4 py-3 hidden lg:table-cell" onClick={e=>e.stopPropagation()}>
+                      {b.email ? <a href={`mailto:${b.email}`} className="text-cyan-300 text-[11.5px] hover:text-cyan-200 truncate max-w-[180px] block">{b.email}</a> : <span className="text-slate-600 text-[11.5px]">—</span>}
+                    </td>
+                    <td className="px-4 py-3 text-[11.5px] text-slate-300">{b.rating != null ? <span className="inline-flex items-center gap-1"><span style={{color:'#fbbf24'}}>★</span>{b.rating}</span> : <span className="text-slate-600">—</span>}</td>
+                    <td className="px-4 py-3 text-slate-400 text-[11.5px] hidden xl:table-cell">{b.review_count != null ? b.review_count : '—'}</td>
+                    <td className="px-4 py-3"><ScoreCell score={b.qualification_score}/></td>
+                    <td className="px-4 py-3"><PriorityCell priority={b.recommended_priority}/></td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      {Array.isArray(b.pain_points) && b.pain_points.length ? (
+                        <div className="flex flex-wrap gap-1 max-w-[230px]">
+                          {b.pain_points.slice(0,2).map((p,i) => (
+                            <span key={i} className="pill badge-muted" style={{fontSize:'9.5px'}}>{String(p).replace(/_/g,' ')}</span>
+                          ))}
+                          {b.pain_points.length > 2 && <span className="pill badge-muted" style={{fontSize:'9.5px'}}>+{b.pain_points.length - 2}</span>}
+                        </div>
+                      ) : <span className="text-slate-600 text-[11.5px]">—</span>}
+                    </td>
+                    <td className="px-4 py-3 hidden xl:table-cell"><AnalysisPill status={b.website_analysis_status}/></td>
+                    <td className="px-4 py-3 text-slate-600"><Icon name="chevron-r" size={13}/></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Fragment>
+      )}
+    </div>
+  );
+}
+
+/* Prospect detail drawer (read-only) — mirrors LeadDrawer */
+const DRAFT_STATUS_COLORS = { draft:'#EE9A86', approved:'#34d399', rejected:'#fb7185', superseded:'#8E94A6', sent:'#34d399', scheduled:'#fbbf24' };
+const DraftStatusPill = ({ status }) => {
+  const s = (status||'draft').toLowerCase();
+  const c = DRAFT_STATUS_COLORS[s] || '#B3A799';
+  return <span className="pill" style={{ background:c+'1A', color:c, border:'1px solid '+c+'40' }}><span className="dot" style={{ background:c }}/>{s}</span>;
+};
+
+function ProspectDrawer({ prospect, onClose, outreach = [], onUpdateOutreach, operator }) {
+  const [busy, setBusy] = useState(false);
+  if (!prospect) return null;
+  const b = prospect;
+  const yn = v => v === true ? 'Yes' : v === false ? 'No' : '—';
+  const cleanUrl = u => u ? u.replace(/^https?:\/\//,'').replace(/\/$/,'') : '';
+  const bizOutreach = (outreach||[]).filter(o => o.business_id === b.id).slice().sort((x,y)=> new Date(y.created_at||0) - new Date(x.created_at||0));
+  const activeDraft = bizOutreach.find(o => !o.superseded_at && o.status !== 'rejected') || null;
+  const act = async (fields, confirmMsg) => {
+    if (!activeDraft || !onUpdateOutreach) return;
+    if (confirmMsg && !window.confirm(confirmMsg)) return;
+    setBusy(true);
+    try { await onUpdateOutreach(activeDraft.id, fields); } finally { setBusy(false); }
+  };
+  const approveDraft = () => act({ status:'approved', approved_at: new Date().toISOString(), approved_by: operator || null });
+  const rejectDraft  = () => act({ status:'rejected', superseded_at: new Date().toISOString() }, 'Reject this draft? It will be marked rejected and will no longer be the active draft.');
+  const queueRedraft = () => act({ status:'superseded', superseded_at: new Date().toISOString() }, 'Queue a redraft? This supersedes the current draft so the next drafting-workflow run regenerates it. It does not generate a new draft instantly.');
+  return (
+    <Fragment>
+      <div className="drawer-backdrop" onClick={onClose}/>
+      <div className="drawer-panel">
+        <div className="p-4 border-b border-white/5 flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <Avatar name={b.name} type="cold" size={44}/>
+            <div className="min-w-0">
+              <h2 className="text-[15px] font-semibold text-slate-100 truncate tracking-tight">{b.name || 'Unnamed business'}</h2>
+              <p className="text-[11.5px] text-slate-500 truncate">{[b.city, b.industry].filter(Boolean).join(' · ') || '—'}</p>
+              <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                <ProspectStagePill stage={deriveProspectStage(b)}/>
+                <ScoreCell score={b.qualification_score}/>
+                <PriorityCell priority={b.recommended_priority}/>
+              </div>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-slate-500 hover:text-white p-1.5 rounded-lg hover:bg-white/5"><Icon name="close" size={17}/></button>
+        </div>
+
+        <div className="p-4 space-y-4">
+          <div className="grid grid-cols-3 gap-2">
+            {b.phone   && <a href={`tel:${b.phone}`} className="btn btn-ghost justify-center"><Icon name="phone" size={13}/>Call</a>}
+            {b.email   && <a href={`mailto:${b.email}`} className="btn btn-ghost justify-center"><Icon name="mail" size={13}/>Email</a>}
+            {b.website && <a href={b.website} target="_blank" rel="noreferrer" className="btn btn-ghost justify-center"><Icon name="building" size={13}/>Site</a>}
+          </div>
+
+          <ProspectSection title="Contact">
+            <ProspectRows rows={[
+              { label:'Phone',        icon:'phone',   val: b.phone ? <a href={`tel:${b.phone}`} className="font-mono text-indigo-300">{fmtPhone(b.phone)}</a> : '—' },
+              { label:'Email',        icon:'mail',    val: b.email ? <a href={`mailto:${b.email}`} className="text-cyan-300 break-all">{b.email}</a> : '—' },
+              { label:'Website',      icon:'building',val: b.website ? <a href={b.website} target="_blank" rel="noreferrer" className="text-cyan-300 break-all">{cleanUrl(b.website)}</a> : '—' },
+              { label:'Contact page', icon:'arrow-r', val: b.contact_url ? <a href={b.contact_url} target="_blank" rel="noreferrer" className="text-cyan-300 break-all">{cleanUrl(b.contact_url)}</a> : '—' },
+              { label:'Address',      icon:'pin',     val: b.address || '—' },
+              { label:'Service area', icon:'target',  val: b.service_area || '—' },
+            ]}/>
+          </ProspectSection>
+
+          <ProspectSection title="Reputation & signals">
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <div className="glass-flat rounded-lg p-2.5"><div className="text-[9.5px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Rating</div><div className="text-[13px] text-slate-100">{b.rating != null ? <span><span style={{color:'#fbbf24'}}>★</span> {b.rating}</span> : '—'}</div></div>
+              <div className="glass-flat rounded-lg p-2.5"><div className="text-[9.5px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Reviews</div><div className="text-[13px] text-slate-100">{b.review_count != null ? b.review_count : '—'}</div></div>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              <span className={`pill ${b.has_online_booking?'badge-ok':b.has_online_booking===false?'badge-fail':'badge-muted'}`}>Online booking: {yn(b.has_online_booking)}</span>
+              <span className={`pill ${b.has_live_chat?'badge-ok':b.has_live_chat===false?'badge-fail':'badge-muted'}`}>Live chat: {yn(b.has_live_chat)}</span>
+              <span className={`pill ${b.has_emergency_service?'badge-ok':b.has_emergency_service===false?'badge-fail':'badge-muted'}`}>Emergency: {yn(b.has_emergency_service)}</span>
+            </div>
+          </ProspectSection>
+
+          <ProspectSection title="Website analysis">
+            <ProspectRows rows={[
+              { label:'Status',   icon:'spark', val: <AnalysisPill status={b.website_analysis_status}/> },
+              { label:'Analyzed', icon:'clock', val: b.website_analyzed_at ? fmtDate(b.website_analyzed_at) : '—' },
+              { label:'Notes',    icon:'inbox', val: b.website_notes || '—' },
+            ]}/>
+          </ProspectSection>
+
+          <ProspectSection title="Qualification">
+            {b.qualification_score == null ? (
+              <div className="glass-flat rounded-xl p-3 text-[12px] text-slate-500 flex items-start gap-2"><Icon name="clock" size={12}/><span>Not yet qualified — Workflow 3 will populate score, reason, pain points and outreach angle.</span></div>
+            ) : (
+              <div className="space-y-2.5">
+                <ProspectRows rows={[
+                  { label:'Score',          icon:'trend-up', val: <ScoreCell score={b.qualification_score}/> },
+                  { label:'Priority',       icon:'flame',    val: <PriorityCell priority={b.recommended_priority}/> },
+                  { label:'Reason',         icon:'spark',    val: b.qualification_reason || '—' },
+                  { label:'Outreach angle', icon:'target',   val: b.outreach_angle || '—' },
+                ]}/>
+                {Array.isArray(b.pain_points) && b.pain_points.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">{b.pain_points.map((p,i)=><span key={i} className="pill badge-muted">{p}</span>)}</div>
+                )}
+              </div>
+            )}
+          </ProspectSection>
+
+          <ProspectSection title="Strategic dossier">
+            {b.enrichment_status !== 'enriched' ? (
+              <div className="glass-flat rounded-xl p-3 text-[12px] text-slate-500 flex items-start gap-2"><Icon name="clock" size={12}/><span>Not yet enriched — Workflow 4 populates the strategic dossier (summary, pains, angle, conversation starter).</span></div>
+            ) : (
+              <div className="space-y-3">
+                {[
+                  ['Summary', b.company_summary],
+                  ['Credibility', b.credibility_note],
+                  ['Differentiator', b.differentiator],
+                  ['Local angle', b.local_angle],
+                  ['Key observation', b.key_observation],
+                  ['Core pain', b.core_pain],
+                  ['Value to them', b.value_to_them],
+                  ['Conversation starter', b.conversation_starter],
+                ].filter(r => r[1]).map(([label, text], i) => (
+                  <div key={i}>
+                    <div className="text-[9.5px] uppercase tracking-widest text-slate-500 font-semibold mb-1">{label}</div>
+                    <p className="text-[12.5px] text-slate-200 leading-relaxed whitespace-pre-wrap">{text}</p>
+                  </div>
+                ))}
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                  {b.business_maturity   && <span className="pill badge-muted">Maturity: {b.business_maturity}</span>}
+                  {b.brand_positioning   && <span className="pill badge-muted">Positioning: {b.brand_positioning}</span>}
+                  {b.tech_sophistication && <span className="pill badge-muted">Tech: {b.tech_sophistication}</span>}
+                  {b.recommended_channel && <span className="pill badge-indigo">Channel: {b.recommended_channel}</span>}
+                </div>
+                {b.assessment_signals && typeof b.assessment_signals === 'object' && (
+                  <div className="space-y-2 pt-0.5">
+                    <div className="text-[9.5px] uppercase tracking-widest text-slate-500 font-semibold">Assessment signals</div>
+                    {['maturity','tech_sophistication','brand_positioning','recommended_channel'].filter(k => b.assessment_signals[k]).map(k => {
+                      const sig = b.assessment_signals[k];
+                      return (
+                        <div key={k} className="glass-flat rounded-lg p-2.5">
+                          <div className="text-[11px] text-slate-200 font-medium">{k.replace(/_/g,' ')}: <span className="text-slate-400">{sig.label}</span></div>
+                          {sig.reasoning && <div className="text-[11px] text-slate-500 mt-1 leading-snug">{sig.reasoning}</div>}
+                          {Array.isArray(sig.evidence) && sig.evidence.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">{sig.evidence.map((e,i)=><span key={i} className="pill badge-muted" style={{ fontSize:'9.5px' }}>{e}</span>)}</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                <div className="text-[10px] text-slate-600 pt-0.5">{[b.enrichment_model, b.enrichment_prompt_version, b.enriched_at ? ('enriched ' + fmtDate(b.enriched_at)) : null].filter(Boolean).join(' · ')}</div>
+              </div>
+            )}
+          </ProspectSection>
+
+          <ProspectSection title="Internal email draft">
+            {!activeDraft ? (
+              <div className="glass-flat rounded-xl p-3 text-[12px] text-slate-500 flex items-start gap-2"><Icon name="inbox" size={12}/><span>No internal draft yet. Workflow 5 generates the first-touch email for enriched, email-channel businesses.</span></div>
+            ) : (
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <DraftStatusPill status={activeDraft.status}/>
+                  <span className="pill badge-muted">{activeDraft.channel} · {activeDraft.message_type}</span>
+                  {activeDraft.generation_prompt_version && <span className="pill badge-muted" style={{ fontSize:'9.5px' }}>{activeDraft.generation_prompt_version}</span>}
+                  <span className="text-[10px] text-slate-600 ml-auto">{fmtDate(activeDraft.created_at)}</span>
+                </div>
+                <div className="glass-flat rounded-xl p-3 space-y-2">
+                  <div>
+                    <div className="text-[9.5px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Subject</div>
+                    <div className="text-[12.5px] text-slate-100">{activeDraft.subject || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-[9.5px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Body</div>
+                    <div className="text-[12.5px] text-slate-200 leading-relaxed whitespace-pre-wrap">{activeDraft.body || '—'}</div>
+                  </div>
+                </div>
+                <div className="text-[10px] text-slate-600">{[activeDraft.generation_model, activeDraft.persona_key ? ('persona ' + activeDraft.persona_key + (activeDraft.persona_version ? (' v' + activeDraft.persona_version) : '')) : null, activeDraft.created_by].filter(Boolean).join(' · ')}</div>
+                {activeDraft.status === 'approved' && (
+                  <div className="pill badge-ok" style={{ display:'flex', width:'fit-content' }}><Icon name="check" size={11}/> Approved{activeDraft.approved_at ? (' · ' + fmtDate(activeDraft.approved_at)) : ''}{activeDraft.approved_by ? (' · ' + activeDraft.approved_by) : ''}</div>
+                )}
+                <div className="grid grid-cols-3 gap-2 pt-0.5">
+                  <button disabled={busy || activeDraft.status === 'approved'} onClick={approveDraft} className="btn btn-primary justify-center disabled:opacity-50"><Icon name="check" size={12}/>Approve</button>
+                  <button disabled={busy} onClick={queueRedraft} className="btn btn-ghost justify-center disabled:opacity-50"><Icon name="refresh" size={12}/>Queue Redraft</button>
+                  <button disabled={busy} onClick={rejectDraft} className="btn btn-danger justify-center disabled:opacity-50"><Icon name="close" size={12}/>Reject</button>
+                </div>
+                <p className="text-[10px] text-slate-600">Queue Redraft supersedes this draft so the next drafting-workflow run regenerates it — it does not generate a new draft instantly.</p>
+              </div>
+            )}
+          </ProspectSection>
+
+          <ProspectSection title="Outreach history">
+            {bizOutreach.length === 0 ? (
+              <div className="glass-flat rounded-xl p-3 text-[12px] text-slate-500">No outreach generated for this business yet.</div>
+            ) : (
+              <div className="space-y-2">
+                {bizOutreach.map(o => (
+                  <div key={o.id} className="glass-flat rounded-lg p-2.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <DraftStatusPill status={o.status}/>
+                      <span className="pill badge-muted" style={{ fontSize:'9.5px' }}>{o.channel} · {o.message_type}</span>
+                      {o.superseded_at && <span className="pill badge-muted" style={{ fontSize:'9.5px' }}>superseded</span>}
+                      <span className="text-[10px] text-slate-600 ml-auto">{fmtDate(o.created_at)}</span>
+                    </div>
+                    {o.subject && <div className="text-[12px] text-slate-200 mt-1.5">{o.subject}</div>}
+                    {o.body && <div className="text-[11px] text-slate-500 mt-0.5 clamp-2 leading-snug">{o.body}</div>}
+                    <div className="text-[10px] text-slate-600 mt-1">{[o.generation_prompt_version, o.created_by].filter(Boolean).join(' · ')}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ProspectSection>
+
+          <div className="pt-2 border-t border-white/5 text-[10.5px] text-slate-600 flex items-center justify-between flex-wrap gap-1">
+            <span>Source {b.source || '—'} · Added {fmtDate(b.created_at)}</span>
+            <span className="font-mono">#{String(b.id).slice(-8)}</span>
+          </div>
+        </div>
+      </div>
+    </Fragment>
+  );
+}
+
+
+/* ─────── App ─────── */
+/* ─────── Settings ─────── */
+const DEFAULT_INDUSTRIES = ['HVAC','Plumbing','Electrical','Med spa','Legal','Real estate','Contractor','Insurance','Dental','Other'];
+
+function downloadContactsCsv(contacts) {
+  const cols = ['name','phone','email','business_name','industry','service_interest','source','urgency','lead_status','tags','notes','created_at'];
+  const esc = v => {
+    if (v === null || v === undefined) return '';
+    let s = Array.isArray(v) ? v.join('; ') : String(v);
+    if (/[",\n]/.test(s)) s = '"' + s.replace(/"/g,'""') + '"';
+    return s;
+  };
+  const rows = [cols.join(',')].concat((contacts||[]).map(c => cols.map(k => esc(c[k])).join(',')));
+  const blob = new Blob([rows.join('\n')], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'contacts-' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+const Section = ({ icon, title, desc, children }) => (
+  <div className="glass rounded-2xl p-5 space-y-4">
+    <div className="flex items-start gap-3">
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background:'rgba(238,154,134,.14)', border:'1px solid rgba(238,154,134,.30)', color:'#F0B6A6' }}>
+        <Icon name={icon} size={14}/>
+      </div>
+      <div>
+        <h3 className="text-[14px] font-semibold text-slate-100 tracking-tight">{title}</h3>
+        {desc && <p className="text-[11.5px] text-slate-500 mt-0.5 leading-snug">{desc}</p>}
+      </div>
+    </div>
+    {children}
+  </div>
+);
+const Field = ({ label, children, hint }) => (
+  <div>
+    <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium block mb-1.5">{label}</label>
+    {children}
+    {hint && <p className="text-[10.5px] text-slate-600 mt-1">{hint}</p>}
+  </div>
+);
+
+function SettingsTab({ settings, onSave, contacts }) {
+  const build = (s) => ({
+    business: { companyName:'', demoPhone:'', smsFrom:'', timezone:'', hours:'', ...(s.business||{}) },
+    notify:   { newLead:false, onlyHotWarm:false, phone:'', email:'', ...(s.notify||{}) },
+    lists:    { industries: (s.lists && s.lists.industries) || DEFAULT_INDUSTRIES,
+                sourceLabels: (s.lists && s.lists.sourceLabels) || {} },
+  });
+  const [form, setForm] = useState(() => build(settings));
+  const [saved, setSaved] = useState(false);
+  const [savingS, setSavingS] = useState(false);
+  useEffect(() => { setForm(build(settings)); }, [settings]);
+
+  const setBiz  = (k,v) => setForm(f => ({ ...f, business: { ...f.business, [k]:v } }));
+  const setNote = (k,v) => setForm(f => ({ ...f, notify:   { ...f.notify,   [k]:v } }));
+  const setIndustriesText = (txt) => setForm(f => ({ ...f, lists: { ...f.lists, industries: txt.split('\n').map(x=>x.trim()).filter(Boolean) } }));
+  const setSourceLabel = (key,label) => setForm(f => ({ ...f, lists: { ...f.lists, sourceLabels: { ...f.lists.sourceLabels, [key]: label } } }));
+
+  const knownSources = [...new Set((contacts||[]).map(c => c.source).filter(Boolean))].sort();
+
+  const save = async () => {
+    setSavingS(true);
+    await onSave(form);
+    setSavingS(false);
+    setSaved(true);
+    setTimeout(()=>setSaved(false), 2500);
+  };
+
+  return (
+    <div className="space-y-4 fade max-w-3xl">
+      <Section icon="building" title="Business info" desc="Your details, for reference. Note: changing the SMS sending number here does NOT re-wire your phone system — that lives in n8n.">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Field label="Company name"><input className="field" value={form.business.companyName} onChange={e=>setBiz('companyName',e.target.value)} placeholder="Topher AI"/></Field>
+          <Field label="Timezone"><input className="field" value={form.business.timezone} onChange={e=>setBiz('timezone',e.target.value)} placeholder="America/Los_Angeles"/></Field>
+          <Field label="Demo phone line"><input className="field" value={form.business.demoPhone} onChange={e=>setBiz('demoPhone',e.target.value)} placeholder="(213) 898-6724"/></Field>
+          <Field label="SMS sending number"><input className="field" value={form.business.smsFrom} onChange={e=>setBiz('smsFrom',e.target.value)} placeholder="(213) 898-6724"/></Field>
+        </div>
+        <Field label="Business hours"><input className="field" value={form.business.hours} onChange={e=>setBiz('hours',e.target.value)} placeholder="Mon–Fri 8am–6pm"/></Field>
+      </Section>
+
+      <Section icon="bolt" title="Notifications" desc="Get alerted the moment a lead lands. These settings tell your n8n workflow whether to send and to whom — the actual text is sent by n8n.">
+        <label className="flex items-center gap-2.5 cursor-pointer">
+          <input type="checkbox" checked={!!form.notify.newLead} onChange={e=>setNote('newLead',e.target.checked)} />
+          <span className="text-[12.5px] text-slate-200">Text me when a new lead comes in</span>
+        </label>
+        <label className="flex items-center gap-2.5 cursor-pointer">
+          <input type="checkbox" checked={!!form.notify.onlyHotWarm} onChange={e=>setNote('onlyHotWarm',e.target.checked)} />
+          <span className="text-[12.5px] text-slate-200">Only alert me for Hot or Warm leads</span>
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Field label="Alert phone (SMS)" hint="Where the text goes."><input className="field" value={form.notify.phone} onChange={e=>setNote('phone',e.target.value)} placeholder="(213) 555-0123"/></Field>
+          <Field label="Alert email (optional)"><input className="field" type="email" value={form.notify.email} onChange={e=>setNote('email',e.target.value)} placeholder="you@topherai.com"/></Field>
+        </div>
+      </Section>
+
+      <Section icon="kanban" title="List options" desc="Customize the dropdowns you use. (Pipeline stages and urgency labels are still set in code for now.)">
+        <Field label="Industry / trade options" hint="One per line. Used in the lead editor's Industry dropdown.">
+          <textarea className="field" rows={6} style={{ resize:'vertical' }} value={form.lists.industries.join('\n')} onChange={e=>setIndustriesText(e.target.value)} />
+        </Field>
+        <Field label="Source labels" hint="Give each lead source a friendly name — shows as the badge on each lead.">
+          {knownSources.length === 0 ? (
+            <p className="text-[11.5px] text-slate-600">No sources captured yet. They’ll appear here once leads come in.</p>
+          ) : (
+            <div className="space-y-2">
+              {knownSources.map(src => (
+                <div key={src} className="flex items-center gap-2">
+                  <span className="font-mono text-[11px] text-slate-400 w-40 truncate" title={src}>{src}</span>
+                  <input className="field" value={form.lists.sourceLabels[src] || ''} onChange={e=>setSourceLabel(src, e.target.value)} placeholder="Friendly label"/>
+                </div>
+              ))}
+            </div>
+          )}
+        </Field>
+      </Section>
+
+      <Section icon="users" title="Export your leads" desc="Download all your contacts as a spreadsheet (CSV). Doubles as a backup.">
+        <button onClick={()=>downloadContactsCsv(contacts)} className="btn btn-ghost">
+          <Icon name="arrow-out" size={13}/>Download {(contacts||[]).length} contacts (.csv)
+        </button>
+      </Section>
+
+      <div className="flex items-center gap-3 sticky bottom-3">
+        <button onClick={save} disabled={savingS} className="btn btn-primary justify-center disabled:opacity-50">
+          {savingS ? <><span className="spin"><Icon name="refresh" size={13}/></span>Saving</> : <><Icon name="check" size={13}/>Save settings</>}
+        </button>
+        {saved && <span className="text-[12px] text-emerald-300 flex items-center gap-1.5"><Icon name="check" size={12}/>Saved</span>}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [session, setSession]       = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [tab, setTab]               = useState('overview');
+  const [filter, setFilter]         = useState('all');
+  const [search, setSearch]         = useState('');
+  const [loading, setLoading]       = useState(true);
+  const [lastRefresh, setLastRefresh] = useState(null);
+  const [spinning, setSpinning]     = useState(false);
+  const [contacts, setContacts]     = useState([]);
+  const [calls, setCalls]           = useState([]);
+  const [sms, setSms]               = useState([]);
+  const [ambassadors, setAmbassadors] = useState([]);
+  const [ambFilter, setAmbFilter]   = useState('all');
+  const [err, setErr]               = useState(null);
+  const [drawerLead, setDrawerLead] = useState(null);
+  const [businesses, setBusinesses] = useState([]);
+  const [engineRuns, setEngineRuns] = useState([]);
+  const [outreach, setOutreach]     = useState([]);
+  const [drawerProspect, setDrawerProspect] = useState(null);
+  const [mobileNav, setMobileNav]   = useState(false);
+  const [settings, setSettings]     = useState({});
+
+  useEffect(() => {
+    if (!db || !isConfigured()) { setAuthLoading(false); return; }
+    db.auth.getSession().then(({ data }) => { setSession(data.session||null); setAuthLoading(false); });
+    const { data: sub } = db.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => sub?.subscription?.unsubscribe?.();
+  }, []);
+
+  const load = useCallback(async () => {
+    if (!db || !isConfigured() || !session) { setLoading(false); return; }
+    setSpinning(true);
+    try {
+      const smsQuery = await db.from('sms_messages').select('*').order('created_at',{ascending:false}).limit(300);
+      const smsResult = smsQuery.error
+        ? await db.from('admin_lead_alerts').select('*').order('created_at',{ascending:false}).limit(300)
+        : smsQuery;
+      const [{ data:c, error:e1 }, { data:cl, error:e2 }, { data:amb, error:e3 }, { data:biz, error:e4 }, { data:er, error:e5 }, { data:om, error:e6 }] = await Promise.all([
+        db.from('contacts').select('*').order('created_at',{ascending:false}).limit(500),
+        db.from('calls').select('*').order('created_at',{ascending:false}).limit(300),
+        db.from('ambassador_applicants').select('*').order('created_at',{ascending:false}).limit(500),
+        db.from('businesses').select('*').order('created_at',{ascending:false}).limit(500),
+        db.from('engine_runs').select('workflow_key,status,started_at,finished_at,created_at').order('created_at',{ascending:false}).limit(200),
+        db.from('outreach_messages').select('id,business_id,campaign_id,channel,message_type,direction,status,subject,body,generation_model,generation_prompt_version,generation_workflow_version,generation_reason,generation_count,created_by,created_at,superseded_at,approved_by,approved_at,sent_at,scheduled_for,review_notes,persona_key,persona_version').order('created_at',{ascending:false}).limit(500),
+      ]);
+      const firstErr = e1||e2||smsResult.error;
+      if (firstErr) setErr(firstErr.message);
+      else {
+        setContacts(c||[]); setCalls(cl||[]); setSms(smsResult.data||[]);
+        setAmbassadors(amb||[]);   // e3 (ambassador table) is non-fatal — table may not exist yet
+        setBusinesses(biz||[]);    // e4 (businesses) non-fatal too
+        setEngineRuns(er||[]);     // e5 (engine_runs) non-fatal — Workflow Health / Last Successful Run telemetry
+        setOutreach(om||[]);       // e6 (outreach_messages) non-fatal — internal email drafts + history for the prospect drawer
+        try {
+          const { data: st } = await db.from('app_settings').select('data').eq('id',1).maybeSingle();
+          const s = (st && st.data) || {};
+          setSettings(s);
+          if (s.lists && s.lists.sourceLabels) Object.assign(SOURCE_LABELS, s.lists.sourceLabels);
+        } catch(_) { /* app_settings table may not exist yet — non-fatal */ }
+        setLastRefresh(new Date()); setErr(null);
+      }
+    } catch(e) { setErr(e.message); }
+    setLoading(false); setSpinning(false);
+  }, [session]);
+
+  useEffect(() => {
+    if (!session) return;
+    load();
+    const t = setInterval(load, 30000);
+    return () => clearInterval(t);
+  }, [session, load]);
+
+  const updateContact = async (id, fields) => {
+    const { error } = await db.from('contacts').update({ ...fields, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) { alert('Update failed: ' + error.message); return; }
+    setContacts(prev => prev.map(c => c.id === id ? { ...c, ...fields } : c));
+  };
+
+  // outreach_messages has NO updated_at column — never send it here.
+  const updateOutreach = async (id, fields) => {
+    const { error } = await db.from('outreach_messages').update(fields).eq('id', id);
+    if (error) { alert('Update failed: ' + error.message); return; }
+    setOutreach(prev => prev.map(o => o.id === id ? { ...o, ...fields } : o));
+  };
+
+  const deleteContact = async (id) => {
+    const { error } = await db.from('contacts').delete().eq('id', id);
+    if (error) { alert('Delete failed: ' + error.message + '\n\nIf this mentions permissions/policy, your contacts table may need a delete policy (see notes).'); return; }
+    setContacts(prev => prev.filter(c => c.id !== id));
+  };
+
+  const saveSettings = async (next) => {
+    setSettings(next);
+    if (next.lists && next.lists.sourceLabels) Object.assign(SOURCE_LABELS, next.lists.sourceLabels);
+    const { error } = await db.from('app_settings').update({ data: next, updated_at: new Date().toISOString() }).eq('id', 1);
+    if (error) alert('Settings save failed: ' + error.message + '\n\nIf this mentions table/policy, run the app_settings SQL (see notes).');
+  };
+
+  const updateAmbassador = async (id, fields) => {
+    const { error } = await db.from('ambassador_applicants').update({ ...fields, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) { alert('Update failed: ' + error.message); return; }
+    setAmbassadors(prev => prev.map(a => a.id === id ? { ...a, ...fields } : a));
+  };
+
+  const signOut = async () => { await db.auth.signOut(); setSession(null); };
+
+  if (!isConfigured()) return (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="glass rounded-2xl p-7 max-w-md w-full space-y-4 text-center">
+        <Illustration variant="default"/>
+        <h2 className="text-base font-semibold text-slate-100">Configure Supabase</h2>
+        <p className="text-[12.5px] text-slate-500">Update <code className="font-mono text-slate-300">SUPABASE_URL</code> and <code className="font-mono text-slate-300">SUPABASE_ANON_KEY</code> at the top of this file.</p>
+      </div>
+    </div>
+  );
+
+  if (authLoading) return <Spinner/>;
+  if (!session) return <LoginScreen onLogin={() => db.auth.getSession().then(({ data }) => setSession(data.session))}/>;
+
+  /* Filtering */
+  const q = search.toLowerCase();
+  const matchesSearch = r =>
+    !q
+    || (r.phone||'').includes(q)
+    || (r.name||'').toLowerCase().includes(q)
+    || (r.industry||'').toLowerCase().includes(q)
+    || (r.email||'').toLowerCase().includes(q);
+
+  const leadsFiltered = contacts.filter(r => {
+    if (!matchesSearch(r)) return false;
+    if (filter === 'all') return true;
+    if (filter === 'newToday') return isToday(r.created_at);
+    if (filter === 'followup') return ['new','contacted'].includes(r.lead_status||'new');
+    return getLeadType(r) === filter;
+  });
+
+  const callsFiltered = calls.filter(r =>
+    !q || (r.caller_phone||'').includes(q) || (r.summary||'').toLowerCase().includes(q));
+  const smsFiltered = sms.filter(r =>
+    !q || (r.to_number||'').includes(q) || (r.message||r.body||'').toLowerCase().includes(q));
+  const ambassadorsFiltered = ambassadors.filter(r =>
+    !q
+    || (r.full_name||'').toLowerCase().includes(q)
+    || (r.email||'').toLowerCase().includes(q)
+    || (r.city||'').toLowerCase().includes(q)
+    || (r.country||'').toLowerCase().includes(q)
+    || (r.whatsapp||'').includes(q));
+
+  const businessesFiltered = businesses.filter(r =>
+    !q
+    || (r.name||'').toLowerCase().includes(q)
+    || (r.phone||'').includes(q)
+    || (r.email||'').toLowerCase().includes(q)
+    || (r.website||'').toLowerCase().includes(q)
+    || (r.city||'').toLowerCase().includes(q)
+    || (r.industry||'').toLowerCase().includes(q));
+
+  const counts = {
+    overview:   undefined,
+    pipeline:   contacts.length,
+    leads:      contacts.length,
+    calls:      calls.length,
+    sms:        sms.length,
+    ambassador: ambassadors.length,
+    prospecting: businesses.length,
+  };
+
+  const TAB_META = {
+    overview: { title:'Command Center', subtitle:'Pipeline · Priority Queue · Live activity — your sales cockpit.' },
+    pipeline: { title:'Pipeline',       subtitle:'Track every lead through new, contacted, demo and closed.' },
+    leads:    { title:'Leads',          subtitle:'Every contact and inbound lead, filterable and editable.' },
+    calls:    { title:'Calls',          subtitle:'AI summaries, transcripts and outcomes from every call.' },
+    sms:      { title:'SMS',            subtitle:'Inbound replies and outbound message activity.' },
+    ambassador:{ title:'Ambassadors',   subtitle:'Phone applicants — scored, with call recordings. Move them through the pipeline.' },
+    prospecting:{ title:'Prospecting',   subtitle:'Outbound businesses sourced & analyzed by the AI engine — your cold pipeline.' },
+    settings: { title:'Settings',       subtitle:'Business info, notifications, list options, and data export.' },
+  };
+
+  const meta = TAB_META[tab] || TAB_META.overview;
+  const onTabChange = (k) => { setTab(k); setMobileNav(false); if (k !== 'leads') setFilter('all'); setSearch(''); };
+
+  return (
+    <div className="min-h-screen flex">
+      {/* Desktop sidebar */}
+      <div className="hidden lg:flex w-[238px] flex-shrink-0 sticky top-0 h-screen overflow-y-auto border-r border-white/5" style={{ background:'rgba(8,10,18,0.65)', backdropFilter:'blur(14px)' }}>
+        <Sidebar tab={tab} setTab={onTabChange} counts={counts} user={session?.user} onSignOut={signOut}/>
+      </div>
+
+      {/* Mobile sidebar */}
+      {mobileNav && (
+        <Fragment>
+          <div className="mobile-nav-backdrop" onClick={() => setMobileNav(false)}/>
+          <div className="mobile-nav-panel lg:hidden">
+            <Sidebar tab={tab} setTab={onTabChange} counts={counts} user={session?.user} onSignOut={signOut} onClose={() => setMobileNav(false)}/>
+          </div>
+        </Fragment>
+      )}
+
+      {/* Main */}
+      <main className="flex-1 min-w-0">
+        <div className="max-w-[1480px] mx-auto px-4 sm:px-5 lg:px-7 py-5">
+          <TopBar
+            title={meta.title}
+            subtitle={meta.subtitle}
+            lastRefresh={lastRefresh}
+            onRefresh={load}
+            spinning={spinning}
+            onMenu={() => setMobileNav(true)}
+            contacts={contacts}
+          />
+
+          {err ? (
+            <ErrorPanel error={err} onRetry={load}/>
+          ) : (
+            <Fragment>
+              {tab === 'overview' && (
+                <CommandCenter contacts={contacts} calls={calls} sms={sms} businesses={businesses} engineRuns={engineRuns} loading={loading} onOpenLead={setDrawerLead} onTab={onTabChange} onUpdate={updateContact}/>
+              )}
+
+              {tab === 'pipeline' && (
+                <div className="glass rounded-2xl overflow-hidden">
+                  <PipelineTab contacts={contacts} loading={loading} onUpdate={updateContact} onOpenLead={setDrawerLead} search={search} setSearch={setSearch}/>
+                </div>
+              )}
+
+              {tab === 'leads' && (
+                <div className="glass rounded-2xl overflow-hidden">
+                  <LeadsTab rows={leadsFiltered} loading={loading} onOpenLead={setDrawerLead} search={search} setSearch={setSearch} filter={filter} setFilter={setFilter} contacts={contacts}/>
+                  <div className="border-t border-white/5 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-[10.5px] text-slate-500"><span className="font-mono text-slate-300">{leadsFiltered.length}</span> of <span className="font-mono text-slate-300">{contacts.length}</span> contacts</span>
+                    <span className="text-[10px] text-slate-600 flex items-center gap-1.5"><Icon name="refresh" size={10}/> Auto-refresh · 30s</span>
+                  </div>
+                </div>
+              )}
+
+              {tab === 'calls' && (
+                <div className="glass rounded-2xl overflow-hidden">
+                  <CallsTab rows={callsFiltered} loading={loading} search={search} setSearch={setSearch}/>
+                </div>
+              )}
+
+              {tab === 'sms' && (
+                <div className="glass rounded-2xl overflow-hidden">
+                  <SMSTab rows={smsFiltered} loading={loading} search={search} setSearch={setSearch}/>
+                </div>
+              )}
+
+              {tab === 'ambassador' && (
+                <div className="glass rounded-2xl overflow-hidden">
+                  <AmbassadorsTab rows={ambassadorsFiltered} loading={loading} search={search} setSearch={setSearch}
+                    filter={ambFilter} setFilter={setAmbFilter} onUpdate={updateAmbassador}/>
+                  <div className="border-t border-white/5 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-[10.5px] text-slate-500"><span className="font-mono text-slate-300">{ambassadorsFiltered.length}</span> of <span className="font-mono text-slate-300">{ambassadors.length}</span> applicants</span>
+                    <span className="text-[10px] text-slate-600 flex items-center gap-1.5"><Icon name="refresh" size={10}/> Auto-refresh · 30s</span>
+                  </div>
+                </div>
+              )}
+
+              {tab === 'settings' && (
+                <SettingsTab settings={settings} onSave={saveSettings} contacts={contacts}/>
+              )}
+
+              {tab === 'prospecting' && (
+                <div className="glass rounded-2xl overflow-hidden">
+                  <ProspectingTab rows={businessesFiltered} loading={loading} onOpenProspect={setDrawerProspect} search={search} setSearch={setSearch}/>
+                  <div className="border-t border-white/5 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-[10.5px] text-slate-500"><span className="font-mono text-slate-300">{businessesFiltered.length}</span> of <span className="font-mono text-slate-300">{businesses.length}</span> businesses</span>
+                    <span className="text-[10px] text-slate-600 flex items-center gap-1.5"><Icon name="refresh" size={10}/> Auto-refresh · 30s</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-2 px-1 text-[10.5px] text-slate-600">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1.5">
+                    <span className="dot bg-emerald-400 pulse-dot"/>
+                    Synced from Supabase
+                  </span>
+                  <span className="hidden sm:inline">·</span>
+                  <span className="hidden sm:inline">{lastRefresh ? `Last sync ${fmtAgo(lastRefresh)}` : 'Awaiting sync'}</span>
+                </div>
+                <span>© Topher AI · Lead Command Center</span>
+              </div>
+            </Fragment>
+          )}
+        </div>
+      </main>
+
+      {drawerLead && <LeadDrawer lead={drawerLead} onClose={() => setDrawerLead(null)} onUpdate={updateContact} onDelete={deleteContact} calls={calls} sms={sms} settings={settings}/>}
+      {drawerProspect && <ProspectDrawer prospect={drawerProspect} onClose={() => setDrawerProspect(null)} outreach={outreach} onUpdateOutreach={updateOutreach} operator={session?.user?.email}/>}
+      <HelpFab/>
+      <HelpModal/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

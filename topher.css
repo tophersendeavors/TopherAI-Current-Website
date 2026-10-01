@@ -280,6 +280,7 @@ a { color: inherit; text-decoration: none; }
 .brand__ai { color: var(--coral); }
 @keyframes markPulse { 0%,100%{ transform: scale(1);} 50%{ transform: scale(1.08);} }
 
+.nav__right { display: flex; align-items: center; gap: 18px; }
 .nav__cta {
   display: inline-flex; align-items: center; gap: 9px;
   font-family: var(--mono); font-size: 13px; letter-spacing: 0.02em;
@@ -644,6 +645,8 @@ a { color: inherit; text-decoration: none; }
 .tier__name { font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
 .tier__price { font-family: var(--serif); font-weight: 600; font-size: 52px; letter-spacing: -0.04em; margin: 18px 0 2px; }
 .tier__price sub { font-family: var(--mono); font-size: 13px; color: var(--faint); letter-spacing: 0; vertical-align: baseline; }
+.tier__setup { font-size: 12px; color: var(--mute); margin: -6px 0 14px; letter-spacing: .01em; }
+.tier__from { font-size: .42em; letter-spacing: .02em; margin-right: .18em; }
 .tier__line { color: var(--mute); font-size: 15px; min-height: 44px; }
 .tier__feats { list-style: none; padding: 0; margin: 22px 0 28px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
 .tier__feats li { display: flex; gap: 11px; font-size: 15px; color: color-mix(in srgb, var(--ink) 80%, var(--mute)); align-items: flex-start; }

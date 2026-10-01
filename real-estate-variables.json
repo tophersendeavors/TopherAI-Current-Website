@@ -1,0 +1,54 @@
+{
+  "variables": [
+    {
+      "name": "locations",
+      "defaultValue": 0,
+      "description": "User's desired neighborhoods or zip codes."
+    },
+    {
+      "name": "beds_baths",
+      "defaultValue": 0,
+      "description": "User's required number of bedrooms and bathrooms."
+    },
+    {
+      "name": "budget",
+      "defaultValue": 0,
+      "description": "User's ideal budget or price range."
+    },
+    {
+      "name": "financing_status",
+      "defaultValue": 0,
+      "description": "User's mortgage pre-approval status."
+    },
+    {
+      "name": "timeline",
+      "defaultValue": 0,
+      "description": "User's ideal move-in date or timeline."
+    },
+    {
+      "name": "full_name",
+      "defaultValue": 0,
+      "description": "The full name of the lead."
+    },
+    {
+      "name": "email",
+      "defaultValue": 0,
+      "description": "The email address of the lead."
+    },
+    {
+      "name": "phone_number",
+      "defaultValue": 0,
+      "description": "The phone number of the lead."
+    },
+    {
+      "name": "property_address",
+      "defaultValue": 0,
+      "description": "The address of the property a user wants to sell or have managed."
+    },
+    {
+      "name": "appointment_status",
+      "defaultValue": 0,
+      "description": "Tracks the status of the appointment (e.g., Link Sent, Booked)."
+    }
+  ]
+}

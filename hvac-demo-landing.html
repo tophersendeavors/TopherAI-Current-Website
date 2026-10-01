@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Topher — The AI receptionist that books the job and texts you.</title>
+<meta name="description" content="An AI receptionist for HVAC & home-service companies. Answers every call, books the job, and texts you the details — 24/7. Free demo built on your business in 24 hours." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Quicksand:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<link rel="icon" type="image/svg+xml" href="assets/topher-heart.svg" />
+<link rel="stylesheet" href="topher.css" />
+<link rel="stylesheet" href="hvac.css" />
+</head>
+<body>
+
+<div class="field" aria-hidden="true">
+  <div class="field__blob field__blob--a"></div>
+  <div class="field__blob field__blob--b"></div>
+  <div class="field__blob field__blob--c"></div>
+  <div class="field__veil"></div>
+  <div class="field__grain"></div>
+</div>
+
+<div class="shell">
+
+  <!-- Nav -->
+  <header class="nav" id="nav">
+    <div class="nav__inner">
+      <a class="brand" href="#top"><span class="brand__mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 87 C22 66 7 50 7 30 C7 16.5 17 7.5 29 7.5 C39.5 7.5 46.5 14.5 50 22 C53.5 14.5 60.5 7.5 71 7.5 C83 7.5 93 16.5 93 30 C93 50 78 66 50 87 Z" fill="#E8826B"/><path d="M18 47 L35 47 L40 35 L47.5 59 L53.5 39 L57.5 47 L82 47" fill="none" stroke="#F3E9DD" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Topher<span class="brand__ai">&nbsp;AI</span></a>
+      <div class="nav__right">
+        <div class="lang" id="lang" role="group" aria-label="Language">
+          <button type="button" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang="es" aria-pressed="false">ES</button>
+        </div>
+        <a class="nav__cta" href="#demo" data-i18n="nav_cta"><span class="dot"></span>Get my free demo</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section class="hero" data-screen-label="Hero">
+      <div class="hero-media" aria-hidden="true">
+        <div class="hero-media__photo"></div>
+        <div class="hero-media__wash"></div>
+        <div class="hero-media__scrim"></div>
+      </div>
+      <div class="wrap">
+        <div class="hero__head">
+          <span class="eyebrow" id="heroEyebrow">For HVAC &amp; home-service owners</span>
+          <h1 id="heroTitle">The call you miss at 8pm doesn't leave a voicemail. It calls your <span class="em">competitor</span>.</h1>
+          <p class="hero__sub" id="heroSub">Topher is an AI receptionist that answers every call, books the job, and texts you the details — <strong>24/7</strong>. We'll build one on your real business, free, and you call it yourself.</p>
+
+          <div class="offer" id="offer">
+            <span class="offer__chip" data-i18n="offer_1">Free demo</span>
+            <span class="offer__chip" data-i18n="offer_2">Built on your business</span>
+            <span class="offer__chip" data-i18n="offer_3">Live in 24 hours</span>
+            <span class="offer__chip" data-i18n="offer_4">No card</span>
+          </div>
+
+          <div class="cta-row">
+            <a class="btn-primary" href="#demo" data-i18n="cta_primary">
+              Get my free demo
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a class="btn-ghost" href="tel:+12138986724" data-i18n="cta_secondary"><span class="dot"></span>Or call the live demo</a>
+          </div>
+        </div>
+
+        <!-- The signature: Watch it work -->
+        <div class="console" id="console" data-screen-label="Watch it work console">
+          <div class="console__bar">
+            <span class="console__live"><span class="pip"></span><span data-i18n="console_live">Watch it answer · live</span></span>
+            <div class="tabs" id="tabs" role="tablist" aria-label="Call scenarios"></div>
+          </div>
+          <div class="console__body">
+            <div class="console__call">
+              <div class="panel-label"><span data-i18n="panel_call">The call</span><span data-i18n="panel_call_2">audio · transcribed</span></div>
+              <div class="turns" id="turns"></div>
+            </div>
+            <div class="console__brain">
+              <div class="panel-label"><span data-i18n="panel_brain">What it does</span><span data-i18n="panel_brain_2">job · capture</span></div>
+              <div class="trace" id="trace"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The shift -->
+    <section class="shift" data-emotion="anger">
+      <div class="wrap reveal">
+        <p data-i18n="shift">Every missed call is a job your <span class="strike">competitor</span> <span class="em">books</span>.</p>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section" data-emotion="calm">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow" data-i18n="how_eyebrow">What it does on every call</span>
+          <h2 data-i18n="how_title">It answers, it books, and it texts you. While you're on the roof.</h2>
+        </div>
+        <div class="steps">
+          <article class="step reveal d1">
+            <div class="step__n">01</div>
+            <h3 data-i18n="step1_t">Answers in 2 seconds</h3>
+            <p data-i18n="step1_p">Nights, weekends, two calls at once — Topher picks up every time, sounding like your front desk. It always says it's AI.</p>
+          </article>
+          <article class="step reveal d2">
+            <div class="step__n">02</div>
+            <h3 data-i18n="step2_t">Books the job</h3>
+            <p data-i18n="step2_p">It captures the service, the address, and the urgency, then drops the appointment straight into your day — no callback tag.</p>
+          </article>
+          <article class="step reveal d3">
+            <div class="step__n">03</div>
+            <h3 data-i18n="step3_t">Texts you the details</h3>
+            <p data-i18n="step3_p">The moment a call ends, you get a text: who called, what they need, and when they're booked. You stay in the loop without lifting the phone.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Built on your business -->
+    <section class="section" data-emotion="warm">
+      <div class="wrap">
+        <div class="build">
+          <div class="build__copy reveal">
+            <span class="eyebrow" data-i18n="build_eyebrow">Your free demo</span>
+            <h2 data-i18n="build_title">We build it on <span class="em">your</span> business. You call it yourself.</h2>
+            <p data-i18n="build_p">In 24 hours you get a phone number that answers as your company. Call it, ask it to book an AC repair, and watch the booking hit your phone by text.</p>
+            <ul class="build__list">
+              <li><span class="tick">→</span><span data-i18n="build_li1">Answers with your business name and services.</span></li>
+              <li><span class="tick">→</span><span data-i18n="build_li2">Books a real job and texts the details to you.</span></li>
+              <li><span class="tick">→</span><span data-i18n="build_li3">No card, no contract — test it, then decide.</span></li>
+            </ul>
+          </div>
+          <div class="build__phone reveal d1">
+            <div class="phone">
+              <div class="phone__screen">
+                <div class="phone__notch"></div>
+                <div class="phone__top">
+                  <div class="phone__date" data-i18n="phone_date">Tuesday · 8:42 PM</div>
+                  <div class="phone__title" data-i18n="phone_title">One missed call, <em>handled</em></div>
+                  <div class="phone__meta" data-i18n="phone_meta">You were on a job. Topher wasn't.</div>
+                </div>
+                <div class="callflow">
+                  <div class="cf-card cf-card--miss">
+                    <div class="cf-card__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/><line x1="23" y1="1" x2="17" y2="7"/><line x1="17" y1="1" x2="23" y2="7"/></svg></div>
+                    <div>
+                      <div class="cf-card__k" data-i18n="cf1_k">Incoming · 8:41 PM</div>
+                      <div class="cf-card__t" data-i18n="cf1_t">"My AC just died and it's 94° inside."</div>
+                      <div class="cf-card__s" data-i18n="cf1_s">Old way: <s>straight to voicemail</s></div>
+                    </div>
+                  </div>
+                  <div class="cf-arrow">↓</div>
+                  <div class="cf-card cf-card--book">
+                    <div class="cf-card__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+                    <div>
+                      <div class="cf-card__k" data-i18n="cf2_k">Booked · 8:42 PM</div>
+                      <div class="cf-card__t" data-i18n="cf2_t">Emergency AC repair — tomorrow, 8:00 AM</div>
+                      <div class="cf-card__s" data-i18n="cf2_s">Name, address &amp; issue captured.</div>
+                    </div>
+                  </div>
+                  <div class="cf-arrow">↓</div>
+                  <div class="cf-card cf-card--text">
+                    <div class="cf-card__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                    <div>
+                      <div class="cf-card__k" data-i18n="cf3_k">Text to you · 8:42 PM</div>
+                      <div class="cf-card__t" data-i18n="cf3_t">New job booked: Maria R., 14 Oak St — no cooling. Tue 8AM.</div>
+                      <div class="cf-card__s" data-i18n="cf3_s">Sent the second the call ended.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The demo form (conversion) -->
+    <section class="section demo" data-emotion="care" id="demo">
+      <div class="wrap">
+        <div class="demo__grid">
+          <div class="demo__copy reveal">
+            <span class="eyebrow" data-i18n="demo_eyebrow">Free · live in 24 hours</span>
+            <h2 data-i18n="demo_title">Hear it answer for your company.</h2>
+            <p data-i18n="demo_p">Tell us about your business and we'll build a working demo on it — free. Within 24 hours you'll get a number to call and test yourself.</p>
+            <ul class="demo__assure">
+              <li><span class="tick">✓</span><span data-i18n="demo_a1">No credit card, no commitment.</span></li>
+              <li><span class="tick">✓</span><span data-i18n="demo_a2">Built on your real business name &amp; services.</span></li>
+              <li><span class="tick">✓</span><span data-i18n="demo_a3">You call it and decide — we talk price after.</span></li>
+            </ul>
+          </div>
+
+          <div class="reveal d1">
+            <form class="form-card" id="demoForm" action="PASTE_YOUR_N8N_WEBHOOK_URL" method="POST">
+              <div class="form-card__title" data-i18n="form_title">Build my free demo</div>
+              <div class="form-card__sub" data-i18n="form_sub">Takes 30 seconds. We'll text you when it's ready.</div>
+
+              <div class="form-row">
+                <div class="field-group">
+                  <label for="f-name" data-i18n="form_name">Your name</label>
+                  <input id="f-name" name="name" type="text" required placeholder="Jordan" />
+                </div>
+                <div class="field-group">
+                  <label for="f-phone" data-i18n="form_phone">Mobile number</label>
+                  <input id="f-phone" name="phone" type="tel" required placeholder="(213) 555-0148" />
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="f-biz" data-i18n="form_biz">Business name</label>
+                <input id="f-biz" name="business" type="text" required placeholder="Summit Heating &amp; Air" />
+              </div>
+
+              <div class="field-group">
+                <label for="f-email">Email <span style="opacity:.6;font-weight:400">(optional)</span></label>
+                <input id="f-email" name="email" type="email" placeholder="you@yourcompany.com" />
+              </div>
+
+              <div class="form-row">
+                <div class="field-group">
+                  <label for="f-city" data-i18n="form_city">City / service area</label>
+                  <input id="f-city" name="city" type="text" required placeholder="Phoenix, AZ" />
+                </div>
+                <div class="field-group">
+                  <label for="f-trade" data-i18n="form_trade">Main service</label>
+                  <select id="f-trade" name="trade">
+                    <option data-i18n="trade_hvac">HVAC — heating &amp; cooling</option>
+                    <option data-i18n="trade_plumb">Plumbing</option>
+                    <option data-i18n="trade_elec">Electrical</option>
+                    <option data-i18n="trade_other">Other home service</option>
+                  </select>
+                </div>
+              </div>
+
+              <button class="btn-primary" type="submit" data-i18n="form_submit">
+                Build my free demo
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </button>
+              <p class="form-card__fine" data-i18n="form_fine">By submitting you agree we can text you about your demo. No spam, opt out anytime.</p>
+            </form>
+
+            <div class="form-card form-sent" id="formSent">
+              <div class="form-sent__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+              <h3 data-i18n="sent_t">You're in. Building it now.</h3>
+              <p data-i18n="sent_p">We'll text you within 24 hours with a number to call and hear it answer as your company.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust strip -->
+    <section class="trust" data-emotion="grief">
+      <div class="wrap">
+        <div class="section__head reveal" style="margin-bottom:44px">
+          <span class="eyebrow" data-i18n="trust_eyebrow">Straight with you</span>
+          <h2 data-i18n="trust_title">What it will and won't do.</h2>
+        </div>
+      </div>
+      <div class="trust-grid reveal">
+        <div class="trust-cell">
+          <div class="trust-cell__k">01</div>
+          <h3 data-i18n="trust1_t">Always says it's AI</h3>
+          <p data-i18n="trust1_p">Topher never pretends to be a person. The goal is to handle the call as well as your best receptionist would — out in the open.</p>
+        </div>
+        <div class="trust-cell">
+          <div class="trust-cell__k">02</div>
+          <h3 data-i18n="trust2_t">Hands off what it shouldn't handle</h3>
+          <p data-i18n="trust2_p">A genuine emergency or a call it can't book gets routed to you or your on-call tech — not stranded in a menu.</p>
+        </div>
+        <div class="trust-cell">
+          <div class="trust-cell__k">03</div>
+          <h3 data-i18n="trust3_t">You see every call</h3>
+          <p data-i18n="trust3_p">Each call is transcribed and texted to you. Nothing happens on your line that you can't read back later.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final" data-emotion="care">
+      <div class="wrap reveal">
+        <h2 data-i18n="final_title">Stop sending after-hours jobs to <span class="em">voicemail</span>.</h2>
+        <div class="cta-row" style="justify-content:center;margin-top:40px">
+          <a class="btn-primary" href="#demo" data-i18n="final_cta">
+            Get my free demo
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn-ghost" href="tel:+12138986724" data-i18n="cta_secondary"><span class="dot"></span>Or call the live demo</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__top">
+        <div class="footer__brand"><span class="brand__mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 87 C22 66 7 50 7 30 C7 16.5 17 7.5 29 7.5 C39.5 7.5 46.5 14.5 50 22 C53.5 14.5 60.5 7.5 71 7.5 C83 7.5 93 16.5 93 30 C93 50 78 66 50 87 Z" fill="#E8826B"/><path d="M18 47 L35 47 L40 35 L47.5 59 L53.5 39 L57.5 47 L82 47" fill="none" stroke="#F3E9DD" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Topher<span class="brand__ai">&nbsp;AI</span></div>
+        <div class="footer__honesty">
+          <div class="honest" data-i18n="foot1">Topher always identifies itself as AI. It is built for human-level skill, never to pass as human.</div>
+          <div class="honest" data-i18n="foot2">Demo timeframe and "answers every call" depend on your setup — we'll only promise what we can deliver for your business.</div>
+          <div class="honest" data-i18n="foot3">Every call is transcribed and auditable. Topher won't pressure a caller in distress.</div>
+        </div>
+      </div>
+      <div class="footer__base">
+        <span>© 2026 Topher AI</span>
+        <span data-i18n="foot_tag">Answers every call. Books the job. Texts you.</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Sticky mobile conversion -->
+<a class="mobile-call" href="#demo" data-i18n="mobile_cta">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  Get my free demo
+</a>
+
+<!-- Tweaks panel (vanilla; hidden until host activates) -->
+<aside class="twk" id="twk" aria-label="Tweaks">
+  <div class="twk__hd" id="twkHd"><b>Tweaks</b><button class="twk__x" id="twkX" aria-label="Close">✕</button></div>
+  <div class="twk__body">
+    <div>
+      <div class="twk__sect">Hero angle</div>
+      <div class="twk__seg" id="twkDir">
+        <button type="button" data-dir="pain" aria-pressed="true">Pain</button>
+        <button type="button" data-dir="curiosity" aria-pressed="false">Curiosity</button>
+        <button type="button" data-dir="owner" aria-pressed="false">Owner</button>
+      </div>
+    </div>
+    <div>
+      <div class="twk__sect">Language</div>
+      <div class="twk__seg" id="twkLang">
+        <button type="button" data-lang="en" aria-pressed="true">English</button>
+        <button type="button" data-lang="es" aria-pressed="false">Español</button>
+      </div>
+    </div>
+    <div>
+      <div class="twk__sect">Accent</div>
+      <div class="twk__swatches" id="twkAccent">
+        <button type="button" class="twk__swatch" data-accent="coral" style="background:#E8826B" aria-pressed="true" aria-label="Coral"></button>
+        <button type="button" class="twk__swatch" data-accent="ember" style="background:#E1663C" aria-pressed="false" aria-label="Ember"></button>
+        <button type="button" class="twk__swatch" data-accent="trust" style="background:#4F8BD0" aria-pressed="false" aria-label="Trust blue"></button>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<script src="hvac.js"></script>
+
+<!-- ===========================================================================
+     DEMO LEAD → n8n webhook → Supabase `contacts`
+     ---------------------------------------------------------------------------
+     1) Paste your n8n Production webhook URL below (and in the <form action>).
+     2) [UNVERIFIED] If hvac.js ALREADY has a submit handler on #demoForm,
+        this will run IN ADDITION to it. Send me hvac.js and I'll merge instead
+        of stacking. If hvac.js does its own POST, remove that or remove this.
+     3) [UNVERIFIED] Success reveal uses display:none/block. If hvac.css reveals
+        #formSent via a CSS class, tell me the class and I'll switch to it.
+=========================================================================== -->
+<script>
+(function () {
+  var WEBHOOK_URL = 'https://topherai.app.n8n.cloud/webhook/hvac-demo-lead';
+
+  var form = document.getElementById('demoForm');
+  var sent = document.getElementById('formSent');
+  if (!form) return;
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    var fd = new FormData(form);
+    var qp = new URLSearchParams(window.location.search);
+    var data = {
+      name: (fd.get('name') || '').trim(),
+      phone: (fd.get('phone') || '').trim(),
+      business: (fd.get('business') || '').trim(),
+      email: (fd.get('email') || '').trim(),
+      city: (fd.get('city') || '').trim(),
+      trade: fd.get('trade') || '',
+      utm_source: qp.get('utm_source') || '',
+      utm_medium: qp.get('utm_medium') || '',
+      utm_campaign: qp.get('utm_campaign') || '',
+      utm_content: qp.get('utm_content') || '',
+      utm_term: qp.get('utm_term') || '',
+      fbclid: qp.get('fbclid') || '',
+      referrer: document.referrer || ''
+    };
+    if (!data.name || !data.phone || !data.business) return;
+
+    var btn = form.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = true;
+
+    try {
+      var res = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error('Submit failed (' + res.status + ')');
+
+      form.style.display = 'none';
+      if (sent) sent.style.display = 'block';
+    } catch (err) {
+      if (btn) btn.disabled = false;
+      // CORS fallback: if the request is blocked cross-origin, switch the fetch
+      // above to { mode: 'no-cors', ... } and treat submit as optimistic success.
+      alert('Something went wrong sending your request. Please try again or call the demo line.');
+    }
+  });
+})();
+</script>
+</body>
+</html>

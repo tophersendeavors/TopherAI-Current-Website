@@ -281,6 +281,42 @@
     .illus.flame .core { background: linear-gradient(180deg, rgba(251,113,133,.16), rgba(255,255,255,.02)); border-color: rgba(251,113,133,.35); }
     .illus.flame .glow { background: radial-gradient(circle at 35% 30%, rgba(251,113,133,.30), transparent 65%); }
     h1,h2,h3,.font-display{ font-family:'Quicksand', system-ui, sans-serif; letter-spacing:-.01em; }
+    .sales-email-layout { display:grid; grid-template-columns:minmax(240px,.75fr) minmax(0,1.6fr); gap:16px; align-items:start; }
+    .sales-email-layout summary { overflow-wrap:anywhere; }
+    .sales-email-layout button:focus-visible { outline:2px solid #EE9A86; outline-offset:-3px; }
+    @media (max-width:1023px) { .sales-email-layout { grid-template-columns:minmax(0,1fr); } }
+/* Keep email editing, searching and filtering readable on the dark dashboard. */
+[aria-label="Campaign controls"] input:not([type="checkbox"]),
+[aria-label="Campaign controls"] textarea,
+input[aria-label="Search email conversations"],
+select[aria-label="Filter email conversations"],
+[aria-label="CRM businesses for email"] input:not([type="checkbox"]),
+[aria-label="CRM businesses for email"] select,
+.business-removal-form select,
+.business-removal-form textarea {
+  background-color: #1f2937;
+  color: #f8fafc;
+  border: 1px solid #64748b;
+  border-radius: 8px;
+  padding: 12px;
+  line-height: 1.6;
+  color-scheme: dark;
+}
+input[aria-label="Search email conversations"]::placeholder,
+[aria-label="CRM businesses for email"] input::placeholder,
+[aria-label="Campaign controls"] input::placeholder,
+[aria-label="Campaign controls"] textarea::placeholder,
+.business-removal-form textarea::placeholder {
+  color: #cbd5e1;
+  opacity: 1;
+}
+select[aria-label="Filter email conversations"] option,
+[aria-label="CRM businesses for email"] select option,
+.business-removal-form select option {
+  background-color: #1f2937;
+  color: #f8fafc;
+}
+
   </style>
 </head>
 <body>
@@ -691,6 +727,8 @@ const NAV_ITEMS = [
   { key:'pipeline',  label:'Pipeline',       icon:'kanban'   },
   { key:'leads',     label:'Leads',          icon:'users'    },
   { key:'prospecting',label:'Prospecting',    icon:'building' },
+  { key:'emails',    label:'Email Sales',    icon:'mail'     },
+  { key:'agencies',  label:'Agency Partnerships', icon:'building' },
   { key:'calls',     label:'Calls',          icon:'phone'    },
   { key:'sms',       label:'SMS',            icon:'msg'      },
   { key:'ambassador',label:'Ambassadors',    icon:'target'   },
@@ -1170,7 +1208,7 @@ function Toolbar({ search, setSearch, filters, filter, setFilter, right, placeho
 }
 
 /* ─────── COMMAND CENTER (default tab) ─────── */
-function CommandCenter({ contacts, calls, sms, businesses, engineRuns, loading, onOpenLead, onTab, onUpdate }) {
+function CommandCenter({ contacts, calls, sms, businesses, engineRuns, loading, onOpenLead, onTab, onUpdate, salesFeed, onOpenSales }) {
   if (loading) {
     return (
       <div className="space-y-4">
@@ -1190,6 +1228,8 @@ function CommandCenter({ contacts, calls, sms, businesses, engineRuns, loading, 
     <div className="space-y-4">
       {/* KPI strip */}
       <KpiStrip contacts={contacts} calls={calls} sms={sms}/>
+
+      <SalesOverview feed={salesFeed} onOpen={onOpenSales}/>
 
       {/* AI Prospecting (outbound) */}
       <ProspectingPanel businesses={businesses} engineRuns={engineRuns}/>
@@ -2204,14 +2244,14 @@ const DraftStatusPill = ({ status }) => {
   return <span className="pill" style={{ background:c+'1A', color:c, border:'1px solid '+c+'40' }}><span className="dot" style={{ background:c }}/>{s}</span>;
 };
 
-function ProspectDrawer({ prospect, onClose, outreach = [], onUpdateOutreach, operator }) {
+function ProspectDrawer({ prospect, onClose, outreach = [], onUpdateOutreach, operator, salesThread, onOpenSales, onBusinessCommand, removalDisabled }) {
   const [busy, setBusy] = useState(false);
   if (!prospect) return null;
   const b = prospect;
   const yn = v => v === true ? 'Yes' : v === false ? 'No' : '—';
   const cleanUrl = u => u ? u.replace(/^https?:\/\//,'').replace(/\/$/,'') : '';
   const bizOutreach = (outreach||[]).filter(o => o.business_id === b.id).slice().sort((x,y)=> new Date(y.created_at||0) - new Date(x.created_at||0));
-  const activeDraft = bizOutreach.find(o => !o.superseded_at && o.status !== 'rejected') || null;
+  const activeDraft = bizOutreach.find(o => !o.sales_thread_id && o.direction !== 'inbound' && !o.superseded_at && o.status !== 'rejected') || null;
   const act = async (fields, confirmMsg) => {
     if (!activeDraft || !onUpdateOutreach) return;
     if (confirmMsg && !window.confirm(confirmMsg)) return;
@@ -2248,6 +2288,7 @@ function ProspectDrawer({ prospect, onClose, outreach = [], onUpdateOutreach, op
             {b.website && <a href={b.website} target="_blank" rel="noreferrer" className="btn btn-ghost justify-center"><Icon name="building" size={13}/>Site</a>}
           </div>
 
+          <BusinessRemovalControl business={b} onCommand={onBusinessCommand} disabled={removalDisabled}/>
           <ProspectSection title="Contact">
             <ProspectRows rows={[
               { label:'Phone',        icon:'phone',   val: b.phone ? <a href={`tel:${b.phone}`} className="font-mono text-indigo-300">{fmtPhone(b.phone)}</a> : '—' },
@@ -2345,8 +2386,14 @@ function ProspectDrawer({ prospect, onClose, outreach = [], onUpdateOutreach, op
             )}
           </ProspectSection>
 
-          <ProspectSection title="Internal email draft">
-            {!activeDraft ? (
+          <ProspectSection title={salesThread ? "Email sales campaign" : "Internal email draft"}>
+            {salesThread ? (
+              <div className="glass-flat rounded-xl p-3 space-y-3">
+                <SalesStatePill state={salesThread.state}/>
+                <p className="text-[12px] text-slate-400">{salesNextAction(salesThread)}. View the current email and full conversation in Email Sales.</p>
+                <button className="btn btn-primary" onClick={() => onOpenSales(salesThread.id)}>Open email conversation <Icon name="arrow-r"/></button>
+              </div>
+            ) : !activeDraft ? (
               <div className="glass-flat rounded-xl p-3 text-[12px] text-slate-500 flex items-start gap-2"><Icon name="inbox" size={12}/><span>No internal draft yet. Workflow 5 generates the first-touch email for enriched, email-channel businesses.</span></div>
             ) : (
               <div className="space-y-2.5">
@@ -2546,6 +2593,710 @@ function SettingsTab({ settings, onSave, contacts }) {
   );
 }
 
+/* Owner campaign controls. SMTP and reply handling run in the published n8n workflow. */
+const SALES_THREAD_FIELDS = 'id,business_id,recipient_email,state,initial_subject,initial_body,followup_1_body,followup_2_body,approved_at,first_sent_at,next_followup_at,followups_sent,autoreplies_sent,last_inbound_at,reason,notification_state,created_at,updated_at,business:businesses(name,city,industry)';
+const SALES_MESSAGE_FIELDS = 'id,business_id,sales_thread_id,direction,message_type,status,subject,body,created_at,sent_at,scheduled_for,delivery_status,bounce_reason,email_automation';
+const SALES_STATES = {
+  paused: ['Paused', '#B3A799'], active: ['Active', '#34d399'],
+  engaged: ['Reply received', '#60a5fa'], handoff: ['Needs you', '#fbbf24'],
+  stopped: ['Stopped', '#fb7185'], complete: ['Follow-ups finished', '#a78bfa'],
+};
+const salesDate = value => {
+  if (!value) return '—';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('en-US', {
+    timeZone:'America/Los_Angeles', month:'short', day:'numeric', year:'numeric',
+    hour:'numeric', minute:'2-digit', timeZoneName:'short',
+  });
+};
+const salesNeedsAttention = thread => thread.state === 'handoff' || thread.notification_state === 'failed';
+const salesMessageLabel = message => {
+  if (message.direction === 'inbound') return 'Received';
+  return ({sent:'Sent · SMTP accepted',queued:'Queued',claimed:'Preparing to send',sending:'Sending',
+    failed:'Send failed or uncertain',skipped:'Cancelled',draft:'Draft',approved:'Approved',superseded:'Superseded'})[message.status] || message.status || 'Recorded';
+};
+const salesNextAction = thread => {
+  if (thread.state === 'paused') return thread.first_sent_at ? 'Paused by you' : 'Prepared · not started';
+  if (thread.state === 'handoff') return 'Your response is needed';
+  if (thread.state === 'stopped') return 'Sending stopped';
+  if (thread.state === 'complete') return 'Follow-up sequence finished';
+  if (thread.state === 'engaged') return 'Follow-ups cancelled after reply';
+  if (!thread.first_sent_at) return 'Initial email awaiting send';
+  return thread.next_followup_at ? salesDate(thread.next_followup_at) : 'No follow-up scheduled';
+};
+const salesSummary = feed => ({
+  active:feed.threads.filter(t => ['active','engaged'].includes(t.state)).length,
+  sent:feed.messages.filter(m => m.direction === 'outbound' && m.sent_at).length,
+  replies:feed.messages.filter(m => m.direction === 'inbound').length,
+  attention:feed.threads.filter(salesNeedsAttention).length,
+});
+const salesPreparedBody = (thread, settings) => thread.initial_body + '\n\nTopher AI | Business services advertisement\n' +
+  (settings.mailing_address || '[Postal address missing]') + '\nTo stop these emails, reply unsubscribe.';
+
+// Page through results so counts and conversation history are not silently truncated.
+async function readAllSalesRows(makeQuery, signal) {
+  const rows = new Map();
+  for (let offset = 0; ; offset += 500) {
+    const result = await makeQuery().range(offset, offset + 499).abortSignal(signal);
+    if (result.error) throw new Error(result.error.message || 'Email activity could not be loaded.');
+    const page = result.data || [];
+    page.forEach(row => rows.set(row.id, row));
+    if (page.length < 500) return [...rows.values()];
+  }
+}
+
+function useSalesEmailFeed(session) {
+  const [data, setData] = useState({threads:[], messages:[], businesses:[], settings:{}, updatedAt:null});
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [connection, setConnection] = useState('connecting');
+  const refreshRef = useRef(() => {});
+  const userId = session?.user?.id;
+  const refresh = useCallback(() => refreshRef.current(), []);
+
+  useEffect(() => {
+    setData({threads:[], messages:[], businesses:[], settings:{}, updatedAt:null});
+    setError(null);
+    if (!userId || !db || !isConfigured()) { setBusy(false); return; }
+    let live = true, running = false, again = false, debounce = null, request = null;
+    let channelStatus = 'connecting';
+    const showConnection = () => {
+      if (live) setConnection(!navigator.onLine ? 'offline' : channelStatus === 'SUBSCRIBED' ? 'live' : 'polling');
+    };
+    const loadSales = async () => {
+      if (!live) return;
+      if (running) { again = true; return; }
+      running = true; setBusy(true);
+      request = new AbortController();
+      const timer = setTimeout(() => request?.abort(), 12000);
+      try {
+        const [threads, messages, settingsResult, catalogResult] = await Promise.all([
+          readAllSalesRows(() => db.from('sales_email_threads').select(SALES_THREAD_FIELDS).order('id'), request.signal),
+          readAllSalesRows(() => db.from('outreach_messages').select(SALES_MESSAGE_FIELDS)
+            .not('sales_thread_id','is',null).order('id'), request.signal),
+          db.from('sales_email_settings').select('sender_email,owner_email,mailing_address,worker_version,last_worker_seen_at')
+            .eq('id',true).maybeSingle().abortSignal(request.signal),
+          db.rpc('topher_sales_command',{p_action:'catalog',p_payload:{}}).abortSignal(request.signal),
+        ]);
+        if (settingsResult.error) throw new Error(settingsResult.error.message);
+        if (catalogResult.error) throw new Error(catalogResult.error.message);
+        if (!settingsResult.data) throw new Error('Email Sales access is not enabled for this signed-in account. Use your CRM owner login.');
+        if (!live) return;
+        const threadIds = new Set(threads.map(t => t.id));
+        setData({threads:threads.sort((a,b) => new Date(b.updated_at)-new Date(a.updated_at)),
+          messages:messages.filter(m => threadIds.has(m.sales_thread_id)),businesses:catalogResult.data?.businesses || [],settings:settingsResult.data,updatedAt:new Date()});
+        setError(null); showConnection();
+      } catch (e) {
+        request?.abort();
+        if (live) setError(e.name === 'AbortError' ? 'Email activity refresh timed out. Retrying automatically.' : e.message || 'Email activity could not be refreshed.');
+      } finally {
+        clearTimeout(timer); running = false;
+        if (live) { setBusy(false); if (again) { again = false; loadSales(); } }
+      }
+    };
+    const changed = () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(loadSales, 300);
+    };
+    refreshRef.current = loadSales;
+    setConnection('connecting');
+    loadSales();
+    let channel = null;
+    try {
+      channel = db.channel('topher-email-sales-' + userId)
+        .on('postgres_changes',{event:'*',schema:'public',table:'sales_email_threads'},changed)
+        .on('postgres_changes',{event:'*',schema:'public',table:'sales_email_settings'},changed)
+        .on('postgres_changes',{event:'*',schema:'public',table:'outreach_messages'},payload => {
+          if (payload.eventType === 'DELETE' || payload.new?.sales_thread_id || payload.old?.sales_thread_id) changed();
+        })
+        .subscribe(status => { channelStatus = status; showConnection(); if (status === 'SUBSCRIBED') changed(); });
+    } catch (_) { channelStatus = 'CHANNEL_ERROR'; showConnection(); }
+    const interval = setInterval(() => { if (!document.hidden) loadSales(); }, 15000);
+    const visible = () => { if (!document.hidden) loadSales(); };
+    const online = () => { showConnection(); loadSales(); };
+    const offline = () => showConnection();
+    document.addEventListener('visibilitychange',visible);
+    window.addEventListener('online',online); window.addEventListener('offline',offline);
+    return () => {
+      live = false; clearInterval(interval); clearTimeout(debounce); request?.abort();
+      refreshRef.current = () => {};
+      document.removeEventListener('visibilitychange',visible);
+      window.removeEventListener('online',online); window.removeEventListener('offline',offline);
+      if (channel) Promise.resolve(db.removeChannel(channel)).catch(() => {});
+    };
+  }, [userId]);
+  return {...data,error,busy,connection,refresh};
+}
+
+const SalesStatePill = ({state}) => {
+  const [label,color] = SALES_STATES[state] || [state || 'Unknown','#B3A799'];
+  return <span className="pill" style={{color,background:color+'18',border:'1px solid '+color+'40'}}><span className="dot" style={{background:color}}/>{label}</span>;
+};
+function SalesConnection({feed}) {
+  const problem = !!feed.error || feed.connection === 'offline';
+  const label = feed.error ? 'Refresh failed · saved view' : feed.connection === 'offline' ? 'Offline · saved view' :
+    feed.connection === 'live' && feed.updatedAt ? 'Live CRM updates' : !feed.updatedAt ? 'Connecting…' : 'Auto-refresh · 15s';
+  return <span className="inline-flex items-center gap-1.5 text-[11px]" role="status"
+    style={{color:problem?'#fbbf24':'#B3A799'}} title="Tracks the CRM data connection. This is not a health check of the n8n workflow.">
+    <span className="dot" style={{background:problem?'#fbbf24':feed.connection==='live'&&feed.updatedAt?'#34d399':'#B3A799'}}/>{label}
+  </span>;
+}
+function SalesStats({feed}) {
+  const summary = salesSummary(feed);
+  return <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+    {[['Active conversations',summary.active,'#34d399'],['Sent emails',summary.sent,'#F0B6A6'],
+      ['Incoming emails',summary.replies,'#60a5fa'],['Needs your attention',summary.attention,'#fbbf24']].map(([label,value,color]) =>
+      <div key={label} className="glass-flat rounded-xl p-3">
+        <div className="text-[10px] text-slate-500">{label}</div>
+        <div className="text-2xl font-semibold mt-1" style={{color}}>{feed.updatedAt ? value : '—'}</div>
+      </div>)}
+  </div>;
+}
+function SalesOverview({feed,onOpen}) {
+  return <section className="glass rounded-2xl p-4 space-y-3" aria-label="Email sales summary">
+    <div className="flex items-center justify-between gap-3 flex-wrap">
+      <div><h2 className="text-[14px] font-semibold text-slate-100 flex items-center gap-2"><Icon name="mail"/>Email sales</h2>
+        <p className="text-[11px] text-slate-500 mt-1">Conversations, follow-ups, and replies that need you.</p></div>
+      <div className="flex items-center gap-3"><SalesConnection feed={feed}/><button className="btn btn-ghost" onClick={() => onOpen()}>View conversations <Icon name="arrow-r"/></button></div>
+    </div>
+    {feed.error && <div role="alert" className="text-[12px] text-amber-300">{feed.error}</div>}
+    <SalesStats feed={feed}/>
+    {feed.updatedAt && feed.threads.length === 0 && <p className="text-[12px] text-slate-500">No email campaigns have been prepared yet.</p>}
+    {feed.threads.slice(0,3).map(thread => <button key={thread.id} onClick={() => onOpen(thread.id)}
+      className="w-full text-left glass-flat rounded-xl p-3 flex items-center justify-between gap-3">
+      <span className="min-w-0"><span className="text-[12px] text-slate-100 block truncate">{thread.business?.name || thread.recipient_email}</span>
+        <span className="text-[11px] text-slate-500 block mt-1">{salesNextAction(thread)}</span></span><SalesStatePill state={thread.state}/>
+    </button>)}
+  </section>;
+}
+function SalesEmailsTab({feed,selectedId,onSelect,initialView='conversations'}) {
+  const [view,setView]=useState(initialView);
+  const [commandBusy,setCommandBusy]=useState(false);
+  const [commandNote,setCommandNote]=useState(null);
+  const commandLock=useRef(false);
+  const runCommand=async(action,payload)=>{
+    if(commandLock.current) return null;
+    commandLock.current=true;setCommandBusy(true);setCommandNote(null);
+    try {
+      const {data,error}=await db.rpc('topher_sales_command',{p_action:action,p_payload:payload});
+      if(error) throw new Error(error.message);
+      setCommandNote({error:false,text:data.note || ({edit_email:'Email address saved to the CRM.',prepare:'Draft prepared. Review it below before starting.',save:'Draft saved. No email sent.',start:'Campaign started. The initial email is queued for the next check during sending hours.',pause:'Campaign paused. Pending emails cancelled; a send already in progress may finish.',resume:'Remaining follow-ups resumed.'})[action]});
+      return data;
+    } catch(e) {setCommandNote({error:true,text:(e.message||'Command did not complete.')+' Refresh the conversation before trying again.'});return null;}
+    finally {commandLock.current=false;setCommandBusy(false);feed.refresh();}
+  };
+  const prepareBusiness=async(business,existing)=>{
+    const result=existing || await runCommand('prepare',{business_id:business.id,expected_recipient:business.email?.trim().toLowerCase()});
+    if(result){setSearch('');setFilter('all');onSelect(result.thread_id||result.id);setView('conversations');}
+  };
+  const [search,setSearch] = useState('');
+  const [filter,setFilter] = useState('all');
+  const filtered = feed.threads.filter(t => {
+    const match = (t.business?.name+' '+t.recipient_email+' '+(t.reason||'')).toLowerCase().includes(search.toLowerCase());
+    return match && (filter==='all' || filter==='attention'&&salesNeedsAttention(t) || filter==='active'&&['active','engaged'].includes(t.state) || filter===t.state);
+  });
+  const thread = filtered.find(t => t.id===selectedId) || filtered[0] || null;
+  const history = thread ? feed.messages.filter(m => m.sales_thread_id===thread.id)
+    .sort((a,b) => new Date(a.created_at)-new Date(b.created_at) || a.id.localeCompare(b.id)) : [];
+  const sender = feed.settings.sender_email;
+  return <div className="space-y-4">
+    <section className="glass rounded-2xl p-4 space-y-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div><SalesConnection feed={feed}/><p className="text-[11px] text-slate-500 mt-1">{feed.updatedAt ? 'Updated '+salesDate(feed.updatedAt) : 'Loading email activity…'}</p></div>
+        <button className="btn btn-ghost" onClick={feed.refresh} disabled={feed.busy}><Icon name="refresh"/>{feed.busy?'Refreshing…':'Refresh email activity'}</button>
+      </div>
+      {feed.error && <div role="alert" className="glass-flat rounded-xl p-3 text-[12px] text-amber-300">{feed.error}{feed.updatedAt && ' The information below is from the last successful refresh.'}</div>}
+      <SalesStats feed={feed}/>
+      <SalesWorkerStatus settings={feed.settings}/>
+      <p className="text-[11px] text-slate-500">{sender ? 'From and reply address: '+sender+'. ' : ''}Sent means the mail server accepted the email; inbox delivery and opens are not tracked here.</p>
+    </section>
+    <div className="flex gap-2 flex-wrap" aria-label="Email sales views">
+      <button className={view==='businesses'?'btn btn-primary':'btn btn-ghost'} aria-pressed={view==='businesses'} onClick={()=>setView('businesses')}>Businesses ({feed.businesses.filter(b=>!b.removed_at).length})</button>
+      <button className={view==='conversations'?'btn btn-primary':'btn btn-ghost'} aria-pressed={view==='conversations'} onClick={()=>setView('conversations')}>Conversations ({feed.threads.length})</button>
+    </div>
+    {commandNote && <div role={commandNote.error?'alert':'status'} className="glass-flat rounded-xl p-3 text-[12px]" style={{color:commandNote.error?'#fbbf24':'#34d399'}}>{commandNote.text}</div>}
+    {view==='businesses' ? <SalesBusinessList feed={feed} onPrepare={prepareBusiness} onSaveEmail={payload=>runCommand('edit_email',payload)} onCommand={runCommand} busy={commandBusy}/> : <>
+    <div className="glass rounded-2xl p-3 flex flex-wrap gap-2 items-center">
+      <input aria-label="Search email conversations" className="min-w-0 flex-1" placeholder="Search business, email, or handoff reason…" value={search} onChange={e => setSearch(e.target.value)}/>
+      <select aria-label="Filter email conversations" value={filter} onChange={e => setFilter(e.target.value)}>
+        <option value="all">All conversations</option><option value="attention">Needs your attention</option>
+        <option value="active">Active / replied</option><option value="paused">Paused</option>
+        <option value="stopped">Stopped</option><option value="complete">Follow-ups finished</option>
+      </select>
+    </div>
+    {!feed.updatedAt && feed.busy ? <Spinner/> : <div className="sales-email-layout">
+      <div className="glass rounded-2xl overflow-hidden self-start">
+        <div className="px-4 py-3 text-[11px] text-slate-500 border-b border-white/5">{filtered.length} conversation{filtered.length===1?'':'s'}</div>
+        {filtered.map(t => <button key={t.id} onClick={() => onSelect(t.id)} aria-pressed={thread?.id===t.id}
+          className="w-full text-left p-4 border-b border-white/5 hover:bg-white/5" style={{background:thread?.id===t.id?'rgba(238,154,134,.08)':undefined}}>
+          <div className="flex gap-2 justify-between items-start"><span className="text-[13px] text-slate-100 font-medium break-words">{t.business?.name || t.recipient_email}</span><SalesStatePill state={t.state}/></div>
+          <div className="text-[11px] text-slate-500 break-all mt-1.5">{t.recipient_email}</div>
+          <div className="text-[11px] text-slate-400 mt-2">{salesNextAction(t)}</div>
+          {salesNeedsAttention(t) && t.reason && <div className="text-[11px] text-amber-300 mt-2 clamp-2">{t.reason}</div>}
+        </button>)}
+        {!filtered.length && <p className="p-4 text-[12px] text-slate-500">{feed.error ? 'Email activity is unavailable.' : search||filter!=='all' ? 'No conversations match this filter.' : 'No email campaigns have been prepared yet.'}</p>}
+      </div>
+      {thread ? <section className="glass rounded-2xl p-4 sm:p-5 min-w-0 space-y-4" aria-label="Email conversation">
+        <div className="flex justify-between gap-3 items-start flex-wrap">
+          <div className="min-w-0"><h2 className="text-base font-semibold text-slate-100 break-words">{thread.business?.name || thread.recipient_email}</h2>
+            <p className="text-[12px] text-slate-500 mt-1 break-all">{thread.recipient_email}</p></div><SalesStatePill state={thread.state}/>
+        </div>
+        {thread.reason && <div className="glass-flat rounded-xl p-3 text-[12px] leading-relaxed" style={{color:salesNeedsAttention(thread)?'#fbbf24':'#B3A799'}}>
+          <strong className="block mb-1">{salesNeedsAttention(thread)?'Needs your attention':'Campaign note'}</strong>{thread.reason}
+        </div>}
+        <div className="grid grid-cols-2 gap-2">
+          {[['Initial email',thread.first_sent_at ? salesDate(thread.first_sent_at) : 'Not sent'],
+            ['Next follow-up',salesNextAction(thread)],['Follow-ups sent',thread.followups_sent+' of 2'],
+            ['Automatic replies sent',thread.autoreplies_sent+' of 2']].map(([label,value]) =>
+              <div key={label} className="glass-flat rounded-xl p-3"><div className="text-[10px] text-slate-500">{label}</div><div className="text-[12px] text-slate-200 mt-1">{value}</div></div>)}
+        </div>
+        <p className="text-[11px] text-slate-500 leading-relaxed">Follow-ups are due 3 and 7 calendar days after the initial email; sending runs weekdays, 9 a.m.–5 p.m. Pacific. A delayed first follow-up leaves at least 3 days before the second. Any matched reply cancels follow-ups.</p>
+        {thread.notification_state!=='none' && <p className="text-[11px]" style={{color:thread.notification_state==='failed'?'#fbbf24':'#B3A799'}}>Owner email alert: {({pending:'queued',sending:'preparing',sending_started:'sending',sent:'sent · SMTP accepted',failed:'failed or uncertain — review this conversation here'})[thread.notification_state] || thread.notification_state}.</p>}
+        {thread.state==='handoff' && <p className="text-[12px] text-amber-300">Automatic prospect sends are paused. Continue the conversation in Mail using {sender}.</p>}
+        <SalesCampaignControls key={thread.id} thread={thread} feed={feed} onCommand={runCommand} busy={commandBusy}/>
+        <div className="border-t border-white/5 pt-4 space-y-3">
+          <h3 className="text-[13px] text-slate-100 font-semibold">Conversation history <span className="text-slate-500 font-normal">· {history.length} messages</span></h3>
+          {!history.some(m => m.direction==='outbound' && m.message_type==='initial') && !thread.first_sent_at &&
+            <details open className="glass-flat rounded-xl p-3">
+              <summary className="cursor-pointer text-[12px] text-slate-200">Prepared initial email · not sent</summary>
+              <div className="mt-3 text-[13px] text-slate-100 font-medium break-words">{thread.initial_subject}</div>
+              <div className="mt-3 text-[12px] text-slate-300 whitespace-pre-wrap break-words leading-relaxed">{salesPreparedBody(thread,feed.settings)}</div>
+            </details>}
+          {history.map((message,index) => <details key={message.id} open={index>=history.length-2} className="glass-flat rounded-xl p-3">
+            <summary className="cursor-pointer text-[12px] text-slate-200">
+              <span style={{color:message.direction==='inbound'?'#60a5fa':message.status==='failed'?'#fbbf24':'#F0B6A6'}}>{message.direction==='inbound'?'Incoming':'Outgoing'} · {salesMessageLabel(message)}</span>
+              <span className="block text-[10px] text-slate-500 mt-1">{message.sent_at?'Sent ':'Recorded '}{salesDate(message.sent_at||message.created_at)} · {(message.message_type||'email').replace(/_/g,' ')}</span>
+            </summary>
+            <div className="text-[11px] text-slate-500 mt-3 break-all">{message.direction==='inbound' ? (message.email_automation?.from || thread.recipient_email)+' → '+sender : sender+' → '+thread.recipient_email}</div>
+            {message.direction==='inbound' && message.email_automation?.reply_to && message.email_automation.reply_to!==(message.email_automation.from || thread.recipient_email) && <p className="text-[11px] text-amber-300 mt-1 break-all">Reply-To supplied by sender: {message.email_automation.reply_to}</p>}
+            <div className="text-[13px] text-slate-100 font-medium mt-2 break-words">{message.subject || '(No subject)'}</div>
+            <div className="text-[12px] text-slate-300 whitespace-pre-wrap break-words leading-relaxed mt-3">{message.body || '(No text body recorded)'}</div>
+            {message.scheduled_for && !message.sent_at && ['queued','claimed','sending'].includes(message.status) && <p className="text-[11px] text-slate-500 mt-3">Scheduled from {salesDate(message.scheduled_for)}</p>}
+            {message.email_automation?.reason && <p className="text-[11px] text-slate-500 mt-3">Handling note: {message.email_automation.reason}</p>}
+            {(message.email_automation?.error || message.bounce_reason) && <p className="text-[11px] text-amber-300 mt-3">{message.email_automation.error || message.bounce_reason}</p>}
+          </details>)}
+          {!history.length && <p className="text-[11px] text-slate-500">{thread.first_sent_at || thread.last_inbound_at ? 'This campaign has prior activity, but no message records are available in this view.' : 'No emails have been sent or received in this campaign. The prepared email above is a preview.'}</p>}
+        </div>
+      </section> : <div className="glass rounded-2xl p-6 text-[13px] text-slate-500 self-start">Select a conversation to see its emails and follow-ups.</div>}
+    </div>}
+    </>}
+  </div>;
+}
+
+const salesWorkerReady = settings => settings.worker_version==='email_sales_v2' &&
+  Number.isFinite(Date.parse(settings.last_worker_seen_at)) && Date.now()-Date.parse(settings.last_worker_seen_at)<72*60*60*1000;
+const salesFollowupBody = (thread, number) => {
+  const greeting = thread.recipient_email==='office@southwesthvac.biz' ? 'Hi Eric and Stephane,\n\n' :
+    'Hi '+(thread.business?.name || 'there').slice(0,100).replace(/[\r\n]+/g,' ')+' team,\n\n';
+  const body = number===1 ? 'A quick follow-up on my note about incoming calls. Would it be useful to hear how Topher AI handles a customer inquiry when your team is already helping someone?' :
+    'I will leave this here after this note. If after-hours or overflow call handling becomes something you want to explore, reply and we can arrange a brief demonstration.';
+  return thread['followup_'+number+'_body'] || greeting+body+'\n\nChristopher\nTopher AI\nchris@topherai.com\nhttps://topherai.com/';
+};
+function SalesWorkerStatus({settings}) {
+  const ready=salesWorkerReady(settings);
+  return <div className="glass-flat rounded-xl p-3 text-[12px]" style={{color:ready?'#34d399':'#fbbf24'}} role="status">
+    <strong>{ready?'Email automation has checked in':'Email automation needs a check-in'}</strong>
+    <span className="block mt-1 text-slate-400">{ready ? 'Sends hourly on weekdays, 9 a.m.–4 p.m. Pacific. New prospects are researched twice daily; replies can arrive any time.' :
+      'The worker has not checked in within 72 hours. Check CRM Email Sales v3 in n8n. You can still prepare drafts and review conversations.'}</span>
+    {settings.last_worker_seen_at && <span className="block mt-1 text-[11px] text-slate-500">Last worker check: {salesDate(settings.last_worker_seen_at)}</span>}
+  </div>;
+}
+function SalesBusinessEmailEditor({business,thread,onSave,onCancel,busy,disabled}) {
+  const [email,setEmail]=useState(business.email || '');
+  const expectedEmail=useRef(business.email || null);
+  const save=async event=>{
+    event.preventDefault();
+    if(busy || disabled) return;
+    const result=await onSave({business_id:business.id,expected_email:expectedEmail.current,email:email.trim()});
+    if(result) onCancel();
+  };
+  return <form className="w-full border-t border-white/10 pt-3 space-y-2" aria-label={'Edit email for '+business.name} onSubmit={save}>
+    <label className="block text-[12px] text-slate-300" htmlFor={'sales-business-email-'+business.id}>Business email address</label>
+    <div className="flex gap-2 flex-wrap items-center">
+      <input id={'sales-business-email-'+business.id} aria-label={'Email address for '+business.name} type="email" required maxLength={254}
+        autoFocus autoComplete="off" spellCheck={false} className="flex-1 min-w-0" placeholder="name@company.com"
+        value={email} disabled={busy} onChange={e=>setEmail(e.target.value)}/>
+      <button type="submit" className="btn btn-primary" disabled={busy || disabled || !email.trim()}>{busy?'Saving…':'Save email'}</button>
+      <button type="button" className="btn btn-ghost" disabled={busy} onClick={onCancel}>Cancel</button>
+    </div>
+    <p className="text-[11px] text-slate-500">{thread ? 'Changing the address pauses future sends. Sent conversations keep the original recipient in their history.' : 'Saves to this business’s CRM record. You can prepare and review an email afterward.'}</p>
+  </form>;
+}
+function SalesBusinessList({feed,onPrepare,onSaveEmail,onCommand,busy}) {
+  const [query,setQuery]=useState('');
+  const [filter,setFilter]=useState('all');
+  const [editingId,setEditingId]=useState(null);
+  const businesses=feed.businesses || [];
+  const active=businesses.filter(b=>!b.removed_at);
+  const ready=active.filter(b=>!b.blocked_reason).length;
+  const missing=active.filter(b=>!b.email?.trim()).length;
+  const list=businesses.filter(b=>(b.name+' '+(b.email||'')+' '+(b.city||'')).toLowerCase().includes(query.toLowerCase()) &&
+    (filter==='removed' ? !!b.removed_at : !b.removed_at && (filter==='all' || filter==='ready'&&!b.blocked_reason || filter==='blocked'&&b.blocked_reason)));
+  const url = value => { try {const u=new URL(value);return ['http:','https:'].includes(u.protocol)?u.href:null;} catch(_){return null;} };
+  return <section className="glass rounded-2xl p-4 space-y-4" aria-label="CRM businesses for email">
+    <div><h2 className="text-[15px] font-semibold text-slate-100">Choose businesses for outreach</h2>
+      <p className="text-[12px] text-slate-400 mt-2">{active.length} CRM businesses · {ready} eligible for review · {missing} need an email address · {businesses.length-active.length} removed.</p>
+      <p className="text-[11px] text-slate-500 mt-1">Prepare an email, review the recipient and message, then select Start sending. Preparing a draft does not send it.</p></div>
+    <div className="flex flex-wrap gap-2"><input className="flex-1 min-w-0" aria-label="Search CRM businesses for email" placeholder="Search businesses or email addresses…" value={query} onChange={e=>setQuery(e.target.value)}/>
+      <select aria-label="Filter business readiness" value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">Current businesses</option><option value="ready">Eligible for review</option><option value="blocked">Need attention</option><option value="removed">Removed</option></select></div>
+    <div className="space-y-2">{list.map(b=>{
+      const thread=feed.threads.find(t=>t.business_id===b.id);
+      return <div key={b.id} className="glass-flat rounded-xl p-3 flex justify-between gap-3 flex-wrap items-center">
+        <div className="min-w-0 flex-1"><div className="text-[13px] text-slate-100 font-medium break-words">{b.name}</div>
+          <div className="text-[12px] text-slate-400 break-all mt-1">{b.email || 'No email saved'}{b.city ? ' · '+b.city : ''}</div>
+          <div className="text-[11px] text-slate-500 mt-1">{b.email_source ? 'Contact source: '+b.email_source.replace(/_/g,' ')+' · ' : ''}
+            {b.enrichment_status==='enriched' ? 'Research saved' : 'Research not recorded as complete'}
+            {url(b.website) && <a href={url(b.website)} target="_blank" rel="noopener noreferrer" className="ml-2 underline text-slate-400">Website</a>}</div>
+          {b.blocked_reason && <div className="text-[11px] text-amber-300 mt-1">{b.blocked_reason}</div>}
+          {b.removed_at && <div className="text-[12px] text-slate-300 mt-2 whitespace-pre-wrap break-words">{businessRemovalReasons[b.removal_reason] || b.removal_reason}{b.removal_note && ' · '+b.removal_note}</div>}
+        </div>
+        <div className="flex gap-2 items-center flex-wrap">{thread && <SalesStatePill state={thread.state}/>}
+          {!b.removed_at && <button className="btn btn-ghost" aria-label={(b.email?'Edit':'Add')+' email for '+b.name} disabled={busy || !!feed.error || feed.connection==='offline'} onClick={()=>setEditingId(b.id)}>{b.email?'Edit email':'Add email'}</button>}
+          {(!b.removed_at || thread) && <button className={thread?'btn btn-ghost':'btn btn-primary'} disabled={busy || !!feed.error || !thread&&!!b.blocked_reason} onClick={()=>onPrepare(b,thread)}>{thread?'Open conversation':'Prepare email'}</button>}
+        </div>
+        <BusinessRemovalControl business={b} onCommand={onCommand} busy={busy} disabled={!!feed.error || feed.connection==='offline'}/>
+        {editingId===b.id && !b.removed_at && <SalesBusinessEmailEditor key={b.id} business={b} thread={thread} onSave={onSaveEmail} onCancel={()=>setEditingId(null)} busy={busy} disabled={!!feed.error || feed.connection==='offline'}/>}
+      </div>;
+    })}{!list.length && <p className="text-[12px] text-slate-500">No businesses match this filter.</p>}</div>
+  </section>;
+}
+function SalesCampaignControls({thread,feed,onCommand,busy}) {
+  const makeDraft=t=>({initial_subject:t.initial_subject,initial_body:t.initial_body,followup_1_body:salesFollowupBody(t,1),followup_2_body:salesFollowupBody(t,2)});
+  const [draft,setDraft]=useState(()=>makeDraft(thread));
+  const [revision,setRevision]=useState(thread.updated_at);
+  const [dirty,setDirty]=useState(false);
+  const [reviewed,setReviewed]=useState(false);
+  useEffect(()=>{
+    if(!dirty){setDraft(makeDraft(thread));setRevision(thread.updated_at);setReviewed(false);}
+  },[thread.updated_at,thread.initial_subject,thread.initial_body,thread.followup_1_body,thread.followup_2_body,dirty]);
+  const stale=revision!==thread.updated_at;
+  const editable=thread.state==='paused'&&!thread.first_sent_at&&!thread.last_inbound_at;
+  const ready=salesWorkerReady(feed.settings);
+  const blocked=(feed.businesses || []).find(b=>b.id===thread.business_id)?.blocked_reason;
+  const sending=feed.messages.some(m=>m.sales_thread_id===thread.id&&m.direction==='outbound'&&['sending','claimed','failed'].includes(m.status));
+  const disable=busy||!!feed.error||feed.connection==='offline';
+  const valid=draft.initial_subject.trim().length>=5&&draft.initial_subject.trim().length<=180&&!/[\r\n]/.test(draft.initial_subject)&&
+    ['initial_body','followup_1_body','followup_2_body'].every(k=>draft[k].trim().length>=50&&draft[k].trim().length<=4000);
+  const edit=(key,value)=>{setDraft({...draft,[key]:value});setDirty(true);setReviewed(false);};
+  const submit=async action=>{
+    const result=await onCommand(action,{business_id:thread.business_id,expected_recipient:thread.recipient_email,expected_updated_at:revision,...draft,reviewed});
+    if(result){setDirty(false);setReviewed(false);}
+  };
+  return <div className="glass-flat rounded-xl p-4 space-y-3" aria-label="Campaign controls">
+    {['active','engaged'].includes(thread.state) && <div className="space-y-2">
+      <button className="btn btn-ghost" disabled={disable} onClick={()=>onCommand('pause',{business_id:thread.business_id})}>{busy?'Working…':'Pause sending'}</button>
+      <p className="text-[11px] text-slate-500">Pause cancels pending emails. A message already handed to the mail server may finish.</p>
+    </div>}
+    {editable && <>
+      <h3 className="text-[13px] font-semibold text-slate-100">Review your email sequence</h3>
+      <p className="text-[12px] text-slate-400 break-all">From: {feed.settings.sender_email}<br/>To: {thread.recipient_email}</p>
+      {blocked && <p role="alert" className="text-[12px] text-amber-300">{blocked}</p>}
+      <label className="block text-[12px] text-slate-400">Subject<input className="block w-full mt-1" aria-label="Initial email subject" value={draft.initial_subject} maxLength={180} disabled={busy} onChange={e=>edit('initial_subject',e.target.value)}/></label>
+      <label className="block text-[12px] text-slate-400">Initial email<textarea className="block w-full mt-1 text-[12px]" aria-label="Initial email body" value={draft.initial_body} rows={14} maxLength={4000} disabled={busy} onChange={e=>edit('initial_body',e.target.value)}/></label>
+      {[1,2].map(n=><details key={n} className="border border-white/10 rounded-lg p-3">
+        <summary className="cursor-pointer text-[12px] text-slate-300">Follow-up {n} · {n===1?'3':'7'} days after the initial email</summary>
+        <p className="mt-2 text-[11px] text-slate-500">Subject: Re: {draft.initial_subject}</p>
+        <textarea className="w-full mt-2 text-[12px]" aria-label={'Follow-up '+n+' body'} rows={8} maxLength={4000} value={draft['followup_'+n+'_body']} disabled={busy} onChange={e=>edit('followup_'+n+'_body',e.target.value)}/>
+      </details>)}
+      <details><summary className="text-[11px] text-slate-400 cursor-pointer">Footer added to every email</summary><p className="mt-2 text-[11px] text-slate-400 whitespace-pre-wrap">{'Topher AI | Business services advertisement\n'+feed.settings.mailing_address+'\nTo stop these emails, reply unsubscribe.'}</p></details>
+      <p className="text-[11px] text-slate-500">A reply cancels follow-ups. Basic questions can receive up to two approved answers; pricing, demos, and buying interest come to you.</p>
+      {stale && <div role="alert" className="text-[12px] text-amber-300">This conversation changed while you were editing. <button className="underline" onClick={()=>{setDirty(false);setReviewed(false);}}>Load current draft</button></div>}
+      <label className="flex items-start gap-2 text-[12px] text-slate-300"><input type="checkbox" className="mt-1" aria-label="I reviewed this recipient and email sequence" checked={reviewed} disabled={disable||stale} onChange={e=>setReviewed(e.target.checked)}/>I reviewed this recipient, initial email, and both follow-ups.</label>
+      <div className="flex gap-2 flex-wrap"><button className="btn btn-ghost" disabled={disable||!valid||stale||!!blocked} onClick={()=>submit('save')}>Save draft</button>
+        <button className="btn btn-primary" disabled={disable||!ready||!reviewed||!valid||stale||!!blocked||sending} onClick={()=>submit('start')}>{busy?'Working…':'Start sending'}</button></div>
+      {!ready && <p className="text-[11px] text-amber-300">Start becomes available after the updated n8n workflow checks in.</p>}
+    </>}
+    {thread.state==='paused'&&thread.first_sent_at&&!thread.last_inbound_at && <>
+      <p className="text-[12px] text-slate-400">The initial email has already been sent. Resume continues the remaining follow-ups.</p>
+      <button className="btn btn-primary" disabled={disable||!ready||sending||!!blocked||thread.followups_sent>=2} onClick={()=>submit('resume')}>Resume follow-ups</button>
+      {blocked && <p className="text-[11px] text-amber-300">{blocked}</p>}
+      {!ready && <p className="text-[11px] text-amber-300">Publish the updated n8n workflow to resume.</p>}
+    </>}
+    {thread.state==='paused'&&thread.last_inbound_at && <p className="text-[12px] text-amber-300">A reply arrived. Read it below and continue personally in Mail using {feed.settings.sender_email}.</p>}
+    {sending&&thread.state==='paused' && <p className="text-[11px] text-amber-300">A send is still in progress or needs delivery review. Starting again is disabled until it is resolved.</p>}
+    {thread.state==='stopped' && <p className="text-[12px] text-slate-400">Sending has stopped. Opt-out requests cannot be restarted here.</p>}
+    {thread.state==='complete' && <p className="text-[12px] text-slate-400">Both follow-ups are finished. No further outreach is scheduled.</p>}
+    {thread.state==='handoff' && <p className="text-[12px] text-amber-300">This conversation needs your response. Read the reason and latest reply below.</p>}
+  </div>;
+}
+
+const businessRemovalReasons = {not_a_fit:'Not a fit',competing_ai:'Uses another AI receptionist',duplicate:'Duplicate business',closed:'Business closed',other:'Other'};
+function BusinessRemovalControl({business,onCommand,busy=false,disabled=false}) {
+  const [open,setOpen]=useState(false);
+  const [reason,setReason]=useState('not_a_fit');
+  const [note,setNote]=useState('');
+  const [error,setError]=useState(null);
+  const [working,setWorking]=useState(false);
+  const lock=useRef(false);
+  const removed=!!business.removed_at;
+  const submit=async event=>{
+    event.preventDefault();
+    if(lock.current || busy || disabled) return;
+    lock.current=true;setWorking(true);setError(null);
+    try {
+      const result=await onCommand(removed?'restore_business':'remove_business',removed
+        ? {business_id:business.removed_business_id || business.id,expected_removed_at:business.removed_at}
+        : {business_id:business.id,reason,note:note.trim()});
+      if(result) {setOpen(false);setNote('');}
+    } catch(e) {setError(e.message || 'The change could not be saved. Try again.');}
+    finally {lock.current=false;setWorking(false);}
+  };
+  if(!open) return <button className="btn btn-ghost" style={{color:removed?'#e2e8f0':'#fda4af'}}
+    aria-label={(removed?'Restore':'Remove')+' business '+business.name} disabled={busy || disabled}
+    onClick={()=>setOpen(true)}>{removed?'Restore business':'Remove business'}</button>;
+  return <form className="business-removal-form w-full glass-flat rounded-xl p-3 space-y-3" aria-label={(removed?'Restore':'Remove')+' '+business.name} onSubmit={submit}>
+    <p className="text-[13px] text-slate-100 font-medium">{removed?'Restore':'Remove'} {business.name}?</p>
+    {removed ? <p className="text-[12px] text-slate-300">Restore this business to the prospect list. Sending stays stopped until you review and restart it. Existing opt-outs remain in place.</p> : <>
+      <label className="block text-[12px] text-slate-300">Reason
+        <select className="block w-full mt-1" aria-label={'Removal reason for '+business.name} value={reason} disabled={busy||working} onChange={e=>setReason(e.target.value)}>
+          {Object.entries(businessRemovalReasons).map(([value,label])=><option value={value} key={value}>{label}</option>)}
+        </select>
+      </label>
+      <label className="block text-[12px] text-slate-300">{reason==='competing_ai'?'Provider and source or observation confirming use':'Note (optional)'}
+        <textarea className="block w-full mt-1" aria-label={'Removal note for '+business.name} value={note} rows={3} maxLength={1000}
+          required={reason==='competing_ai'} minLength={reason==='competing_ai'?8:undefined} disabled={busy||working}
+          placeholder={reason==='competing_ai'?'Provider name, plus a website source or what the business confirmed…':'Why is this business being removed?'} onChange={e=>setNote(e.target.value)}/>
+      </label>
+      {reason==='competing_ai' && <p className="text-[11px] text-slate-400">Use this when an AI receptionist is confirmed. A website chat box or booking form alone does not establish that.</p>}
+      <p className="text-[12px] text-slate-300">Pending outreach will stop. This business moves to Removed, with its research and email history saved. An email already handed to the mail server may finish.</p>
+    </>}
+    {error && <p role="alert" className="text-[12px] text-amber-300">{error}</p>}
+    <div className="flex gap-2 flex-wrap">
+      <button type="submit" className={removed?'btn btn-primary':'btn btn-danger'} disabled={busy||working||disabled||!removed&&reason==='competing_ai'&&note.trim().length<8}>
+        {working||busy?'Saving…':removed?'Restore to list':'Remove from list'}</button>
+      <button type="button" className="btn btn-ghost" disabled={working||busy} onClick={()=>{setOpen(false);setError(null);}}>Cancel</button>
+    </div>
+  </form>;
+}
+
+
+const AGENCY_STAGES = ['research','ready','contacted','conversation','demo','pilot','active','closed'];
+const agencyLabel = value => String(value||'Unknown').replace(/_/g,' ').replace(/^./,c=>c.toUpperCase());
+const agencyMoney = value => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(value)||0);
+const agencyLocalTime = value => { if(!value) return ''; const d=new Date(value); return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16); };
+const agencyDue = a => a.stage!=='closed' && a.next_followup_at && new Date(a.next_followup_at)<=new Date();
+const agencyResearchLabel = status => ({pending:'Queued for research',researching:'Researching now',review:'Needs review',qualified:'Research complete',enrolled:'Research complete',error:'Research needs attention'}[status]||'Not queued');
+const agencyResearchTime = value => value ? new Date(value).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}) : '';
+function AgencyResearch({partner:a,request,settings,noWrite,onQueue}) {
+  const submitting=request?.phase==='submitting',queued=a.research_status==='pending',running=a.research_status==='researching';
+  const waiting=queued||running,hasHistory=!!(a.research_reason||a.checked_at||a.evidence_url||a.research_evidence?.source_url||a.research_evidence?.pages?.length);
+  return <section aria-label="Website research" className="glass-flat rounded-xl p-3 text-[12px] space-y-3">
+    <div className="font-semibold text-slate-200">Website research</div>
+    <div role="status" aria-live="polite" aria-atomic="true" className="space-y-1">
+      <p className={'font-semibold '+(queued||running?'text-indigo-300':'text-slate-200')}>{submitting?'Queueing research…':agencyResearchLabel(a.research_status)}</p>
+      {submitting?<p className="text-slate-400">Saving your request…</p>:queued?<>
+        {a.research_updated_at&&<p className="text-slate-300">Queue saved {agencyResearchTime(a.research_updated_at)}.</p>}
+        <p className="text-slate-400">{settings.enabled?'Your request is saved. Research starts in a scheduled batch; you can close this page.':'Your request is saved, but the department is paused. Enable it in Activity & automation to resume processing.'}</p>
+      </>:running?<p className="text-slate-400">{a.research_claimed_at?'Started '+agencyResearchTime(a.research_claimed_at)+'. ':''}The agent is checking this website. The status refreshes automatically.</p>:null}
+    </div>
+    {(queued||(!running&&!a.thread&&a.stage!=='closed'))&&<p className="text-slate-500">Research batches: weekdays at 8:35 a.m. and 1:35 p.m. Pacific. Up to {settings.daily_research_limit??10} agencies are reviewed per day, so your agency may wait for a later batch.</p>}
+    {hasHistory&&<div className="border-t border-white/10 pt-2 space-y-2">
+      <div className="font-semibold text-slate-300">{waiting?'Previous research result':'Research result'}</div>
+      {a.checked_at&&<p className="text-slate-500">Checked {agencyResearchTime(a.checked_at)}</p>}
+      {a.research_reason&&<p className="text-slate-400">{a.research_reason}</p>}
+      {(a.evidence_url||a.research_evidence?.source_url)&&<AgencyLink url={a.evidence_url||a.research_evidence?.source_url}>View source ↗</AgencyLink>}
+      {(a.research_evidence?.pages||[]).map(p=><div key={p.url}><AgencyLink url={p.url}>{p.url}</AgencyLink></div>)}
+    </div>}
+    {a.blocked_reason&&<p className="text-amber-300">Outreach hold: {agencyLabel(a.blocked_reason)}</p>}
+    {request?.phase==='error'&&<p role="alert" className="text-amber-300">Could not confirm the queue request: {request.text}</p>}
+    {!a.thread&&<button className="btn btn-ghost" disabled={noWrite||submitting||queued||running||a.stage==='closed'} onClick={onQueue}>{submitting?'Queueing…':queued?'Research queued':running?'Researching…':'Queue website research'}</button>}
+  </section>;
+}
+function agencyDepartmentFeed(feed,department) {
+  const businesses=feed.businesses.filter(b=>(b.department||'direct_sales')===department);
+  const ids=new Set(businesses.map(b=>b.id));
+  const threads=feed.threads.filter(t=>ids.has(t.business_id));
+  const threadIds=new Set(threads.map(t=>t.id));
+  return {...feed,businesses,threads,messages:feed.messages.filter(m=>threadIds.has(m.sales_thread_id))};
+}
+function AgencyLink({url,children}) {
+  return /^https?:\/\//i.test(url||'') ? <a className="text-indigo-300 hover:underline break-all" href={url} target="_blank" rel="noopener noreferrer">{children||url}</a> : <span className="text-slate-500">{children||'No source yet'}</span>;
+}
+function useAgencyFeed(session) {
+  const empty={partners:[],referrals:[],receipts:[],events:[],runs:[],settings:{},updatedAt:null};
+  const [data,setData]=useState(empty),[error,setError]=useState(null),[busy,setBusy]=useState(false);
+  const refreshRef=useRef(()=>{}), userId=session?.user?.id;
+  const refresh=useCallback(()=>refreshRef.current(),[]);
+  useEffect(()=>{
+    setData(empty);setError(null);
+    if(!userId||!db) return;
+    let live=true,running=false,again=false,request=null;
+    const load=async()=>{
+      if(!live) return;
+      if(running){again=true;return;}
+      running=true;setBusy(true);request=new AbortController();
+      const timeout=setTimeout(()=>request.abort(),15000);
+      try {
+        const result=await db.rpc('topher_agency_command',{p_action:'catalog',p_payload:{}}).abortSignal(request.signal);
+        if(result.error) throw new Error(result.error.message);
+        if(live){setData({...empty,...result.data,updatedAt:new Date()});setError(null);}
+      } catch(e){if(live)setError(e.name==='AbortError'?'Agency refresh timed out. Retrying automatically.':e.message);}
+      finally{clearTimeout(timeout);running=false;if(live){setBusy(false);if(again){again=false;load();}}}
+    };
+    refreshRef.current=load;load();
+    const timer=setInterval(()=>{if(!document.hidden)load();},30000);
+    const visible=()=>{if(!document.hidden)load();};
+    document.addEventListener('visibilitychange',visible);
+    return()=>{live=false;clearInterval(timer);request?.abort();refreshRef.current=()=>{};document.removeEventListener('visibilitychange',visible);};
+  },[userId]);
+  return {...data,error,busy,refresh};
+}
+function AgencyField({label,value,onChange,options,multiline=false,wide=false,...props}) {
+  const style={background:'rgba(0,0,0,.22)',border:'1px solid rgba(255,255,255,.14)',color:'#f1f5f9',borderRadius:9,padding:'10px 12px',width:'100%'};
+  return <label className={'block text-[12px] text-slate-300 space-y-1.5 '+(wide?'sm:col-span-2':'')}>
+    <span>{label}</span>
+    {options ? <select style={style} value={value??''} onChange={e=>onChange(e.target.value)} {...props}>{options.map(o=><option key={o.value??o} value={o.value??o} style={{background:'#17171c'}}>{o.label??agencyLabel(o)}</option>)}</select>
+      : multiline ? <textarea style={style} rows={3} value={value??''} onChange={e=>onChange(e.target.value)} {...props}/>
+      : <input style={style} value={value??''} onChange={e=>onChange(e.target.value)} {...props}/>}
+  </label>;
+}
+function AgencyEditor({editor,feed,businesses,onSave,onClose,busy,error}) {
+  const a=editor.partner,r=editor.referral,action=editor.action;
+  const [draft,setDraft]=useState(()=>{
+    if(action==='save')return {...a,...{email:a.business.email||'',phone:a.business.phone||'',contact_url:a.business.contact_url||'',next_followup_at:agencyLocalTime(a.next_followup_at)}};
+    if(action==='terms')return {terms_status:a.terms_status,commission_percent:a.commission_percent??'',terms_notes:a.terms_notes};
+    if(action==='referral')return r?{...r}:{business_id:'',name:'',email:'',phone:'',website:'',notes:''};
+    if(action==='receipt')return {referral_id:r?.id||'',receipt_reference:'',amount_received:'',received_at:agencyLocalTime(new Date()),notes:''};
+    return {name:'',website:'',phone:'',email:'',contact_name:'',contact_role:'',contact_url:'',fit_notes:'',evidence_url:''};
+  });
+  const dialogRef=useRef(null);
+  useEffect(()=>{
+    const prior=document.activeElement;const el=dialogRef.current;
+    el?.querySelector('input,select,textarea,button')?.focus();
+    const key=e=>{if(e.key==='Escape'&&!busy)onClose();if(e.key==='Tab'){
+      const f=[...el.querySelectorAll('button,input,select,textarea,a[href]')].filter(x=>!x.disabled);
+      if(e.shiftKey&&document.activeElement===f[0]){e.preventDefault();f[f.length-1]?.focus();}
+      else if(!e.shiftKey&&document.activeElement===f[f.length-1]){e.preventDefault();f[0]?.focus();}
+    }};
+    el?.addEventListener('keydown',key);return()=>{el?.removeEventListener('keydown',key);prior?.focus();};
+  },[busy]);
+  const field=(label,key,props={})=><AgencyField key={key} label={label} value={draft[key]} onChange={v=>setDraft(d=>({...d,[key]:v}))} {...props}/>;
+  const title={create:'Add agency',save:'Agency details',terms:'Partnership terms',referral:r?'Update referral':'Add referred business',receipt:'Record received payment'}[action];
+  const submit=e=>{
+    e.preventDefault();
+    let payload={...draft};
+    if(a){payload.partner_id=a.id;payload.expected_updated_at=a.updated_at;}
+    if(r&&action==='referral'){payload.referral_id=r.id;payload.expected_updated_at=r.updated_at;}
+    for(const key of ['next_followup_at','received_at'])if(key in payload)payload[key]=payload[key]?new Date(payload[key]).toISOString():null;
+    if(action==='save')payload=Object.fromEntries(['partner_id','expected_updated_at','stage','contact_name','contact_role','email','phone','contact_url','fit_notes','evidence_url','provider_status','existing_provider','next_action','next_followup_at','notes'].map(k=>[k,payload[k]]));
+    onSave(action,payload);
+  };
+  return <div className="fixed inset-0 z-50 bg-black/70 flex items-start justify-center overflow-y-auto p-3 sm:p-8" onMouseDown={e=>{if(e.target===e.currentTarget&&!busy)onClose();}}>
+    <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="agency-dialog-title" className="w-full max-w-2xl rounded-2xl border border-white/10 p-5 sm:p-6 shadow-2xl" style={{background:'#17171c'}}>
+      <div className="flex items-start justify-between gap-3 mb-5"><div><h2 id="agency-dialog-title" className="font-semibold text-lg text-slate-100">{title}</h2>{a&&<p className="text-sm text-slate-400 mt-1">{a.business.name}</p>}</div><button aria-label="Close agency editor" className="btn btn-ghost" onClick={onClose} disabled={busy}><Icon name="close"/></button></div>
+      <form onSubmit={submit} className="space-y-5">
+        <fieldset disabled={busy} className="grid sm:grid-cols-2 gap-4">
+          {action==='create'&&<>{field('Agency name','name',{required:true,maxLength:200})}{field('Website','website',{type:'url',required:true,placeholder:'https://agency.com'})}</>}
+          {['create','save'].includes(action)&&<>
+            {action==='save'&&field('Partnership stage','stage',{options:AGENCY_STAGES})}
+            {field('Published business email','email',{type:'email'})}{field('Business phone','phone',{type:'tel'})}
+            {field('Contact person','contact_name')}{field('Contact role','contact_role')}{field('Contact page','contact_url',{type:'url'})}
+            {field('Evidence page','evidence_url',{type:'url',placeholder:'Page showing plumbing clients or marketing services'})}
+            {field('Why this agency may fit','fit_notes',{multiline:true,wide:true})}
+          </>}
+          {action==='save'&&<>
+            {field('Current call-answering provider','provider_status',{options:[{value:'unknown',label:'Not confirmed'},{value:'none_confirmed',label:'Confirmed: no provider'},{value:'existing_provider',label:'Has a provider — hold outreach'}]})}
+            {field('Provider details','existing_provider')}{field('Next follow-up (your local time)','next_followup_at',{type:'datetime-local'})}
+            {field('Next action','next_action')}{field('Internal notes','notes',{multiline:true,wide:true})}
+          </>}
+          {action==='terms'&&<>
+            <p className="sm:col-span-2 text-sm text-slate-400">Record the terms you have proposed or agreed with this agency. No rate is assumed. Receipt entries use the agreed rate at the time you record them.</p>
+            {field('Terms status','terms_status',{options:['unset','proposed','agreed']})}{field('Commission on recorded receipts (%)','commission_percent',{type:'number',min:0,max:100,step:0.01,required:draft.terms_status==='agreed'})}
+            {field('Scope, duration and agreement reference','terms_notes',{multiline:true,wide:true,required:draft.terms_status==='agreed',minLength:draft.terms_status==='agreed'?10:undefined})}
+          </>}
+          {action==='referral'&&<>
+            {r ? <>{field('Referral stage','stage',{options:['introduced','demo','pilot','customer','lost']})}{field('Monthly service fee (USD)','monthly_fee',{type:'number',min:0,step:0.01})}</> : <>
+              {field('Existing CRM business','business_id',{wide:true,options:[{value:'',label:'Create a new referred business'},...businesses.filter(b=>!b.removed_at&&!feed.referrals.some(x=>x.business_id===b.id)).map(b=>({value:b.id,label:b.name}))]})}
+              {!draft.business_id&&<>{field('Referred business name','name',{required:true})}{field('Business email','email',{type:'email'})}{field('Business phone','phone',{type:'tel'})}{field('Website','website',{type:'url'})}</>}
+            </>}
+            {field('Introduction and next steps','notes',{multiline:true,wide:true})}
+          </>}
+          {action==='receipt'&&<>
+            <p className="sm:col-span-2 text-sm text-slate-400">Enter a payment you have already received. This records revenue and calculates commission; it does not charge a customer or send a payout.</p>
+            {field('Referred customer','referral_id',{required:true,options:[{value:'',label:'Select referred customer'},...feed.referrals.filter(x=>x.partner_id===a.id).map(x=>({value:x.id,label:x.business_name}))]})}
+            {field('Payment / invoice reference','receipt_reference',{required:true,minLength:3,maxLength:200})}
+            {field('Amount received (USD)','amount_received',{type:'number',min:0.01,step:0.01,required:true})}
+            {field('Date received (your local time)','received_at',{type:'datetime-local',required:true,max:agencyLocalTime(new Date())})}
+            {field('Payment notes','notes',{multiline:true,wide:true})}
+            <p className="sm:col-span-2 text-sm text-emerald-300">Commission at {a.commission_percent}%: {agencyMoney(Number(draft.amount_received)*Number(a.commission_percent)/100)}</p>
+          </>}
+        </fieldset>
+        {error&&<p role="alert" className="text-sm text-amber-300">{error}</p>}
+        <div className="flex gap-2 justify-end"><button type="button" className="btn btn-ghost" disabled={busy} onClick={onClose}>Cancel</button><button className="btn btn-primary" disabled={busy}>{busy?'Saving…':action==='create'?'Add and queue research':'Save'}</button></div>
+      </form>
+    </section>
+  </div>;
+}
+function AgencyPartnershipsTab({feed,salesFeed,directBusinesses}) {
+  const [view,setView]=useState('partners'),[query,setQuery]=useState(''),[stage,setStage]=useState('all'),[selected,setSelected]=useState(null);
+  const [editor,setEditor]=useState(null),[busy,setBusy]=useState(false),[note,setNote]=useState(null),[selectedEmail,setSelectedEmail]=useState(null);
+  const [researchRequests,setResearchRequests]=useState({});
+  const lock=useRef(false);
+  const refresh=()=>{feed.refresh();salesFeed.refresh();};
+  const command=async(action,payload)=>{
+    if(lock.current)return false;lock.current=true;setBusy(true);setNote(null);
+    if(action==='research')setResearchRequests(current=>({...current,[payload.partner_id]:{phase:'submitting'}}));
+    try {
+      const {data,error}=await db.rpc('topher_agency_command',{p_action:action,p_payload:payload});
+      if(error)throw new Error(error.message);
+      if(action==='research')setResearchRequests(current=>({...current,[payload.partner_id]:{phase:'saved',research:data.research}}));
+      setNote({error:false,text:data.note||'Saved.'});return data;
+    } catch(e){const text=e.message||'The change could not be saved.';setNote({error:true,text});if(action==='research')setResearchRequests(current=>({...current,[payload.partner_id]:{phase:'error',text}}));return false;}
+    finally{lock.current=false;setBusy(false);refresh();}
+  };
+  const edit=(action,partner=null,referral=null)=>{setNote(null);setEditor({action,partner,referral});};
+  const partners=feed.partners.map(a=>{
+    const saved=researchRequests[a.id]?.research;
+    return saved&&(!a.research_updated_at||new Date(saved.research_updated_at)>new Date(a.research_updated_at))?{...a,...saved}:a;
+  });
+  const partner=partners.find(a=>a.id===selected);
+  const visible=partners.filter(a=>(a.business.name+' '+a.contact_name+' '+(a.business.email||'')).toLowerCase().includes(query.toLowerCase())&&(stage==='all'||stage==='due'&&agencyDue(a)||a.stage===stage));
+  const referrals=feed.referrals,receipts=feed.receipts;
+  const due=feed.partners.filter(agencyDue).length;
+  const open=feed.partners.filter(a=>a.stage!=='closed').length;
+  const active=feed.partners.filter(a=>a.stage==='active').length;
+  const unpaid=receipts.filter(r=>!r.commission_paid_at).reduce((n,r)=>n+Number(r.commission_amount),0);
+  const workerAt=feed.settings.last_worker_seen_at;
+  const workerFresh=workerAt&&Date.now()-new Date(workerAt)<72*3600000;
+  const noWrite=busy||!!feed.error||!feed.updatedAt;
+  const agencyFor=r=>feed.partners.find(a=>a.id===r.partner_id);
+  const emailFor=a=>salesFeed.threads.find(t=>t.business_id===a.business_id);
+  const openOutreach=a=>{setSelectedEmail(emailFor(a)?.id||null);setView('outreach');};
+  return <div className="space-y-5">
+    <section className="glass rounded-2xl p-5 space-y-4">
+      <div className="flex items-start justify-between gap-3 flex-wrap"><div><div className="text-[10px] font-semibold tracking-widest uppercase text-indigo-300">Partner growth</div><h2 className="text-lg font-semibold text-slate-100 mt-1">Agencies that bring us plumbing clients</h2><p className="text-[12px] text-slate-400 mt-1">Find a fit, demonstrate call handling, then test one client. You decide the partnership terms.</p></div><div className="flex gap-2"><button className="btn btn-ghost" onClick={refresh} disabled={feed.busy}><Icon name="refresh"/>Refresh</button><button className="btn btn-primary" onClick={()=>edit('create')} disabled={noWrite}><Icon name="plus"/>Add agency</button></div></div>
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">{[[open,'Open prospects'],[due,'Follow-ups due'],[active,'Active partners'],[agencyMoney(unpaid),'Commission to pay']].map(([n,label])=><div key={label} className="glass-flat rounded-xl p-3"><div className="text-xl font-semibold text-slate-100">{n}</div><div className="text-[11px] text-slate-400 mt-1">{label}</div></div>)}</div>
+      <div className="flex gap-2 flex-wrap text-[11px]"><span className={'pill '+(feed.settings.enabled?'badge-ok':'badge-warm')}>Department {feed.settings.enabled?'on':'paused'}</span><span className={'pill '+(feed.settings.enabled&&feed.settings.auto_enroll?'badge-ok':'badge-warm')}>Agency outreach {feed.settings.enabled&&feed.settings.auto_enroll?'on':'paused'}</span><span className={'pill '+(workerFresh?'badge-muted':'badge-warm')}>{workerAt?'Research last checked '+salesDate(workerAt):'Waiting for first research run'}</span><span className="text-slate-500 self-center">{feed.updatedAt?'Updated '+salesDate(feed.updatedAt):'Loading department…'}</span></div>
+    </section>
+    {feed.error&&<div role="alert" className="glass rounded-xl p-4 text-sm text-amber-300">{feed.error} {feed.updatedAt&&'Showing the last successful refresh.'}</div>}
+    {note&&!editor&&<div role={note.error?'alert':'status'} className={'glass-flat rounded-xl p-3 text-sm '+(note.error?'text-amber-300':'text-emerald-300')}>{note.text}</div>}
+    <nav className="flex flex-wrap gap-2" aria-label="Agency department views">{[['partners','Partners'],['outreach','Outreach'],['referrals','Referrals'],['payments','Revenue & commissions'],['activity','Activity & automation']].map(([key,label])=><button key={key} className={view===key?'btn btn-primary':'btn btn-ghost'} aria-pressed={view===key} onClick={()=>setView(key)}>{label}</button>)}</nav>
+    {view==='partners'&&<div className="grid xl:grid-cols-5 gap-4 items-start">
+      <section className={'glass rounded-2xl p-4 '+(partner?'xl:col-span-3':'xl:col-span-5')}>
+        <div className="grid sm:grid-cols-2 gap-3 mb-4"><AgencyField label="Search agencies" value={query} onChange={setQuery} placeholder="Agency, person or email"/><AgencyField label="Stage" value={stage} onChange={setStage} options={[{value:'all',label:'All stages'},{value:'due',label:'Follow-ups due'},...AGENCY_STAGES]}/></div>
+        <div className="space-y-2">{visible.map(a=><button key={a.id} onClick={()=>setSelected(a.id)} className={'w-full text-left rounded-xl p-4 border '+(selected===a.id?'border-indigo-300/40 bg-white/5':'border-white/5 hover:bg-white/5')}>
+          <div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-slate-100">{a.business.name}</span><span className={'pill '+(a.stage==='active'?'badge-ok':a.stage==='conversation'?'badge-warm':'badge-muted')}>{agencyLabel(a.stage)}</span></div>
+          <p className="text-[12px] text-slate-400 mt-1 break-all">{a.contact_name||a.business.email||'Researching published contact details'}</p>
+          <p className={'text-[11px] mt-2 '+(['pending','researching'].includes(a.research_status)?'text-indigo-300':'text-slate-500')}>{researchRequests[a.id]?.phase==='submitting'?'Queueing research…':agencyResearchLabel(a.research_status)} · {a.thread?agencyLabel(a.thread.state):'No email conversation yet'}</p>
+          {a.next_followup_at&&<p className={'text-[11px] mt-1 '+(agencyDue(a)?'text-amber-300':'text-slate-400')}>{agencyDue(a)?'Due: ':'Follow up: '}{salesDate(a.next_followup_at)}</p>}
+        </button>)}{!visible.length&&<p className="text-sm text-slate-400 p-6 text-center">{feed.busy?'Loading agencies…':'No agencies in this view. Scheduled research adds candidates here.'}</p>}</div>
+      </section>
+      {partner&&<aside className="xl:col-span-2 glass rounded-2xl p-5 space-y-4">
+        <div className="flex items-start justify-between gap-3"><div><h3 className="text-base font-semibold text-slate-100">{partner.business.name}</h3><p className="text-xs mt-1"><AgencyLink url={partner.business.website}>Company website ↗</AgencyLink></p></div><button className="btn btn-ghost" aria-label="Close agency details" onClick={()=>setSelected(null)}><Icon name="close"/></button></div>
+        <div className="grid grid-cols-2 gap-2"><button className="btn btn-primary" onClick={()=>edit('save',partner)} disabled={noWrite}>Edit details</button><button className="btn btn-ghost" onClick={()=>openOutreach(partner)}>Email conversation</button><button className="btn btn-ghost" onClick={()=>edit('terms',partner)} disabled={noWrite}>Partnership terms</button><button className="btn btn-ghost" onClick={()=>edit('referral',partner)} disabled={noWrite}>Add referral</button></div>
+        <div className="text-[12px] text-slate-300 space-y-2"><p><span className="text-slate-500">Contact: </span>{[partner.contact_name,partner.contact_role].filter(Boolean).join(' · ')||'Unconfirmed'}</p><p className="break-all">{partner.business.email||'No verified email'} {partner.business.phone&&' · '+partner.business.phone}</p><p><span className="text-slate-500">Fit: </span>{partner.fit_notes||partner.research_evidence?.observation||'Awaiting website research.'}</p><p><span className="text-slate-500">Current provider: </span>{partner.provider_status==='unknown'?'Unconfirmed':agencyLabel(partner.provider_status)} {partner.existing_provider}</p><p><span className="text-slate-500">Next: </span>{partner.next_action||'Set the next action.'}</p></div>
+        <AgencyResearch partner={partner} request={researchRequests[partner.id]} settings={feed.settings} noWrite={noWrite} onQueue={()=>command('research',{partner_id:partner.id})}/>
+        <div className="text-[12px] text-slate-400 space-y-1"><p>Terms: {agencyLabel(partner.terms_status)}{partner.commission_percent!=null?' · '+partner.commission_percent+'% commission':''}</p><p className="whitespace-pre-wrap">{partner.terms_notes}</p><p>{referrals.filter(r=>r.partner_id===partner.id).length} referred businesses</p>{partner.notes&&<p className="whitespace-pre-wrap pt-2">{partner.notes}</p>}</div>
+      </aside>}
+    </div>}
+    {view==='outreach'&&<SalesEmailsTab initialView={selectedEmail?'conversations':'businesses'} feed={{...salesFeed,refresh}} selectedId={selectedEmail} onSelect={setSelectedEmail}/>}
+    {view==='referrals'&&<section className="glass rounded-2xl p-5 space-y-3"><p className="text-sm text-slate-400">Open an agency and choose Add referral to connect an introduction to its partner.</p>{referrals.map(r=>{const a=agencyFor(r);return <div key={r.id} className="glass-flat rounded-xl p-4 flex flex-wrap justify-between gap-3 items-center"><div><p className="text-sm font-semibold text-slate-100">{r.business_name}</p><p className="text-[12px] text-slate-400 mt-1">{a?.business.name} · {agencyLabel(r.stage)}{r.monthly_fee!=null?' · '+agencyMoney(r.monthly_fee)+'/month':''}</p>{r.notes&&<p className="text-[12px] text-slate-500 mt-1 whitespace-pre-wrap">{r.notes}</p>}</div><div className="flex flex-wrap gap-2"><button className="btn btn-ghost" onClick={()=>edit('referral',a,r)} disabled={noWrite}>Update referral</button><button className="btn btn-ghost" onClick={()=>edit('receipt',a,r)} disabled={noWrite||a?.terms_status!=='agreed'} title={a?.terms_status!=='agreed'?'Record agreed partnership terms first':''}>Record payment</button></div></div>;})}{!referrals.length&&<p className="text-sm text-slate-500 py-8 text-center">Referred businesses will appear here with their source agency.</p>}</section>}
+    {view==='payments'&&<section className="glass rounded-2xl p-5 space-y-4"><div className="flex flex-wrap justify-between gap-3"><div><h3 className="font-semibold text-slate-100">Received revenue: {agencyMoney(receipts.reduce((n,r)=>n+Number(r.amount_received),0))}</h3><p className="text-[12px] text-slate-400 mt-1">Manual payment records. Commission uses the rate saved with each receipt. No payouts are initiated here.</p></div></div>{receipts.map(payment=>{const r=referrals.find(r=>r.id===payment.referral_id),a=r&&agencyFor(r);return <div key={payment.id} className="glass-flat rounded-xl p-4 flex flex-wrap items-center justify-between gap-3"><div><p className="text-sm text-slate-100 font-semibold">{r?.business_name} · {agencyMoney(payment.amount_received)}</p><p className="text-xs text-slate-400 mt-1">{a?.business.name} · {payment.receipt_reference} · {salesDate(payment.received_at)}</p><p className="text-xs text-slate-400 mt-1">Commission: {agencyMoney(payment.commission_amount)} ({payment.commission_percent}%)</p></div>{payment.commission_paid_at?<span className="pill badge-ok">Paid {salesDate(payment.commission_paid_at)}</span>:<button className="btn btn-ghost" disabled={noWrite} onClick={()=>command('commission_paid',{partner_id:a.id,receipt_id:payment.id})}>Mark commission paid</button>}</div>;})}{!receipts.length&&<p className="text-sm text-slate-500 text-center py-8">Record a received payment from a referral to track revenue and commission here.</p>}</section>}
+    {view==='activity'&&<div className="grid lg:grid-cols-2 gap-4"><section className="glass rounded-2xl p-5 space-y-4"><h3 className="font-semibold text-slate-100">Agency automation</h3><p className="text-sm text-slate-400">Research runs weekdays at 8:35 a.m. and 1:35 p.m. Pacific. It checks company websites and published inboxes, then queues eligible agencies for outreach.</p><p className="text-xs text-slate-400">Pilot limits: 20 agency conversations, 2 searches and 10 website reviews per day, up to 5 new email conversations per day. Email sending shares the CRM’s 30-email daily limit.</p><div className="flex flex-wrap gap-2"><button className="btn btn-ghost" disabled={noWrite} onClick={()=>command('settings',{enabled:!feed.settings.enabled,auto_enroll:feed.settings.auto_enroll})}>{feed.settings.enabled?'Pause department':'Enable department'}</button><button className="btn btn-ghost" disabled={noWrite} onClick={()=>command('settings',{enabled:feed.settings.enabled,auto_enroll:!feed.settings.auto_enroll})}>{feed.settings.auto_enroll?'Pause agency outreach':'Enable agency outreach'}</button></div><p className="text-xs text-slate-500">Pausing the department holds research and agency emails. Pausing only outreach lets research continue. Replies stop follow-ups and come to you for the next decision. Opt-outs and bounces stop outreach. Existing-provider matches stay on hold. Email already handed to the mail server may finish.</p><div className="border-t border-white/10 pt-3 space-y-2">{feed.runs.map(run=><div key={run.id} className="text-xs text-slate-400"><span className={'pill mr-2 '+(['failed','error'].includes(run.status)?'badge-fail':'badge-muted')}>{run.status}</span>{salesDate(run.started_at)} · {run.rows_processed||0} records{run.error_message&&<p className="text-amber-300 mt-1">{run.error_message}</p>}</div>)}</div></section><section className="glass rounded-2xl p-5 space-y-3"><h3 className="font-semibold text-slate-100">Recent department activity</h3>{feed.events.slice(0,30).map(e=><div key={e.id} className="text-xs border-b border-white/5 pb-2"><p className="text-slate-300">{agencyLabel(e.action)} · {feed.partners.find(a=>a.id===e.partner_id)?.business.name||'Department settings'}</p><p className="text-slate-500 mt-1">{salesDate(e.created_at)}</p></div>)}{!feed.events.length&&<p className="text-sm text-slate-500">Changes and decisions will appear here.</p>}</section></div>}
+    {editor&&<AgencyEditor key={editor.action+':'+(editor.referral?.id||editor.partner?.id||'new')} editor={editor} feed={feed} businesses={directBusinesses} busy={busy} error={note?.error?note.text:null} onClose={()=>setEditor(null)} onSave={async(action,payload)=>{const result=await command(action,payload);if(result){setEditor(null);if(result.partner_id)setSelected(result.partner_id);}}}/>}
+  </div>;
+}
+
 function App() {
   const [session, setSession]       = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -2568,6 +3319,11 @@ function App() {
   const [drawerProspect, setDrawerProspect] = useState(null);
   const [mobileNav, setMobileNav]   = useState(false);
   const [settings, setSettings]     = useState({});
+  const allSalesFeed = useSalesEmailFeed(session);
+  const salesFeed = agencyDepartmentFeed(allSalesFeed,'direct_sales');
+  const agencySalesFeed = agencyDepartmentFeed(allSalesFeed,'agency_partnerships');
+  const agencyFeed = useAgencyFeed(session);
+  const [salesSelectedId, setSalesSelectedId] = useState(null);
 
   useEffect(() => {
     if (!db || !isConfigured()) { setAuthLoading(false); return; }
@@ -2590,7 +3346,7 @@ function App() {
         db.from('ambassador_applicants').select('*').order('created_at',{ascending:false}).limit(500),
         db.from('businesses').select('*').order('created_at',{ascending:false}).limit(500),
         db.from('engine_runs').select('workflow_key,status,started_at,finished_at,created_at').order('created_at',{ascending:false}).limit(200),
-        db.from('outreach_messages').select('id,business_id,campaign_id,channel,message_type,direction,status,subject,body,generation_model,generation_prompt_version,generation_workflow_version,generation_reason,generation_count,created_by,created_at,superseded_at,approved_by,approved_at,sent_at,scheduled_for,review_notes,persona_key,persona_version').order('created_at',{ascending:false}).limit(500),
+        db.from('outreach_messages').select('id,business_id,campaign_id,channel,message_type,direction,status,subject,body,generation_model,generation_prompt_version,generation_workflow_version,generation_reason,generation_count,created_by,created_at,superseded_at,approved_by,approved_at,sent_at,scheduled_for,review_notes,persona_key,persona_version,sales_thread_id').order('created_at',{ascending:false}).limit(500),
       ]);
       const firstErr = e1||e2||smsResult.error;
       if (firstErr) setErr(firstErr.message);
@@ -2627,6 +3383,11 @@ function App() {
 
   // outreach_messages has NO updated_at column — never send it here.
   const updateOutreach = async (id, fields) => {
+    const row = outreach.find(o => o.id === id);
+    if (row?.sales_thread_id || salesFeed.messages.some(m => m.id === id) || salesFeed.threads.some(t => t.business_id === row?.business_id)) {
+      alert('This conversation is managed by the email sales workflow. Open Email Sales to review its activity.');
+      return;
+    }
     const { error } = await db.from('outreach_messages').update(fields).eq('id', id);
     if (error) { alert('Update failed: ' + error.message); return; }
     setOutreach(prev => prev.map(o => o.id === id ? { ...o, ...fields } : o));
@@ -2695,7 +3456,8 @@ function App() {
     || (r.country||'').toLowerCase().includes(q)
     || (r.whatsapp||'').includes(q));
 
-  const businessesFiltered = businesses.filter(r =>
+  const activeBusinesses = businesses.filter(b => (b.department||'direct_sales')==='direct_sales' && !salesFeed.businesses.find(x => x.id===b.id)?.removed_at);
+  const businessesFiltered = activeBusinesses.filter(r =>
     !q
     || (r.name||'').toLowerCase().includes(q)
     || (r.phone||'').includes(q)
@@ -2711,13 +3473,17 @@ function App() {
     calls:      calls.length,
     sms:        sms.length,
     ambassador: ambassadors.length,
-    prospecting: businesses.length,
+    prospecting: activeBusinesses.length,
+    emails: salesFeed.threads.length,
+    agencies: agencyFeed.partners.filter(a=>a.stage!=='closed').length,
   };
 
   const TAB_META = {
+    agencies: { title:'Agency Partnerships', subtitle:'Agency relationships, referred clients, follow-ups and commissions.' },
     overview: { title:'Command Center', subtitle:'Pipeline · Priority Queue · Live activity — your sales cockpit.' },
     pipeline: { title:'Pipeline',       subtitle:'Track every lead through new, contacted, demo and closed.' },
     leads:    { title:'Leads',          subtitle:'Every contact and inbound lead, filterable and editable.' },
+    emails:   { title:'Email Sales', subtitle:'Outgoing emails, incoming replies, follow-ups, and conversations that need you.' },
     calls:    { title:'Calls',          subtitle:'AI summaries, transcripts and outcomes from every call.' },
     sms:      { title:'SMS',            subtitle:'Inbound replies and outbound message activity.' },
     ambassador:{ title:'Ambassadors',   subtitle:'Phone applicants — scored, with call recordings. Move them through the pipeline.' },
@@ -2727,6 +3493,13 @@ function App() {
 
   const meta = TAB_META[tab] || TAB_META.overview;
   const onTabChange = (k) => { setTab(k); setMobileNav(false); if (k !== 'leads') setFilter('all'); setSearch(''); };
+  const businessCommand = async (action, payload) => {
+    const {data,error} = await db.rpc('topher_sales_command',{p_action:action,p_payload:payload});
+    if(error) throw new Error(error.message);
+    salesFeed.refresh(); load(); setDrawerProspect(null);
+    return data;
+  };
+  const openSales = (id) => { setSalesSelectedId(id || null); setDrawerProspect(null); onTabChange('emails'); };
 
   return (
     <div className="min-h-screen flex">
@@ -2751,19 +3524,22 @@ function App() {
           <TopBar
             title={meta.title}
             subtitle={meta.subtitle}
-            lastRefresh={lastRefresh}
-            onRefresh={load}
-            spinning={spinning}
+            lastRefresh={tab === 'agencies' ? agencyFeed.updatedAt : tab === 'emails' ? salesFeed.updatedAt : lastRefresh}
+            onRefresh={() => { load(); salesFeed.refresh(); agencyFeed.refresh(); }}
+            spinning={spinning || (tab === 'emails' && salesFeed.busy)}
             onMenu={() => setMobileNav(true)}
             contacts={contacts}
           />
 
-          {err ? (
+          {err && !['emails','agencies'].includes(tab) ? (
             <ErrorPanel error={err} onRetry={load}/>
           ) : (
             <Fragment>
+              {tab === 'emails' && <SalesEmailsTab feed={salesFeed} selectedId={salesSelectedId} onSelect={setSalesSelectedId}/>}
+              {tab === 'agencies' && <AgencyPartnershipsTab feed={agencyFeed} salesFeed={agencySalesFeed} directBusinesses={salesFeed.businesses}/>}
+
               {tab === 'overview' && (
-                <CommandCenter contacts={contacts} calls={calls} sms={sms} businesses={businesses} engineRuns={engineRuns} loading={loading} onOpenLead={setDrawerLead} onTab={onTabChange} onUpdate={updateContact}/>
+                <CommandCenter contacts={contacts} calls={calls} sms={sms} businesses={activeBusinesses} engineRuns={engineRuns} loading={loading} onOpenLead={setDrawerLead} onTab={onTabChange} onUpdate={updateContact} salesFeed={salesFeed} onOpenSales={openSales} onBusinessCommand={businessCommand} removalDisabled={!!salesFeed.error || !salesFeed.updatedAt || salesFeed.connection==='offline'}/>
               )}
 
               {tab === 'pipeline' && (
@@ -2813,7 +3589,7 @@ function App() {
                 <div className="glass rounded-2xl overflow-hidden">
                   <ProspectingTab rows={businessesFiltered} loading={loading} onOpenProspect={setDrawerProspect} search={search} setSearch={setSearch}/>
                   <div className="border-t border-white/5 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-[10.5px] text-slate-500"><span className="font-mono text-slate-300">{businessesFiltered.length}</span> of <span className="font-mono text-slate-300">{businesses.length}</span> businesses</span>
+                    <span className="text-[10.5px] text-slate-500"><span className="font-mono text-slate-300">{businessesFiltered.length}</span> of <span className="font-mono text-slate-300">{activeBusinesses.length}</span> businesses</span>
                     <span className="text-[10px] text-slate-600 flex items-center gap-1.5"><Icon name="refresh" size={10}/> Auto-refresh · 30s</span>
                   </div>
                 </div>
@@ -2822,11 +3598,11 @@ function App() {
               <div className="mt-5 flex flex-wrap items-center justify-between gap-2 px-1 text-[10.5px] text-slate-600">
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1.5">
-                    <span className="dot bg-emerald-400 pulse-dot"/>
-                    Synced from Supabase
+                    <span className="dot" style={{background:tab==='emails' && (salesFeed.error || !salesFeed.updatedAt) ? '#fbbf24' : '#34d399'}}/>
+                    {tab === 'emails' ? (salesFeed.error ? 'Email refresh failed' : salesFeed.updatedAt ? 'Email activity loaded' : 'Awaiting email activity') : 'Synced from Supabase'}
                   </span>
                   <span className="hidden sm:inline">·</span>
-                  <span className="hidden sm:inline">{lastRefresh ? `Last sync ${fmtAgo(lastRefresh)}` : 'Awaiting sync'}</span>
+                  <span className="hidden sm:inline">{(tab==='emails'?salesFeed.updatedAt:lastRefresh) ? `Last sync ${fmtAgo(tab==='emails'?salesFeed.updatedAt:lastRefresh)}` : 'Awaiting sync'}</span>
                 </div>
                 <span>© Topher AI · Lead Command Center</span>
               </div>
@@ -2836,7 +3612,7 @@ function App() {
       </main>
 
       {drawerLead && <LeadDrawer lead={drawerLead} onClose={() => setDrawerLead(null)} onUpdate={updateContact} onDelete={deleteContact} calls={calls} sms={sms} settings={settings}/>}
-      {drawerProspect && <ProspectDrawer prospect={drawerProspect} onClose={() => setDrawerProspect(null)} outreach={outreach} onUpdateOutreach={updateOutreach} operator={session?.user?.email}/>}
+      {drawerProspect && <ProspectDrawer prospect={drawerProspect} onClose={() => setDrawerProspect(null)} outreach={[...new Map([...outreach,...salesFeed.messages].map(m => [m.id,m])).values()]} onUpdateOutreach={updateOutreach} operator={session?.user?.email} salesThread={salesFeed.threads.find(t => t.business_id===drawerProspect.id)} onOpenSales={openSales} onBusinessCommand={businessCommand} removalDisabled={!!salesFeed.error || !salesFeed.updatedAt || salesFeed.connection==='offline'}/>}
       <HelpFab/>
       <HelpModal/>
     </div>

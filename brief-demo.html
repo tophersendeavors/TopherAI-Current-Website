@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topher AI — Built for Keller Williams · Prepared for Joshua Johnson</title>
+<link rel="icon" type="image/svg+xml" href="assets/topher-heart.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Hanken+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#1A1821; --void-2:#242029; --void-3:#2A2733;
+  --ink:#F2EEE9; --mute:#9B9099; --faint:#5F5763;
+  --hair:rgba(243,233,221,.10); --hair-2:rgba(243,233,221,.05);
+  --coral:#E8826B; --coral-deep:#D26A52; --cream:#F3E9DD;
+  --amber:#E0A85C; --violet:#7B86C9; --red:#D9655A; --go:#6FBF9B;
+  --kw-red:#CE011F; --kw-red-soft:#E23A4E;
+  --sans:'Hanken Grotesk',-apple-system,system-ui,sans-serif;
+  --serif:'Quicksand','Hanken Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:var(--void);
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+a{color:var(--coral);text-decoration:none}
+a:hover{color:var(--coral-deep)}
+::selection{background:color-mix(in srgb,var(--coral) 40%,transparent);color:#fff}
+
+/* ---- ambient field ---- */
+.field{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);mix-blend-mode:screen}
+.blob.a{width:60vw;height:60vw;top:-20vw;left:-10vw;background:radial-gradient(circle,color-mix(in srgb,var(--coral) 40%,transparent),transparent 62%);animation:breA 13s ease-in-out infinite}
+.blob.b{width:52vw;height:52vw;bottom:-24vw;right:-14vw;background:radial-gradient(circle,color-mix(in srgb,var(--coral-deep) 34%,transparent),transparent 60%);animation:breB 17s ease-in-out infinite}
+.veil{position:absolute;inset:0;background:radial-gradient(ellipse 120% 90% at 50% 0%,transparent 34%,var(--void) 94%)}
+@keyframes breA{0%,100%{transform:scale(1) translate(0,0);opacity:.8}50%{transform:scale(1.12) translate(2%,1%);opacity:1}}
+@keyframes breB{0%,100%{transform:scale(1.05);opacity:.6}50%{transform:scale(.95);opacity:.9}}
+
+/* ---- page frame ---- */
+.page{position:relative;z-index:1;max-width:1320px;margin:0 auto;padding:26px 32px 60px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand .heart{width:32px;height:32px;flex:none;animation:beat 11s ease-in-out infinite}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.brand-name{font-family:var(--serif);font-weight:700;font-size:20px;letter-spacing:-.01em}
+.brand-name .ai{color:var(--coral)}
+.brand-sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-top:2px}
+.preview-chip{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--mute);padding:8px 14px;border:1px solid var(--hair);border-radius:999px;background:color-mix(in srgb,var(--void-2) 60%,transparent);backdrop-filter:blur(8px)}
+.preview-chip .d{width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber)}
+
+/* ---- intro ---- */
+.intro{max-width:760px;margin:8px 0 26px}
+.intro .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);display:inline-flex;align-items:center;gap:10px}
+.intro .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--coral);box-shadow:0 0 12px var(--coral)}
+.intro h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,3.6vw,40px);line-height:1.08;letter-spacing:-.03em;margin:16px 0 0;text-wrap:balance}
+.intro h1 em{font-style:normal;color:color-mix(in srgb,var(--coral) 74%,var(--ink))}
+.intro p{color:var(--mute);font-size:16px;margin:14px 0 0;max-width:600px;line-height:1.55}
+
+/* ---- browser mockup ---- */
+.browser{
+  position:relative;
+  border:1px solid var(--hair);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--void-2) 88%,transparent);
+  box-shadow:0 50px 110px -50px rgba(0,0,0,.9),0 0 120px -60px color-mix(in srgb,var(--coral) 40%,transparent),inset 0 1px 0 rgba(255,255,255,.05);
+  overflow:hidden;
+}
+.browser__bar{display:flex;align-items:center;gap:16px;padding:13px 18px;border-bottom:1px solid var(--hair-2);background:color-mix(in srgb,var(--void) 40%,transparent)}
+.lights{display:flex;gap:8px;flex:none}
+.lights i{width:12px;height:12px;border-radius:50%;display:block}
+.lights i:nth-child(1){background:#E0685E}.lights i:nth-child(2){background:#E0B54F}.lights i:nth-child(3){background:#5FBF7E}
+.url{flex:1;max-width:420px;display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;color:var(--mute);padding:7px 14px;border-radius:999px;background:color-mix(in srgb,var(--void) 60%,transparent);border:1px solid var(--hair-2)}
+.url svg{width:12px;height:12px;flex:none;opacity:.7}
+.browser__actions{margin-left:auto;display:flex;gap:16px;color:var(--faint)}
+.browser__actions span{width:15px;height:2px;background:currentColor;border-radius:2px;position:relative}
+.browser__actions span::after,.browser__actions span::before{content:"";position:absolute;left:0;width:15px;height:2px;background:currentColor;border-radius:2px}
+.browser__actions span::before{top:-5px}.browser__actions span::after{top:5px}
+
+/* ---- dashboard shell ---- */
+.dash{display:grid;grid-template-columns:220px 1fr;min-height:660px}
+.side{border-right:1px solid var(--hair-2);padding:24px 18px;display:flex;flex-direction:column;gap:6px;background:color-mix(in srgb,var(--void) 30%,transparent)}
+.side__brand{display:flex;align-items:center;gap:10px;padding:4px 10px 20px}
+.side__brand .heart{width:26px;height:26px}
+.side__brand b{font-family:var(--serif);font-weight:700;font-size:16px}
+.side__brand b .ai{color:var(--coral)}
+.nav-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin:8px 10px 8px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:11px;font-size:14px;font-weight:500;color:var(--mute);cursor:pointer;transition:background .18s,color .18s}
+.nav-item .dot{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.55;flex:none}
+.nav-item:hover{color:var(--ink);background:var(--hair-2)}
+.nav-item.active{color:var(--ink);background:color-mix(in srgb,var(--coral) 14%,transparent)}
+.nav-item.active .dot{background:var(--coral);opacity:1;box-shadow:0 0 10px var(--coral)}
+.nav-item .badge{margin-left:auto;font-family:var(--mono);font-size:10px;background:var(--coral);color:#211D29;padding:2px 7px;border-radius:999px;font-weight:500}
+.side__foot{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 10px 2px;border-top:1px solid var(--hair-2)}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(150deg,var(--coral),var(--coral-deep));display:grid;place-items:center;font-family:var(--serif);font-weight:600;font-size:14px;color:#211D29;flex:none}
+.side__foot .who{font-size:13px;font-weight:500;line-height:1.2}
+.side__foot .who small{display:block;color:var(--faint);font-size:11px;font-weight:400}
+
+/* ---- main ---- */
+.main{padding:26px 28px 30px;display:grid;grid-template-columns:1fr 400px;gap:26px 26px;align-items:start;align-content:start}
+.main__left{display:flex;flex-direction:column}
+.main__head{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.main__head h2{font-family:var(--serif);font-weight:600;font-size:22px;letter-spacing:-.02em}
+.main__sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:5px}
+.main__head .live{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.main__head .live .pip{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 10px var(--red);animation:pip 1.5s ease-in-out infinite}
+@keyframes pip{0%,100%{opacity:1}50%{opacity:.3}}
+.replay{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;color:var(--mute);padding:8px 13px;border:1px solid var(--hair);border-radius:999px;background:transparent;cursor:pointer;transition:.2s}
+.replay:hover{color:var(--ink);border-color:color-mix(in srgb,var(--coral) 45%,transparent)}
+.replay svg{width:13px;height:13px}
+.hprofile{display:flex;align-items:center;gap:11px;padding:5px 5px 5px 12px;border-radius:999px;border:1px solid var(--hair);background:color-mix(in srgb,var(--void) 40%,transparent)}
+.hprofile .who{text-align:right;line-height:1.15}
+.hprofile .who b{font-size:13.5px;font-weight:600;display:block}
+.hprofile .who small{font-size:11px;color:var(--faint)}
+.hprofile .avatar{width:36px;height:36px;border-radius:50%;background-size:cover;background-position:center 16%;background-color:var(--void-3);display:grid;place-items:center;font-family:var(--serif);font-weight:600;font-size:13px;color:#211D29;flex:none;border:1px solid var(--hair)}
+
+/* ---- live transcript (fills left column) ---- */
+.transcript{margin-top:16px;border:1px solid var(--hair);border-radius:16px;background:color-mix(in srgb,var(--void-2) 62%,transparent);overflow:hidden}
+.transcript__head{display:flex;align-items:center;gap:9px;padding:13px 18px;border-bottom:1px solid var(--hair-2)}
+.transcript__head .heart{width:18px;height:18px;flex:none}
+.transcript__head .tt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.transcript__head .taglive{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--coral)}
+.transcript__head .taglive .pip{width:6px;height:6px;border-radius:50%;background:var(--coral);box-shadow:0 0 8px var(--coral);animation:pip 1.4s ease-in-out infinite}
+.transcript__body{padding:16px 18px;display:flex;flex-direction:column;gap:13px}
+.tline{display:flex;gap:11px;align-items:flex-start;opacity:0;transform:translateY(6px);transition:opacity .5s ease,transform .5s ease}
+.tline.in{opacity:1;transform:none}
+.tline .tav{width:26px;height:26px;border-radius:8px;flex:none;display:grid;place-items:center;font-family:var(--mono);font-size:10px;font-weight:500}
+.tline.riley .tav{background:color-mix(in srgb,var(--coral) 20%,transparent);color:var(--coral)}
+.tline.caller .tav{background:var(--hair);color:var(--mute)}
+.tline .tbubble{font-size:13.5px;line-height:1.5;color:color-mix(in srgb,var(--ink) 88%,var(--mute))}
+.tline .tbubble b{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:3px;font-weight:500}
+.tline.riley .tbubble{color:var(--cream)}
+
+/* ---- live call panel (left) ---- */
+.callpanel{border:1px solid var(--hair);border-radius:16px;background:color-mix(in srgb,var(--void-2) 70%,transparent);overflow:hidden;display:flex;flex-direction:column}
+.cp__top{padding:22px 22px 18px;border-bottom:1px solid var(--hair-2);display:flex;align-items:center;gap:16px}
+.dialer{width:56px;height:56px;border-radius:50%;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--coral) 16%,transparent);border:1px solid color-mix(in srgb,var(--coral) 32%,transparent);position:relative}
+.dialer svg{width:24px;height:24px;color:var(--coral)}
+.dialer::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid color-mix(in srgb,var(--coral) 40%,transparent);animation:ring 2s ease-out infinite}
+@keyframes ring{0%{transform:scale(.9);opacity:.8}100%{transform:scale(1.5);opacity:0}}
+.cp__top .meta .num{font-family:var(--serif);font-weight:600;font-size:20px;letter-spacing:-.01em}
+.cp__top .meta .sub{font-size:13px;color:var(--mute);margin-top:2px}
+.cp__timer{margin-left:auto;text-align:right}
+.cp__timer .t{font-family:var(--mono);font-size:19px;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.cp__timer .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+
+/* Riley status header inside call panel */
+.riley{display:flex;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid var(--hair-2);background:color-mix(in srgb,var(--coral) 5%,transparent)}
+.riley .heart{width:22px;height:22px;flex:none}
+.riley .rtxt{font-size:14px}
+.riley .rtxt b{font-weight:600;color:color-mix(in srgb,var(--coral) 78%,var(--ink))}
+.riley .rstate{font-family:var(--mono);font-size:11px;color:var(--mute);margin-top:2px;min-height:15px}
+.riley .wave{margin-left:auto;display:flex;align-items:center;gap:3px;height:22px}
+.riley .wave i{width:3px;background:var(--coral);border-radius:2px;animation:wv 1s ease-in-out infinite}
+.riley .wave i:nth-child(1){height:8px;animation-delay:0s}
+.riley .wave i:nth-child(2){height:16px;animation-delay:.15s}
+.riley .wave i:nth-child(3){height:22px;animation-delay:.3s}
+.riley .wave i:nth-child(4){height:13px;animation-delay:.45s}
+.riley .wave i:nth-child(5){height:19px;animation-delay:.6s}
+.riley .wave i:nth-child(6){height:9px;animation-delay:.75s}
+@keyframes wv{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+
+/* timeline of steps */
+.steps{padding:20px 22px 24px;display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:14px;padding-bottom:20px;position:relative}
+.step:last-child{padding-bottom:0}
+.step::before{content:"";position:absolute;left:11px;top:26px;bottom:-2px;width:2px;background:var(--hair);}
+.step:last-child::before{display:none}
+.step__mark{width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--void);border:2px solid var(--faint);position:relative;z-index:1;transition:.4s}
+.step__mark::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--faint);transition:.4s}
+.step__body{flex:1;padding-top:1px}
+.step__t{font-size:14.5px;font-weight:500;color:var(--mute);transition:color .4s}
+.step__d{font-size:12.5px;color:var(--faint);margin-top:2px;line-height:1.4}
+.step.done .step__mark{border-color:var(--coral)}
+.step.done .step__mark::after{background:var(--coral);box-shadow:0 0 10px var(--coral)}
+.step.done .step__t{color:var(--ink)}
+.step.active .step__mark{border-color:var(--coral);box-shadow:0 0 0 4px color-mix(in srgb,var(--coral) 18%,transparent)}
+.step.active .step__mark::after{background:var(--coral);animation:pip 1.2s ease-in-out infinite}
+.step.active .step__t{color:var(--ink);font-weight:600}
+.step__tag{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--coral);opacity:0;transition:opacity .4s}
+.step.done .step__tag,.step.active .step__tag{opacity:1}
+
+/* ---- right column: modal + explanation ---- */
+.rail{display:flex;flex-direction:column;gap:0}
+
+/* incoming call modal */
+.modal{
+  border:1px solid color-mix(in srgb,var(--coral) 30%,var(--hair));
+  border-radius:18px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--coral) 8%,transparent),transparent 34%),color-mix(in srgb,var(--void-2) 92%,transparent);
+  box-shadow:0 40px 80px -40px rgba(0,0,0,.85),0 0 70px -40px color-mix(in srgb,var(--coral) 60%,transparent),inset 0 1px 0 rgba(255,255,255,.05);
+  overflow:hidden;
+  opacity:0;transform:translateY(18px) scale(.98);
+  transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1);
+}
+.modal.in{opacity:1;transform:none}
+.modal__head{padding:16px 18px;border-bottom:1px solid var(--hair-2);display:flex;align-items:center;gap:11px}
+.modal__pulse{width:36px;height:36px;border-radius:50%;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--coral) 18%,transparent);position:relative}
+.modal__pulse svg{width:17px;height:17px;color:var(--coral)}
+.modal__pulse::after{content:"";position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--coral);animation:ring 1.8s ease-out infinite}
+.modal__head .htxt{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--coral)}
+.modal__head .hsub{font-size:13px;color:var(--mute);margin-top:2px}
+.modal__prio{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:color-mix(in srgb,var(--coral) 18%,transparent);border:1px solid color-mix(in srgb,var(--coral) 40%,transparent);color:var(--coral);font-weight:500}
+
+.modal__id{padding:18px 18px 14px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--hair-2)}
+.modal__ava{width:50px;height:50px;border-radius:14px;flex:none;background:linear-gradient(150deg,color-mix(in srgb,var(--coral) 40%,var(--void-3)),var(--void-3));display:grid;place-items:center;font-family:var(--serif);font-weight:600;font-size:19px;border:1px solid var(--hair)}
+.modal__name{font-family:var(--serif);font-weight:600;font-size:21px;letter-spacing:-.01em}
+.modal__type{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--mute);margin-top:3px}
+.modal__type .vip{color:var(--coral);font-weight:600}
+
+.brief{padding:6px 18px 4px}
+.brief__row{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--hair-2)}
+.brief__row:last-child{border-bottom:none}
+.brief__k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);width:96px;flex:none;padding-top:2px}
+.brief__v{font-size:13.5px;line-height:1.5;color:color-mix(in srgb,var(--ink) 88%,var(--mute))}
+.brief__v b{color:var(--ink);font-weight:600}
+.brief__v .warn{color:var(--amber)}
+
+.greeting{margin:4px 18px 0;padding:13px 15px;border-radius:12px;background:color-mix(in srgb,var(--void) 45%,transparent);border:1px solid var(--hair-2)}
+.greeting .gk{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.greeting .gv{font-size:14px;line-height:1.5;font-style:italic;color:var(--cream)}
+
+/* AI recommendation */
+.reco{margin:16px 18px 0;padding:15px 16px;border-radius:13px;background:color-mix(in srgb,var(--coral) 12%,transparent);border:1px solid color-mix(in srgb,var(--coral) 30%,transparent)}
+.reco__top{display:flex;align-items:center;gap:9px}
+.reco__ic{width:26px;height:26px;border-radius:8px;flex:none;display:grid;place-items:center;background:var(--coral);color:#211D29}
+.reco__ic svg{width:14px;height:14px}
+.reco__lbl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--coral) 82%,var(--ink))}
+.reco__val{font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:-.01em;margin-top:1px}
+.why{margin-top:12px;border-top:1px solid color-mix(in srgb,var(--coral) 22%,transparent);padding-top:11px}
+.why__btn{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;color:var(--mute);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:0;transition:color .2s}
+.why__btn:hover{color:var(--ink)}
+.why__btn .chev{margin-left:auto;transition:transform .3s}
+.why.open .why__btn .chev{transform:rotate(180deg)}
+.why__body{max-height:0;overflow:hidden;transition:max-height .4s ease,margin .4s ease;margin-top:0}
+.why.open .why__body{max-height:200px;margin-top:11px}
+.why__body p{font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--ink) 82%,var(--mute))}
+.why__body ul{list-style:none;margin:10px 0 0;display:flex;flex-direction:column;gap:7px}
+.why__body li{display:flex;gap:9px;font-size:12.5px;color:color-mix(in srgb,var(--ink) 80%,var(--mute));align-items:flex-start}
+.why__body li .tick{color:var(--coral);font-family:var(--mono);flex:none}
+
+/* actions */
+.actions{padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px}
+.actions__hint{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--coral);padding:2px 2px 4px}
+.actions__hint .pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--coral);box-shadow:0 0 10px var(--coral);animation:pip 1.3s ease-in-out infinite;flex:none}
+.actions__hint span{color:var(--mute);text-transform:none;letter-spacing:.01em;font-family:var(--sans);font-size:12.5px}
+.abtn{display:flex;align-items:center;gap:12px;width:100%;padding:13px 15px;border-radius:12px;cursor:pointer;color:var(--ink);font-family:var(--sans);text-align:left;transition:transform .2s,border-color .2s,background .2s;border:1px solid var(--hair)}
+.abtn:hover{transform:translateY(-1px)}
+.abtn .aic{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center}
+.abtn .aic svg{width:15px;height:15px}
+.abtn .atxt{font-size:14.5px;font-weight:600;letter-spacing:-.005em}
+.abtn .asub{font-size:11.5px;color:var(--mute);font-weight:400;margin-top:1px}
+.abtn .akey{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--faint);border:1px solid var(--hair);border-radius:6px;padding:3px 6px}
+.abtn--primary{background:var(--coral);border-color:transparent}
+.abtn--primary .atxt,.abtn--primary .asub{color:#211D29}
+.abtn--primary .asub{opacity:.7}
+.abtn--primary .aic{background:rgba(33,29,41,.16);color:#211D29}
+.abtn--primary .akey{color:#211D29;border-color:rgba(33,29,41,.25);opacity:.7}
+.abtn--primary:hover{background:color-mix(in srgb,var(--coral) 88%,#fff)}
+.abtn--ghost{background:color-mix(in srgb,var(--void-3) 70%,transparent)}
+.abtn--ghost .atxt{color:var(--ink)}
+.abtn--ghost .aic{background:color-mix(in srgb,var(--coral) 16%,transparent);color:var(--coral)}
+.abtn--ghost:hover{background:color-mix(in srgb,var(--void-3) 92%,transparent);border-color:color-mix(in srgb,var(--coral) 40%,transparent)}
+.abtn.sel{outline:2px solid var(--coral);outline-offset:2px}
+
+/* connector */
+.connector{height:46px;display:flex;justify-content:center;align-items:stretch;position:relative}
+.connector svg{overflow:visible}
+.connector .path{stroke:color-mix(in srgb,var(--coral) 50%,transparent);stroke-width:2;stroke-dasharray:5 5;fill:none;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-20}}
+
+/* explanation box */
+.explain{
+  border:1px solid var(--hair);
+  border-radius:16px;
+  background:color-mix(in srgb,var(--void-2) 78%,transparent);
+  overflow:hidden;
+  min-height:150px;
+  display:flex;flex-direction:column;
+}
+.explain__head{padding:14px 18px;border-bottom:1px solid var(--hair-2);display:flex;align-items:center;gap:9px}
+.explain__head .eic{width:24px;height:24px;border-radius:7px;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--coral) 16%,transparent);color:var(--coral)}
+.explain__head .eic svg{width:13px;height:13px}
+.explain__head .et{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.explain__body{padding:18px;flex:1;display:flex;flex-direction:column;justify-content:center}
+.explain__state{opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s}
+.explain__state.in{opacity:1;transform:none}
+.explain__idle{display:flex;align-items:center;gap:12px;color:var(--faint)}
+.explain__idle .ph{width:34px;height:34px;border-radius:10px;border:1px dashed var(--hair);display:grid;place-items:center;flex:none;font-family:var(--mono);color:var(--faint)}
+.explain__idle p{font-size:13.5px;line-height:1.5}
+.es__badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:6px 11px;border-radius:999px;margin-bottom:14px}
+.es__now{font-size:15.5px;line-height:1.5;color:var(--ink);font-weight:500}
+.es__then{font-size:13.5px;line-height:1.55;color:var(--mute);margin-top:12px;padding-top:12px;border-top:1px solid var(--hair-2);display:flex;gap:9px}
+.es__then .ar{color:var(--coral);flex:none;font-family:var(--mono)}
+.es__flow{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+.es__node{font-family:var(--mono);font-size:10.5px;padding:5px 10px;border-radius:8px;background:color-mix(in srgb,var(--void) 50%,transparent);border:1px solid var(--hair-2);color:var(--mute)}
+.es__node.hot{background:color-mix(in srgb,var(--coral) 16%,transparent);border-color:color-mix(in srgb,var(--coral) 34%,transparent);color:var(--coral)}
+.es__arrow{color:var(--faint)}
+
+/* ---- product message strip ---- */
+.message{margin-top:30px;border:1px solid var(--hair);border-radius:18px;padding:30px 34px;background:linear-gradient(120deg,color-mix(in srgb,var(--coral) 7%,transparent),transparent 50%),color-mix(in srgb,var(--void-2) 60%,transparent);display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
+.message__lead .k{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--coral);margin-bottom:12px}
+.message__lead h3{font-family:var(--serif);font-weight:600;font-size:clamp(22px,2.6vw,30px);line-height:1.14;letter-spacing:-.025em;text-wrap:balance}
+.message__lead h3 em{font-style:normal;color:color-mix(in srgb,var(--coral) 74%,var(--ink))}
+.message__pts{display:flex;flex-direction:column;gap:14px}
+.mpt{display:flex;gap:13px;align-items:flex-start}
+.mpt__n{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-family:var(--serif);font-weight:600;font-size:14px;background:color-mix(in srgb,var(--coral) 14%,transparent);border:1px solid color-mix(in srgb,var(--coral) 28%,transparent);color:var(--coral)}
+.mpt__t{font-size:14px;line-height:1.5;color:color-mix(in srgb,var(--ink) 84%,var(--mute))}
+.mpt__t b{color:var(--ink);font-weight:600}
+
+.foot{margin-top:26px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.02em}
+
+/* ---- value-prop banner ---- */
+.banner{display:flex;align-items:center;gap:14px;margin:0 0 20px;padding:15px 22px;border-radius:14px;border:1px solid color-mix(in srgb,var(--coral) 26%,var(--hair));background:linear-gradient(100deg,color-mix(in srgb,var(--coral) 13%,transparent),transparent 62%),color-mix(in srgb,var(--void-2) 60%,transparent);backdrop-filter:blur(8px)}
+.banner .heart{width:28px;height:28px;flex:none;animation:beat 11s ease-in-out infinite}
+.banner p{font-family:var(--serif);font-weight:500;font-size:clamp(15px,1.9vw,20px);letter-spacing:-.01em;line-height:1.3;color:var(--ink);text-wrap:balance}
+.banner p b{color:color-mix(in srgb,var(--coral) 80%,var(--ink));font-weight:600}
+
+/* ---- cinematic trailer ---- */
+.trailer{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse 70% 60% at 50% 46%,#241d24 0%,#0c0a0f 78%);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity .7s ease}
+body.trailer-on{overflow:hidden}
+.trailer.gone{opacity:0;pointer-events:none}
+.trailer__bar{position:absolute;left:0;right:0;height:30px;background:#050406;z-index:2}
+.trailer__bar.top{top:0}.trailer__bar.bottom{bottom:0}
+.trailer__skip{position:absolute;bottom:42px;right:22px;z-index:4;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);background:none;border:1px solid var(--hair);border-radius:999px;padding:7px 14px;cursor:pointer;transition:.2s}
+.trailer__skip:hover{color:var(--ink);border-color:color-mix(in srgb,var(--coral) 45%,transparent)}
+.trailer__close{position:absolute;top:44px;right:22px;z-index:6;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--mute);background:color-mix(in srgb,var(--void-2) 70%,transparent);border:1px solid var(--hair);cursor:pointer;transition:.2s}
+.trailer__close:hover{color:var(--ink);border-color:color-mix(in srgb,var(--coral) 50%,transparent);transform:rotate(90deg)}
+.trailer__close svg{width:16px;height:16px}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:56px;opacity:0;transform:translateY(10px);transition:opacity .6s ease,transform .6s ease;text-align:center;pointer-events:none}
+.scene.on{opacity:1;transform:none}
+.scene__cap{font-family:var(--mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--coral)}
+.scene__big{font-family:var(--serif);font-weight:600;font-size:clamp(24px,3.6vw,38px);letter-spacing:-.02em;color:var(--cream);max-width:18ch;line-height:1.14;text-wrap:balance}
+.scene__ring{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--coral) 16%,transparent);border:1px solid color-mix(in srgb,var(--coral) 34%,transparent);position:relative}
+.scene__ring svg{width:36px;height:36px;color:var(--coral)}
+.scene__ring::after,.scene__ring::before{content:"";position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--coral);animation:ring 2s ease-out infinite}
+.scene__ring::before{animation-delay:1s}
+.bigwave{display:flex;align-items:center;gap:5px;height:44px}
+.bigwave i{width:5px;background:var(--coral);border-radius:3px;animation:wv 1s ease-in-out infinite}
+.rsay{display:flex;align-items:center;gap:16px;max-width:660px}
+.rsay .heart{width:42px;height:42px;flex:none;animation:beat 3s ease-in-out infinite}
+.rsay .bubble{font-family:var(--serif);font-weight:500;font-size:clamp(19px,2.6vw,28px);letter-spacing:-.01em;color:var(--cream);text-align:left;line-height:1.3}
+.rsay .bubble.handoff{display:flex;flex-direction:column;gap:8px}
+.rsay .bubble.handoff .hline{opacity:0;transform:translateY(6px);transition:opacity .5s ease,transform .5s ease}
+.rsay .bubble.handoff .hline.in{opacity:1;transform:none}
+.rsay .bubble.handoff .hline:last-child{color:var(--coral)}
+.checks{display:flex;flex-direction:column;gap:15px;text-align:left;min-width:min(500px,84%)}
+.check{display:flex;align-items:flex-start;gap:13px;opacity:.34;transition:opacity .35s}
+.check.run,.check.done{opacity:1}
+.check__box{width:22px;height:22px;border-radius:6px;flex:none;margin-top:1px;display:grid;place-items:center;border:1.5px solid var(--faint);transition:.35s}
+.check__box .spin{display:none;width:12px;height:12px;border:2px solid color-mix(in srgb,var(--coral) 28%,transparent);border-top-color:var(--coral);border-radius:50%;animation:spin .7s linear infinite}
+.check__box .tick{display:none;width:12px;height:12px;color:#211D29}
+.check.run .check__box{border-color:var(--coral)}
+.check.run .check__box .spin{display:block}
+.check.done .check__box{background:var(--coral);border-color:var(--coral)}
+.check.done .check__box .tick{display:block}
+.check__main{flex:1}
+.check__lbl{font-size:16px;color:var(--mute);transition:color .35s;line-height:1.2}
+.check.run .check__lbl,.check.done .check__lbl{color:var(--ink)}
+.check__say{font-family:var(--serif);font-style:italic;font-size:14px;line-height:1.4;color:var(--cream);opacity:0;max-height:0;overflow:hidden;transform:translateY(-3px);transition:opacity .4s ease,max-height .4s ease,transform .4s ease,margin .4s ease}
+.check.run .check__say,.check.done .check__say{opacity:.92;max-height:48px;transform:none;margin-top:5px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scene__flash{font-family:var(--serif);font-weight:600;font-size:clamp(28px,5vw,52px);letter-spacing:-.03em;color:var(--cream);line-height:1.1}
+.scene__flash em{font-style:normal;color:var(--coral)}
+
+/* ---- HERO CLIENT BRIEF reveal ---- */
+#s5{padding:34px}
+.herobrief{width:min(520px,92%);border-radius:20px;border:1px solid color-mix(in srgb,var(--coral) 26%,var(--hair));background:linear-gradient(180deg,color-mix(in srgb,var(--coral) 9%,transparent),transparent 30%),color-mix(in srgb,#221e28 96%,transparent);box-shadow:0 60px 130px -50px rgba(0,0,0,.9),0 0 90px -40px color-mix(in srgb,var(--coral) 55%,transparent),inset 0 1px 0 rgba(255,255,255,.06);padding:22px 24px 20px;position:relative;transform:scale(.94);opacity:0;transition:transform 1s cubic-bezier(.2,.7,.2,1),opacity 1s ease,box-shadow .6s ease}
+#s5.on .herobrief{transform:scale(1);opacity:1}
+.herobrief.grow{transform:scale(1.06);opacity:0;transition:transform .7s cubic-bezier(.4,0,.2,1),opacity .7s ease}
+.hb__badge{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--coral);padding-bottom:16px}
+.hb__badge .heart{width:20px;height:20px;flex:none;animation:beat 4s ease-in-out infinite}
+.hb__body{transition:filter .45s ease,opacity .45s ease}
+.hb__body.dim{filter:blur(4px) brightness(.42) saturate(.7)}
+.hb__id{display:flex;align-items:center;gap:14px;padding-bottom:16px;border-bottom:1px solid var(--hair-2)}
+.hb__ava{width:52px;height:52px;border-radius:14px;flex:none;background:linear-gradient(150deg,color-mix(in srgb,var(--coral) 42%,var(--void-3)),var(--void-3));display:grid;place-items:center;font-family:var(--serif);font-weight:600;font-size:20px;border:1px solid var(--hair)}
+.hb__name{font-family:var(--serif);font-weight:600;font-size:24px;letter-spacing:-.015em;line-height:1}
+.hb__type{font-size:13px;color:var(--mute);margin-top:6px}
+.hb__type .vip{color:var(--coral);font-weight:600}
+.hb__rows{display:flex;flex-direction:column;padding-top:4px}
+.hb-row{display:flex;gap:14px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--hair-2)}
+.hb-row .k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);width:92px;flex:none}
+.hb-row .v{font-size:14.5px;line-height:1.45;color:color-mix(in srgb,var(--ink) 90%,var(--mute))}
+.hb-row .v b{color:var(--ink);font-weight:600}
+.hb-row .v.warn{color:var(--amber)}
+.hb-row .v.i{font-style:italic;color:var(--cream)}
+.hb-row.reco .v b{color:color-mix(in srgb,var(--coral) 82%,var(--ink))}
+.hb-step{opacity:0;transform:translateY(9px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
+.hb-step.in{opacity:1;transform:none}
+.hb__commission{margin-top:16px;padding:16px 18px;border-radius:14px;background:linear-gradient(120deg,color-mix(in srgb,var(--go) 15%,transparent),transparent 60%),color-mix(in srgb,var(--void) 45%,transparent);border:1px solid color-mix(in srgb,var(--go) 30%,transparent);display:flex;align-items:center;gap:16px;opacity:0;transform:scale(.9);transition:opacity .6s ease,transform .7s cubic-bezier(.2,1.3,.4,1),box-shadow .6s ease}
+.hb__commission.in{opacity:1;transform:none}
+.hb__commission.pulse{box-shadow:0 0 46px -6px color-mix(in srgb,var(--go) 80%,transparent)}
+.hb__commission .c__ic{width:44px;height:44px;border-radius:12px;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--go) 20%,transparent);border:1px solid color-mix(in srgb,var(--go) 38%,transparent);color:var(--go)}
+.hb__commission .c__ic svg{width:22px;height:22px}
+.hb__commission .c__lbl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.hb__commission .c__amt{font-family:var(--serif);font-weight:700;font-size:32px;letter-spacing:-.02em;color:var(--ink);line-height:1;margin-top:5px}
+.hb__commission .c__amt span{font-size:12px;color:var(--go);font-family:var(--mono);font-weight:400;letter-spacing:0;margin-left:8px}
+.hb__tag{margin-top:18px;text-align:center;font-family:var(--serif);font-weight:400;font-size:14.5px;letter-spacing:-.005em;color:var(--mute);opacity:0;transition:opacity .8s ease}
+.hb__tag.in{opacity:1}
+.hb__tag b{color:color-mix(in srgb,var(--coral) 72%,var(--ink));font-weight:600}
+
+/* ---- dashboard assembles AROUND the brief (continuity) ---- */
+.dash .side,.dash .main__head,.dash .callpanel,.dash .connector,.dash .explain{transition:opacity .75s ease,transform .75s cubic-bezier(.2,.7,.2,1)}
+.dash.assembling .side{opacity:0;transform:translateX(-24px)}
+.dash.assembling .main__head{opacity:0;transform:translateY(-14px)}
+.dash.assembling .callpanel{opacity:0;transform:translateY(22px)}
+.dash.assembling .connector{opacity:0}
+.dash.assembling .explain{opacity:0;transform:translateY(22px)}
+.dash.built .main__head{transition-delay:.05s}
+.dash.built .side{transition-delay:.20s}
+.dash.built .callpanel{transition-delay:.34s}
+.dash.built .connector{transition-delay:.52s}
+.dash.built .explain{transition-delay:.52s}
+/* the browser frame itself settles in */
+.browser{transition:box-shadow .8s ease,border-color .8s ease}
+.dash.assembling ~ *{}
+/* modal settles without re-staggering (it is the SAME brief, not a rebuild) */
+.modal.settled{opacity:1;transform:none}
+.modal.settled .modal__id,.modal.settled .brief__row,.modal.settled .greeting,.modal.settled .reco,.modal.settled .commission,.modal.settled .actions{animation:none!important;opacity:1!important;transform:none!important}
+/* floating brief in flight */
+.herobrief.flight{position:fixed;margin:0;z-index:120;will-change:left,top,width}
+
+/* connected payoff */
+.connected{display:flex;flex-direction:column;align-items:center;gap:16px}
+.connected__ring{width:88px;height:88px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(180deg,#7CC9A4,#57AC83);color:#0e2018;box-shadow:0 0 60px -10px var(--go);position:relative;animation:popIn .5s cubic-bezier(.2,1.4,.4,1) both}
+.connected__ring svg{width:40px;height:40px}
+.connected__ring::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--go);animation:ring 1.8s ease-out infinite}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.connected__t{font-family:var(--serif);font-weight:700;font-size:clamp(30px,5vw,46px);letter-spacing:-.02em;color:var(--cream)}
+.connected__s{font-size:14px;color:var(--mute);font-family:var(--mono);letter-spacing:.02em}
+
+/* memorable ending ladder */
+.ladder{display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:8px}
+.ladder__row{font-family:var(--serif);font-weight:600;font-size:clamp(18px,2.6vw,26px);letter-spacing:-.01em;color:var(--cream);opacity:0;transform:translateY(8px);animation:ladderIn .5s ease forwards}
+.ladder__row:nth-child(1){color:var(--faint);animation-delay:.05s}
+.ladder__row:nth-child(3){animation-delay:.55s}
+.ladder__row:nth-child(5){color:var(--coral);animation-delay:1.05s}
+.ladder__arrow{color:var(--faint);font-size:18px;opacity:0;animation:ladderIn .4s ease forwards}
+.ladder__arrow:nth-child(2){animation-delay:.35s}
+.ladder__arrow:nth-child(4){animation-delay:.85s}
+@keyframes ladderIn{to{opacity:1;transform:none}}
+.endline{margin-top:26px;font-family:var(--serif);font-weight:500;font-size:clamp(17px,2.4vw,24px);line-height:1.35;color:var(--ink);text-align:center;text-wrap:balance;opacity:0;animation:ladderIn .7s ease 1.5s forwards}
+.endline em{font-style:normal;color:color-mix(in srgb,var(--coral) 78%,var(--ink))}
+.endbtns{margin-top:30px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;opacity:0;animation:ladderIn .6s ease 2.1s forwards;pointer-events:auto}
+.endbtn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);background:none;border:1px solid var(--hair);border-radius:999px;padding:11px 20px;cursor:pointer;transition:color .2s,border-color .2s,background .2s;margin:0}
+.endbtn:hover{color:var(--ink);border-color:color-mix(in srgb,var(--coral) 45%,transparent)}
+.endbtn.primary{background:var(--coral);border-color:transparent;color:#211D29;font-weight:500}
+.endbtn.primary:hover{background:color-mix(in srgb,var(--coral) 88%,#fff);color:#211D29}
+
+/* ---- future office vision (static closing screen) ---- */
+.vision{display:flex;flex-direction:column;align-items:center;text-align:center;gap:20px;max-width:760px;padding:0 24px}
+.vision__mark{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;background:color-mix(in srgb,var(--coral) 14%,transparent);border:1px solid color-mix(in srgb,var(--coral) 30%,transparent)}
+.vision__mark .heart{width:30px;height:30px;animation:beat 5s ease-in-out infinite}
+.vision__h{font-family:var(--serif);font-weight:600;font-size:clamp(24px,3.4vw,38px);line-height:1.18;letter-spacing:-.025em;color:var(--cream);text-wrap:balance}
+.vision__s{font-size:clamp(15px,1.9vw,18px);color:var(--mute);line-height:1.5;max-width:44ch;text-wrap:balance}
+.vision__brand{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--coral);margin-top:2px}
+.vision .endbtn{margin-top:14px;pointer-events:auto}
+
+/* ---- urgent modal head + countdown ---- */
+.modal__head.urgent .htxt{font-family:var(--serif);font-weight:700;font-size:14px;letter-spacing:.06em;color:var(--coral);text-transform:uppercase;display:inline-flex;align-items:center;gap:8px}
+.modal__head.urgent .htxt::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--coral);box-shadow:0 0 10px var(--coral);animation:pip 1.1s ease-in-out infinite}
+.countdown{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--coral);font-weight:500}
+
+/* ---- commission card ---- */
+.commission{margin:14px 18px 0;padding:14px 16px;border-radius:13px;background:linear-gradient(120deg,color-mix(in srgb,var(--go) 13%,transparent),transparent 62%),color-mix(in srgb,var(--void) 40%,transparent);border:1px solid color-mix(in srgb,var(--go) 28%,transparent);display:flex;align-items:center;gap:14px}
+.commission__ic{width:40px;height:40px;border-radius:11px;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--go) 18%,transparent);border:1px solid color-mix(in srgb,var(--go) 36%,transparent);color:var(--go)}
+.commission__ic svg{width:20px;height:20px}
+.commission .clbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.commission .camt{font-family:var(--serif);font-weight:700;font-size:27px;letter-spacing:-.02em;color:var(--ink);line-height:1;margin-top:4px}
+.commission .camt span{font-size:11.5px;color:var(--go);font-family:var(--mono);font-weight:400;letter-spacing:0;margin-left:7px}
+.commission .cnote{margin-left:auto;text-align:right;font-size:10.5px;color:var(--faint);max-width:104px;line-height:1.4}
+
+/* ---- dominant accept ---- */
+.accept-big{display:flex;align-items:center;justify-content:center;gap:13px;width:100%;padding:19px 20px;border-radius:14px;cursor:pointer;border:1px solid transparent;background:linear-gradient(180deg,#7CC9A4,#57AC83);color:#0e2018;box-shadow:0 20px 44px -18px color-mix(in srgb,var(--go) 85%,transparent),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden}
+.accept-big:hover{transform:translateY(-2px);box-shadow:0 26px 56px -18px color-mix(in srgb,var(--go) 95%,transparent),inset 0 1px 0 rgba(255,255,255,.4)}
+.accept-big .aic{width:34px;height:34px;border-radius:50%;background:rgba(14,32,24,.16);display:grid;place-items:center;flex:none}
+.accept-big .aic svg{width:18px;height:18px}
+.accept-big .atxt{display:block;font-family:var(--serif);font-weight:700;font-size:20px;letter-spacing:.01em}
+.accept-big .asub{display:block;font-size:11.5px;opacity:.74;font-weight:500;margin-top:1px;font-family:var(--sans)}
+.accept-big.sel{outline:2px solid var(--go);outline-offset:2px}
+.accept-big .sheen{position:absolute;inset:0;background:linear-gradient(110deg,transparent 34%,rgba(255,255,255,.4) 50%,transparent 66%);transform:translateX(-120%);animation:sheen 3.6s ease-in-out infinite;pointer-events:none}
+@keyframes sheen{0%,58%{transform:translateX(-120%)}82%,100%{transform:translateX(120%)}}
+.actions__row{display:flex;gap:10px}
+.actions__row .abtn{flex:1}
+.actions__row .abtn .asub{display:none}
+.actions__row .abtn .akey{display:none}
+
+/* ---- modal card stagger ---- */
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.modal.in .modal__id{animation:cardIn .5s .05s both}
+.modal.in .brief__row{animation:cardIn .45s both}
+.modal.in .brief__row:nth-child(1){animation-delay:.16s}
+.modal.in .brief__row:nth-child(2){animation-delay:.24s}
+.modal.in .brief__row:nth-child(3){animation-delay:.32s}
+.modal.in .brief__row:nth-child(4){animation-delay:.40s}
+.modal.in .brief__row:nth-child(5){animation-delay:.48s}
+.modal.in .greeting{animation:cardIn .5s .56s both}
+.modal.in .reco{animation:cardIn .5s .66s both}
+.modal.in .commission{animation:cardIn .5s .76s both}
+.modal.in .actions{animation:cardIn .5s .86s both}
+
+/* why I'm interrupting you */
+.whyint__list{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:9px;border-top:1px solid color-mix(in srgb,var(--coral) 22%,transparent);padding-top:12px}
+.whyint__list li{display:flex;gap:10px;font-size:13px;line-height:1.45;color:color-mix(in srgb,var(--ink) 84%,var(--mute));align-items:flex-start}
+.whyint__list li .tick{color:var(--coral);font-family:var(--mono);flex:none;margin-top:1px}
+.whyint__list li.money{color:var(--go);font-weight:600}
+.whyint__list li.money .tick{color:var(--go)}
+.whyint__list li.risk{color:var(--amber)}
+.whyint__list li.risk .tick{color:var(--amber)}
+
+/* ---- two intelligence-source cards ---- */
+.srccard{margin:14px 18px 0;border-radius:14px;border:1px solid var(--hair);background:color-mix(in srgb,var(--void) 42%,transparent);overflow:hidden}
+.srccard__head{display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid var(--hair-2)}
+.srccard__ic{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center}
+.srccard__ic svg{width:16px;height:16px}
+.srccard__lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.srccard__sub{font-size:11.5px;color:var(--mute);margin-top:2px}
+.srccard__badge{margin-left:auto;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:999px;font-weight:500;flex:none}
+/* card 1 · Command (KW red) */
+.srccard--command{border-color:color-mix(in srgb,var(--kw-red) 30%,var(--hair));background:linear-gradient(180deg,color-mix(in srgb,var(--kw-red) 7%,transparent),transparent 40%),color-mix(in srgb,var(--void) 48%,transparent)}
+.srccard--command .srccard__ic{background:color-mix(in srgb,var(--kw-red) 18%,transparent);color:var(--kw-red-soft)}
+.srccard--command .srccard__lbl{color:var(--kw-red-soft)}
+.srccard--command .srccard__badge{background:color-mix(in srgb,var(--kw-red) 20%,transparent);border:1px solid color-mix(in srgb,var(--kw-red) 42%,transparent);color:var(--kw-red-soft)}
+.srccard__rows{padding:4px 14px 8px}
+.srow{display:flex;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--hair-2)}
+.srow:last-child{border-bottom:none}
+.srow__k{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);width:104px;flex:none}
+.srow__v{font-size:13.5px;line-height:1.4;color:color-mix(in srgb,var(--ink) 90%,var(--mute))}
+.srow__v.stage{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--kw-red-soft);background:color-mix(in srgb,var(--kw-red) 14%,transparent);border:1px solid color-mix(in srgb,var(--kw-red) 30%,transparent);padding:2px 9px;border-radius:999px;letter-spacing:.02em}
+/* card 2 · TopherAI (coral) */
+.srccard--topher{border-color:color-mix(in srgb,var(--coral) 30%,var(--hair));background:linear-gradient(180deg,color-mix(in srgb,var(--coral) 8%,transparent),transparent 40%),color-mix(in srgb,var(--void) 48%,transparent)}
+.srccard--topher .srccard__ic{background:color-mix(in srgb,var(--coral) 16%,transparent)}
+.srccard--topher .srccard__ic .heart{width:18px;height:18px;display:block}
+.srccard--topher .srccard__lbl{color:color-mix(in srgb,var(--coral) 82%,var(--ink))}
+.srccard--topher .srccard__badge.topher{background:color-mix(in srgb,var(--coral) 18%,transparent);border:1px solid color-mix(in srgb,var(--coral) 40%,transparent);color:var(--coral)}
+.srccard__body{padding:14px}
+.intel{padding:10px 0;border-bottom:1px solid var(--hair-2)}
+.intel:last-child{border-bottom:none;padding-bottom:2px}
+.intel:first-child{padding-top:2px}
+.intel__k{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:5px}
+.intel__v{font-size:13.5px;line-height:1.55;color:color-mix(in srgb,var(--ink) 88%,var(--mute))}
+.intel__v.i{font-style:italic;color:var(--cream)}
+.intel--reco .intel__v b{color:color-mix(in srgb,var(--coral) 82%,var(--ink));font-family:var(--serif);font-weight:600;font-size:15px}
+
+/* ---- responsive ---- */
+@media (max-width:1080px){
+  .main{grid-template-columns:1fr}
+  .dash{grid-template-columns:1fr}
+  .side{flex-direction:row;flex-wrap:wrap;align-items:center;border-right:none;border-bottom:1px solid var(--hair-2)}
+  .side__brand{padding:4px 10px}
+  .nav-lbl{display:none}
+  .nav-item{padding:8px 11px}
+  .side__foot{margin-top:0;border-top:none;margin-left:auto}
+  .message{grid-template-columns:1fr;gap:22px}
+}
+@media (max-width:640px){
+  .page{padding:18px 16px 40px}
+  .main{padding:18px 16px 20px}
+  .nav-item .badge{display:none}
+  .brief__k{width:78px}
+}
+@media (max-width:1080px){
+  .commission .cnote{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .blob,.brand .heart,.dialer::after,.modal__pulse::after,.riley .wave i,.connector .path,.scene__ring::after,.scene__ring::before,.bigwave i,.accept-big .sheen{animation:none!important}
+  .modal{opacity:1;transform:none}
+  .modal.in .modal__id,.modal.in .brief__row,.modal.in .greeting,.modal.in .reco,.modal.in .commission,.modal.in .actions{animation:none!important;opacity:1!important;transform:none!important}
+}
+
+/* ============================================================
+   COMMAND-INSPIRED WORKSPACE  (light, clean, KW-red)
+   The dashboard + the client brief adopt a bright enterprise
+   surface KW agents recognise. The cinematic TopherAI layer
+   (intro, hero backdrop, finale, vision) stays dark & premium.
+   ============================================================ */
+.dash, .herobrief{
+  --void:#FFFFFF;
+  --void-2:#FFFFFF;
+  --void-3:#EEF1F5;
+  --ink:#1E222B;
+  --mute:#5B6672;
+  --faint:#8A94A2;
+  --cream:#1E222B;
+  --hair:rgba(22,27,35,.13);
+  --hair-2:rgba(22,27,35,.07);
+  --coral:#CB5C40;          /* deepened for contrast on white — still TopherAI warm */
+  --coral-deep:#B24A32;
+  --kw-red-soft:#CE011F;    /* KW red reads cleanly on white */
+}
+
+/* browser frame: clean enterprise window, not a glowing slab */
+.browser{
+  box-shadow:0 30px 70px -40px rgba(20,24,33,.55), 0 2px 8px rgba(20,24,33,.10);
+  border-color:rgba(22,27,35,.14);
+}
+.dash{background:#FFFFFF;color:var(--ink)}
+.browser__bar{background:#F4F6F8;border-bottom-color:var(--hair-2)}
+.url{background:#FFFFFF;color:var(--mute);border-color:var(--hair)}
+.browser__actions{color:#AEB6C0}
+
+/* sidebar */
+.side{background:#F7F8FA;border-right-color:var(--hair-2)}
+.side__brand b{color:var(--ink)}
+.nav-item{color:var(--mute)}
+.nav-item:hover{color:var(--ink);background:rgba(22,27,35,.05)}
+.nav-item.active{color:var(--kw-red-soft);background:color-mix(in srgb,var(--kw-red) 9%,transparent);font-weight:600}
+.nav-item.active .dot{background:var(--kw-red-soft);box-shadow:none}
+.nav-item .badge{background:var(--kw-red-soft);color:#fff;box-shadow:none}
+
+/* header */
+.main__head h2{color:var(--ink)}
+.main__head .live{color:var(--mute)}
+.main__head .live .pip{background:var(--kw-red-soft);box-shadow:none}
+.replay{color:var(--mute);border-color:var(--hair)}
+.replay:hover{color:var(--ink);border-color:var(--kw-red-soft)}
+.hprofile{background:#FFFFFF;border-color:var(--hair)}
+.hprofile .avatar{background-color:#E7EAEE;color:#fff;border-color:var(--hair)}
+
+/* generic cards: flat, clean, hairline borders, no glow */
+.callpanel,.transcript,.explain{background:#FFFFFF;border-color:var(--hair);box-shadow:0 1px 2px rgba(20,24,33,.05)}
+.cp__top{border-bottom-color:var(--hair-2)}
+.cp__top .meta .num{color:var(--ink)}
+.dialer{background:color-mix(in srgb,var(--kw-red) 9%,transparent);border-color:color-mix(in srgb,var(--kw-red) 26%,transparent)}
+.dialer svg{color:var(--kw-red-soft)}
+.dialer::after{border-color:color-mix(in srgb,var(--kw-red) 34%,transparent)}
+.riley{background:color-mix(in srgb,var(--coral) 6%,transparent);border-bottom-color:var(--hair-2)}
+.riley .rtxt b{color:var(--coral-deep)}
+.step__mark{background:#FFFFFF}
+.step.done .step__mark::after{box-shadow:none}
+.step.active .step__mark{box-shadow:0 0 0 4px color-mix(in srgb,var(--coral) 16%,transparent)}
+.transcript__head .taglive .pip{box-shadow:none}
+.tline.caller .tav{background:#EEF1F5;color:var(--mute)}
+
+/* the incoming-call brief: clean white card with a KW-red urgency rail */
+.modal{
+  background:#FFFFFF;
+  border-color:var(--hair);
+  box-shadow:0 24px 50px -28px rgba(20,24,33,.45), 0 2px 8px rgba(20,24,33,.08);
+}
+.modal__head.urgent{background:color-mix(in srgb,var(--kw-red) 6%,transparent);border-bottom-color:var(--hair-2)}
+.modal__pulse{background:color-mix(in srgb,var(--kw-red) 12%,transparent)}
+.modal__pulse svg{color:var(--kw-red-soft)}
+.modal__pulse::after{border-color:var(--kw-red-soft)}
+.modal__head.urgent .htxt{color:var(--kw-red-soft)}
+.modal__head.urgent .htxt::before{background:var(--kw-red-soft);box-shadow:none}
+.countdown{color:var(--kw-red-soft)}
+.modal__prio{background:color-mix(in srgb,var(--kw-red) 12%,transparent);border-color:color-mix(in srgb,var(--kw-red) 30%,transparent);color:var(--kw-red-soft)}
+.modal__id{border-bottom-color:var(--hair-2)}
+.modal__ava{background:#EEF1F5;border-color:var(--hair);color:var(--ink)}
+.modal__name{color:var(--ink)}
+.modal__type .vip{color:var(--kw-red-soft)}
+
+/* two source cards: flat colour-blocked tints (KW: no gradients) */
+.srccard{background:#FFFFFF;border-color:var(--hair)}
+.srccard--command{background:color-mix(in srgb,var(--kw-red) 4%,#fff);border-color:color-mix(in srgb,var(--kw-red) 26%,transparent)}
+.srccard--command .srccard__ic{background:color-mix(in srgb,var(--kw-red) 12%,transparent);color:var(--kw-red-soft)}
+.srccard--command .srccard__lbl{color:var(--kw-red-soft)}
+.srccard--command .srccard__badge{background:var(--kw-red-soft);border-color:transparent;color:#fff}
+.srow__v.stage{color:var(--kw-red-soft);background:color-mix(in srgb,var(--kw-red) 10%,transparent);border-color:color-mix(in srgb,var(--kw-red) 26%,transparent)}
+.srccard--topher{background:color-mix(in srgb,var(--coral) 5%,#fff);border-color:color-mix(in srgb,var(--coral) 28%,transparent)}
+.srccard--topher .srccard__lbl{color:var(--coral-deep)}
+.srccard--topher .srccard__badge.topher{background:color-mix(in srgb,var(--coral) 14%,transparent);border-color:color-mix(in srgb,var(--coral) 34%,transparent);color:var(--coral-deep)}
+.intel__v.i{color:var(--ink)}
+.intel--reco .intel__v b{color:var(--coral-deep)}
+
+/* why I'm interrupting */
+.reco.whyint{background:color-mix(in srgb,var(--coral) 6%,#fff);border-color:color-mix(in srgb,var(--coral) 26%,transparent)}
+.reco__ic{background:var(--coral);color:#fff}
+.reco__lbl{color:var(--coral-deep)}
+.reco__val{color:var(--ink)}
+.whyint__list{border-top-color:color-mix(in srgb,var(--coral) 20%,transparent)}
+.whyint__list li.money{color:#1F8A5B}
+.whyint__list li.money .tick{color:#1F8A5B}
+.whyint__list li.risk{color:#C9761B}
+.whyint__list li.risk .tick{color:#C9761B}
+
+/* commission — flat green block */
+.commission{background:color-mix(in srgb,var(--go) 9%,#fff);border-color:color-mix(in srgb,var(--go) 32%,transparent)}
+.commission__ic{background:color-mix(in srgb,var(--go) 16%,transparent);border-color:color-mix(in srgb,var(--go) 34%,transparent);color:#1F8A5B}
+.commission .camt{color:var(--ink)}
+.commission .camt span{color:#1F8A5B}
+
+/* actions */
+.actions__hint{color:var(--coral-deep)}
+.actions__hint .pulse-dot{background:var(--coral);box-shadow:none}
+.actions__hint span{color:var(--mute)}
+.accept-big{background:#1F9D63;box-shadow:0 10px 24px -12px rgba(31,157,99,.6);color:#fff}
+.accept-big:hover{background:#1C8E59;box-shadow:0 14px 30px -12px rgba(31,157,99,.7)}
+.accept-big .aic{background:rgba(255,255,255,.2)}
+.accept-big .atxt,.accept-big .asub{color:#fff}
+.abtn--ghost{background:#F4F6F8;border-color:var(--hair)}
+.abtn--ghost .aic{background:color-mix(in srgb,var(--kw-red) 10%,transparent);color:var(--kw-red-soft)}
+.abtn--ghost .atxt{color:var(--ink)}
+.abtn--ghost:hover{background:#EDEFF3;border-color:var(--kw-red-soft)}
+
+/* connector line */
+.connector .path{stroke:color-mix(in srgb,var(--kw-red) 45%,transparent)}
+
+/* explanation box */
+.explain__head{border-bottom-color:var(--hair-2)}
+.explain__head .eic{background:color-mix(in srgb,var(--coral) 12%,transparent);color:var(--coral-deep)}
+.explain__idle .ph{border-color:var(--hair)}
+
+/* ---- hero client brief becomes the same clean white card ---- */
+.herobrief{
+  background:#FFFFFF;
+  border-color:var(--hair);
+  box-shadow:0 50px 110px -45px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04);
+}
+.hb__badge{color:var(--coral-deep)}
+.hb__id{border-bottom-color:var(--hair-2)}
+.hb__ava{background:#EEF1F5;border-color:var(--hair);color:var(--ink)}
+.hb__name{color:var(--ink)}
+.hb__type .vip{color:var(--kw-red-soft)}
+.hb-row{border-bottom-color:var(--hair-2)}
+.hb-row .v{color:var(--ink)}
+.hb-row .v.warn{color:#C9761B}
+.hb-row.reco .v b{color:var(--coral-deep)}
+.hb__commission{background:color-mix(in srgb,var(--go) 9%,#fff);border-color:color-mix(in srgb,var(--go) 32%,transparent)}
+.hb__commission .c__ic{background:color-mix(in srgb,var(--go) 16%,transparent);border-color:color-mix(in srgb,var(--go) 34%,transparent);color:#1F8A5B}
+.hb__commission .c__amt{color:var(--ink)}
+.hb__commission .c__amt span{color:#1F8A5B}
+.hb__tag{color:var(--mute)}
+.hb__tag b{color:var(--coral-deep)}
+
+/* warn colour on light for the brief concern rows */
+.brief__v .warn, .intel .warn{color:#C9761B}
+</style>
+</head>
+<body>
+
+<div class="field" aria-hidden="true">
+  <div class="blob a"></div><div class="blob b"></div><div class="veil"></div>
+</div>
+
+<!-- heart symbol -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="heart" viewBox="0 0 100 100">
+    <path d="M50 87 C22 66 7 50 7 30 C7 16.5 17 7.5 29 7.5 C39.5 7.5 46.5 14.5 50 22 C53.5 14.5 60.5 7.5 71 7.5 C83 7.5 93 16.5 93 30 C93 50 78 66 50 87 Z" fill="var(--coral)"/>
+    <path d="M18 47 L35 47 L40 35 L47.5 59 L53.5 39 L57.5 47 L82 47" fill="none" stroke="var(--cream)" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</svg>
+
+<div class="page">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="heart"><svg viewBox="0 0 100 100" width="32" height="32"><use href="#heart"/></svg></span>
+      <div>
+        <div class="brand-name">Topher<span class="ai"> AI</span></div>
+        <div class="brand-sub">Built for Keller Williams professionals</div>
+      </div>
+    </div>
+    <div class="preview-chip"><span class="d"></span> Prepared for Joshua Johnson · KW Atlanta Partners</div>
+  </div>
+
+  <div class="banner">
+    <span class="heart"><svg viewBox="0 0 100 100" width="28" height="28"><use href="#heart"/></svg></span>
+    <p>You stay focused on the relationship. <b>Let Riley handle the searching</b> — pulling everything from Command before you take the call.</p>
+  </div>
+
+  <div class="intro">
+    <div class="eyebrow" id="introEyebrow">A day in your business · Stockbridge, GA</div>
+    <h1>A buyer calls. Riley answers, <em>reads the client</em>, and hands you the room — already briefed.</h1>
+    <p>Watch a sample call route itself. Riley recognizes the caller, pulls their record from Command, reviews the last conversation, and decides whether you should be interrupted — so everything you need is waiting before you ever say hello.</p>
+  </div>
+
+  <!-- ============ BROWSER MOCKUP ============ -->
+  <div class="browser">
+
+    <!-- cinematic trailer overlay -->
+    <div class="trailer" id="trailer" aria-label="Intro sequence">
+      <div class="trailer__bar top"></div>
+      <div class="trailer__bar bottom"></div>
+
+      <div class="scene" id="s1">
+        <div class="scene__ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></div>
+        <div class="bigwave"><i style="height:14px"></i><i style="height:30px;animation-delay:.1s"></i><i style="height:44px;animation-delay:.2s"></i><i style="height:22px;animation-delay:.3s"></i><i style="height:38px;animation-delay:.4s"></i><i style="height:16px;animation-delay:.5s"></i><i style="height:34px;animation-delay:.6s"></i></div>
+        <div class="scene__cap">Incoming call · Active Buyer</div>
+        <div class="scene__big">Riley is answering…</div>
+      </div>
+
+      <div class="scene" id="s2">
+        <div class="scene__cap" id="s2cap">Riley · live on the call</div>
+        <div class="rsay">
+          <span class="heart"><svg viewBox="0 0 100 100" width="42" height="42"><use href="#heart"/></svg></span>
+          <div class="bubble" id="rileyBubble">…</div>
+        </div>
+      </div>
+
+      <div class="scene" id="s3">
+        <div class="scene__cap">Working on your behalf</div>
+        <div class="checks" id="checksWrap"></div>
+      </div>
+
+      <div class="scene" id="s4">
+        <div class="scene__cap">Done in seconds</div>
+        <div class="scene__flash">AI Client Brief <em>ready.</em></div>
+      </div>
+
+      <div class="scene" id="s5">
+        <div class="herobrief" id="herobrief">
+          <div class="hb__badge"><span class="heart"><svg viewBox="0 0 100 100" width="20" height="20"><use href="#heart"/></svg></span> AI Client Brief · Ready</div>
+          <div class="hb__body" id="hbBody">
+            <div class="hb__id">
+              <div class="hb__ava hb-step" id="hbAva">RS</div>
+              <div>
+                <div class="hb__name hb-step" id="hbName">Roger Smith</div>
+                <div class="hb__type hb-step" id="hbType"><span class="vip">VIP Buyer</span></div>
+              </div>
+            </div>
+            <div class="hb__rows" id="hbRows"></div>
+          </div>
+          <div class="hb__commission" id="hbComm">
+            <div class="c__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <div>
+              <div class="c__lbl">Potential commission · estimated</div>
+              <div class="c__amt"><span class="cnum" id="hbCommNum"></span><span>on this deal</span></div>
+            </div>
+          </div>
+          <div class="hb__tag" id="hbTag">Before you ever answer, <b>Topher gives you the context.</b></div>
+        </div>
+      </div>
+
+      <button class="trailer__skip" id="skip">Skip intro ▸</button>
+    </div>
+
+    <!-- accept payoff + memorable ending -->
+    <div class="trailer gone" id="finale" aria-label="Call connected">
+      <div class="trailer__bar top"></div>
+      <div class="trailer__bar bottom"></div>
+
+      <div class="scene" id="f1">
+        <div class="scene__cap">Riley · handing off to you</div>
+        <div class="rsay">
+          <span class="heart"><svg viewBox="0 0 100 100" width="42" height="42"><use href="#heart"/></svg></span>
+          <div class="bubble handoff" id="handoffBubble">…</div>
+        </div>
+      </div>
+
+      <div class="scene" id="f2">
+        <div class="connected">
+          <div class="connected__ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <div class="connected__t">Connected</div>
+          <div class="connected__s" id="connectedSub">You’re live with Roger · brief stays open beside you</div>
+        </div>
+      </div>
+
+      <div class="scene" id="f3">
+        <div class="ladder">
+          <div class="ladder__row" id="endA">Your clients expect you to remember everything.</div>
+          <div class="ladder__arrow">↓</div>
+          <div class="ladder__row" id="endB">TopherAI makes that possible.</div>
+        </div>
+        <div class="endline"><em id="endNote">Designed to work alongside Keller Williams Command</em><br><span id="endBrand">Powered by TopherAI</span></div>
+        <div class="endbtns">
+          <button class="endbtn primary" id="toVision">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            Continue
+          </button>
+          <button class="endbtn" id="endReplay">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+            Play again
+          </button>
+        </div>
+      </div>
+
+      <div class="scene" id="f4">
+        <div class="vision">
+          <div class="vision__mark"><span class="heart"><svg viewBox="0 0 100 100" width="30" height="30"><use href="#heart"/></svg></span></div>
+          <h2 class="vision__h" id="visionHeadline">Imagine every agent in your office starting every client conversation this prepared.</h2>
+          <p class="vision__s" id="visionSub">The future of client communication begins with context.</p>
+          <div class="vision__brand" id="visionBrand">Powered by TopherAI</div>
+          <button class="endbtn" id="visionBack">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+            Back to dashboard
+          </button>
+        </div>
+      </div>
+
+      <button class="trailer__close" id="finaleClose" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="browser__bar">
+      <div class="lights"><i></i><i></i><i></i></div>
+      <div class="url">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        app.topherai.com/live
+      </div>
+      <div class="browser__actions"><span></span></div>
+    </div>
+
+    <div class="dash assembling">
+      <!-- sidebar -->
+      <aside class="side">
+        <div class="side__brand">
+          <span class="heart"><svg viewBox="0 0 100 100" width="26" height="26"><use href="#heart"/></svg></span>
+          <b>Topher<span class="ai"> AI</span></b>
+        </div>
+        <div class="nav-lbl">Workspace</div>
+        <div class="nav-item active"><span class="dot"></span> Live Calls <span class="badge">1</span></div>
+        <div class="nav-item"><span class="dot"></span> Clients</div>
+        <div class="nav-item"><span class="dot"></span> Pipeline</div>
+        <div class="nav-item"><span class="dot"></span> Appointments</div>
+        <div class="nav-item"><span class="dot"></span> Brief Library</div>
+      </aside>
+
+      <!-- main -->
+      <div class="main">
+        <div class="main__head">
+          <div>
+            <h2>Client Intelligence Center</h2>
+            <div class="main__sub">Works alongside Command · Powered by TopherAI</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span class="live"><span class="pip"></span> On call</span>
+            <button class="replay" id="replay">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+              Replay
+            </button>
+            <div class="hprofile">
+              <div class="who"><b id="profileName">Joshua Johnson</b><small id="profileBrand">KW Atlanta Partners</small></div>
+              <div class="avatar" id="profileAva">JJ</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LEFT: live call panel -->
+        <div class="main__left">
+        <section class="callpanel">
+          <div class="cp__top">
+            <div class="dialer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+            </div>
+            <div class="meta">
+              <div class="num" id="cpNum">+1 (678) 555-0142</div>
+              <div class="sub" id="cpSub">Inbound · Stockbridge, GA</div>
+            </div>
+            <div class="cp__timer">
+              <div class="t" id="timer">00:00</div>
+              <div class="l">Duration</div>
+            </div>
+          </div>
+
+          <div class="riley">
+            <span class="heart"><svg viewBox="0 0 100 100" width="22" height="22"><use href="#heart"/></svg></span>
+            <div class="rtxt">
+              <div><b>Riley</b> is handling this call</div>
+              <div class="rstate" id="rstate">Answering…</div>
+            </div>
+            <div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+
+          <div class="steps" id="steps">
+            <div class="step" data-step="0">
+              <div class="step__mark"></div>
+              <div class="step__body">
+                <div class="step__t">Incoming call received</div>
+                <div class="step__d">Riley answers first, before the call interrupts you.</div>
+                <span class="step__tag">◦ answered in 0.4s</span>
+              </div>
+            </div>
+            <div class="step" data-step="1">
+              <div class="step__mark"></div>
+              <div class="step__body">
+                <div class="step__t">Caller identified</div>
+                <div class="step__d">Matched to a known contact in your book.</div>
+                <span class="step__tag" id="stepTagId">◦ Roger Smith · VIP Buyer</span>
+              </div>
+            </div>
+            <div class="step" data-step="2">
+              <div class="step__mark"></div>
+              <div class="step__body">
+                <div class="step__t">Client brief generated</div>
+                <div class="step__d">History, opportunity and open threads assembled.</div>
+                <span class="step__tag">◦ brief ready</span>
+              </div>
+            </div>
+            <div class="step" data-step="3">
+              <div class="step__mark"></div>
+              <div class="step__body">
+                <div class="step__t">Routing decision</div>
+                <div class="step__d">Topher decides whether to interrupt you — and how.</div>
+                <span class="step__tag">◦ recommends: transfer now</span>
+              </div>
+            </div>
+            <div class="step" data-step="4">
+              <div class="step__mark"></div>
+              <div class="step__body">
+                <div class="step__t">Awaiting your decision</div>
+                <div class="step__d">Brief pushed to you. Riley holds the line.</div>
+                <span class="step__tag">◦ your move →</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- live transcript fills the left column -->
+        <section class="transcript">
+          <div class="transcript__head">
+            <span class="heart"><svg viewBox="0 0 100 100" width="18" height="18"><use href="#heart"/></svg></span>
+            <span class="tt">Live transcript</span>
+            <span class="taglive"><span class="pip"></span> Riley speaking</span>
+          </div>
+          <div class="transcript__body" id="transcriptBody"></div>
+        </section>
+        </div>
+
+        <!-- RIGHT: modal + connector + explanation -->
+        <div class="rail">
+          <!-- INCOMING CALL MODAL -->
+          <section class="modal" id="modal" aria-label="Incoming call brief">
+            <div class="modal__head urgent">
+              <div class="modal__pulse">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+              </div>
+              <div>
+                <div class="htxt">Active Buyer waiting</div>
+                <div class="hsub">Riley has the caller · <span class="countdown" id="countdown">00:45</span></div>
+              </div>
+              <div class="modal__prio">High</div>
+            </div>
+
+            <div class="modal__id">
+              <div class="modal__ava" id="modalAva">RS</div>
+              <div>
+                <div class="modal__name" id="modalName">Roger Smith</div>
+                <div class="modal__type" id="modalType"><span class="vip">Active Buyer</span> · in pipeline 4 months</div>
+              </div>
+            </div>
+
+            <!-- CARD 1 · retrieved from Keller Williams Command -->
+            <div class="srccard srccard--command">
+              <div class="srccard__head">
+                <div class="srccard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div>
+                <div>
+                  <div class="srccard__lbl">Retrieved from Command</div>
+                  <div class="srccard__sub">Your Keller Williams record — nothing re-entered</div>
+                </div>
+                <div class="srccard__badge">Command</div>
+              </div>
+              <div class="srccard__rows" id="commandRows"></div>
+            </div>
+
+            <!-- CARD 2 · created by TopherAI -->
+            <div class="srccard srccard--topher">
+              <div class="srccard__head">
+                <div class="srccard__ic"><span class="heart"><svg viewBox="0 0 100 100" width="18" height="18"><use href="#heart"/></svg></span></div>
+                <div>
+                  <div class="srccard__lbl">TopherAI Intelligence</div>
+                  <div class="srccard__sub">Prepared for you — so you don't have to search</div>
+                </div>
+                <div class="srccard__badge topher">Riley</div>
+              </div>
+              <div class="srccard__body">
+                <div class="intel">
+                  <div class="intel__k">Conversation summary</div>
+                  <div class="intel__v" id="convoSummary"></div>
+                </div>
+                <div class="intel">
+                  <div class="intel__k">Relationship insight</div>
+                  <div class="intel__v" id="relInsight"></div>
+                </div>
+                <div class="intel intel--greeting">
+                  <div class="intel__k">Suggested greeting</div>
+                  <div class="intel__v i" id="greetingText"></div>
+                </div>
+                <div class="intel intel--reco">
+                  <div class="intel__k">AI recommendation</div>
+                  <div class="intel__v"><b id="recoVal">Transfer immediately</b></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="reco whyint">
+              <div class="reco__top">
+                <div class="reco__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
+                <div>
+                  <div class="reco__lbl">Why I'm interrupting you</div>
+                  <div class="reco__val" id="recoVal2">Riley's read on this call</div>
+                </div>
+              </div>
+              <ul class="whyint__list" id="whyList"></ul>
+            </div>
+
+            <div class="commission">
+              <div class="commission__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+              <div>
+                <div class="clbl">Potential commission · estimated</div>
+                <div class="camt" id="modalCommAmt">$25,500<span>on this deal</span></div>
+              </div>
+              <div class="cnote">Why Topher flagged this call for you</div>
+            </div>
+
+            <div class="actions">
+              <div class="actions__hint"><span class="pulse-dot"></span> <span>This is interactive — tap a button to see what Riley does next.</span></div>
+              <button class="accept-big" data-action="accept">
+                <span class="sheen"></span>
+                <span class="aic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></span>
+                <span><span class="atxt">Accept Call</span><span class="asub">Take the transfer from Riley now · press ↵</span></span>
+              </button>
+              <div class="actions__row">
+                <button class="abtn abtn--ghost" data-action="continue">
+                  <span class="aic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></span>
+                  <span><span class="atxt">Have AI Continue</span></span>
+                </button>
+                <button class="abtn abtn--ghost" data-action="callback">
+                  <span class="aic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                  <span><span class="atxt">Schedule Callback</span></span>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- CONNECTOR -->
+          <div class="connector" aria-hidden="true">
+            <svg width="40" height="46" viewBox="0 0 40 46"><path class="path" d="M20 0 L20 46"/></svg>
+          </div>
+
+          <!-- EXPLANATION BOX -->
+          <section class="explain" id="explain">
+            <div class="explain__head">
+              <div class="eic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+              <div class="et">What happens next</div>
+            </div>
+            <div class="explain__body" id="explainBody">
+              <div class="explain__idle" id="explainIdle">
+                <div class="ph">?</div>
+                <p>Choose how to route this call. Topher will show you exactly what happens next.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PRODUCT MESSAGE ============ -->
+  <div class="message">
+    <div class="message__lead">
+      <div class="k">The point</div>
+      <h3>Command stores your information. <em>TopherAI turns it into intelligence</em> — waiting for you before every call.</h3>
+    </div>
+    <div class="message__pts">
+      <div class="mpt"><div class="mpt__n">1</div><div class="mpt__t"><b>No searching.</b> Riley pulls the record from Command, reviews the notes and the last conversation — you never dig through emails or messages again.</div></div>
+      <div class="mpt"><div class="mpt__n">2</div><div class="mpt__t"><b>Always prepared.</b> Everything important is assembled into one brief before the call reaches you — so you stay focused on the relationship.</div></div>
+      <div class="mpt"><div class="mpt__n">3</div><div class="mpt__t"><b>Works with your tools.</b> An intelligent layer alongside Keller Williams Command — not another app to learn or replace it with.</div></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>Built for Keller Williams professionals · works alongside Command · Powered by TopherAI</span>
+    <span>Staged data · no live calls · for demonstration only</span>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   DEMO CONFIG — edit this one object to re-target the demo
+   at a different realtor / client / listing.
+   ============================================================ */
+const demoData = {
+  // --- realtor (the person we're selling to) ---
+  realtorName: "Joshua Johnson",
+  realtorFirst: "Joshua",
+  realtorInitials: "JJ",
+  realtorPhoto: "assets/joshua-johnson.jpg",
+  brokerageName: "Keller Williams Realty · Atlanta Partners",
+  brokerageShort: "KW Atlanta Partners",
+  market: "Stockbridge, GA",
+
+  // --- staged example client ---
+  clientName: "Roger Smith",
+  clientFirst: "Roger",
+  clientInitials: "RS",
+  clientStatus: "Active Buyer",
+  clientTenure: "in pipeline 4 months",
+  clientPhone: "+1 (678) 555-0142",
+  clientLocation: "Stockbridge, GA",
+
+  // --- opportunity ---
+  propertyAddress: "412 Eagle's Landing Way",
+  propertyShort: "Eagle's Landing",
+  budget: "$800k – $900k",
+  urgency: "Countering ~$200k below asking",
+  commissionEstimate: 25500,
+
+  suggestedGreeting: "Hi Roger — good timing, I just heard back from the seller's side on Eagle's Landing.",
+  aiRecommendation: "Transfer immediately",
+
+  // --- CARD 1: retrieved from Keller Williams Command (stored facts) ---
+  commandRecord: [
+    { k: "Client",        v: "Roger Smith" },
+    { k: "Pipeline Stage", v: "Active Buyer · Contract Pending", tag: "stage" },
+    { k: "Property",      v: "412 Eagle's Landing Way" },
+    { k: "Budget",        v: "$800k – $900k" },
+    { k: "Last Contact",  v: "3 days ago · buyer consultation" },
+    { k: "Appointment",   v: "Showing requested — not yet booked" }
+  ],
+
+  // --- CARD 2: TopherAI intelligence (created, not stored) ---
+  conversationSummary: "Toured Eagle's Landing twice, pre-approved to $900k. Countering ~$200k below asking — seller's agent replied 42 minutes ago and Roger is waiting on the update you promised.",
+  relationshipInsight: "High-value buyer who expects a personal touch. A fast, informed response right now protects both the relationship and the deal.",
+
+  // --- Riley explaining why she's interrupting (she speaks directly) ---
+  whyInterrupting: [
+    "Active buyer negotiating today",
+    "Seller responded 42 minutes ago",
+    "Estimated commission: $25,500",
+    "High-probability opportunity",
+    "Waiting longer could risk the deal"
+  ],
+
+  // --- Riley's on-call dialogue (cinematic intro) ---
+  rileyDialogue: [
+    "Hi Roger, thanks for calling. Give me just a second while I pull up your record.",
+    "I see you've been looking at Eagle's Landing.",
+    "Let me bring everything together and prepare Joshua before I connect you."
+  ],
+
+  // --- research: Riley working through Command, on-screen ---
+  research: [
+    { label: "Connecting to Command",        say: "Keller Williams · Atlanta Partners" },
+    { label: "Client match found",           say: "Roger Smith · Active Buyer" },
+    { label: "Reviewing previous notes",     say: "Toured Eagle's Landing twice · pre-approved to $900k" },
+    { label: "Retrieving property details",  say: "412 Eagle's Landing Way · Contract Pending" },
+    { label: "Reviewing last conversation",  say: "Seller's agent replied 42 minutes ago" },
+    { label: "Building client intelligence", say: "You stay focused on the relationship" },
+    { label: "Preparing AI Client Brief",    say: "Everything you'll need — in one view" }
+  ],
+
+  // --- accept handoff (multi-line) + ending ---
+  handoffLines: [
+    "Joshua, I've got Roger for you.",
+    "He's calling about Eagle's Landing.",
+    "Seller responded this morning.",
+    "You're all set."
+  ],
+  connectedSub: "You're live with Roger · the Client Brief stays open beside you",
+  endingA: "Your clients expect you to remember everything.",
+  endingB: "TopherAI makes that possible.",
+  endingNote: "Designed to work alongside Keller Williams Command",
+  endingBrand: "Powered by TopherAI",
+
+  // --- future office vision (static closing screen) ---
+  visionHeadline: "Imagine every agent in your office starting every client conversation this prepared.",
+  visionSub: "The future of client communication begins with context.",
+  visionBrand: "Powered by TopherAI",
+
+  // --- live transcript (staged) ---
+  transcript: [
+    { who: "caller", name: "Roger",  text: "Hi, this is Roger Smith — I'm calling about the Eagle's Landing property." },
+    { who: "riley",  name: "Riley",  text: "Of course, Roger! Give me one second to pull up your record." },
+    { who: "caller", name: "Roger",  text: "Sure. I wanted to see if the seller responded to my offer yet." },
+    { who: "riley",  name: "Riley",  text: "They did — 42 minutes ago. Let me prepare Joshua and connect you right away." }
+  ]
+};
+
+(function(){
+  const D = demoData;
+  const $ = id => document.getElementById(id);
+  const fmtMoney = n => '$' + Number(n).toLocaleString('en-US');
+
+  // ---- populate the entire demo from demoData ----
+  function bindData(){
+    const money = fmtMoney(D.commissionEstimate);
+
+    // profile (dashboard header)
+    const ava = $('profileAva');
+    ava.textContent = '';
+    ava.style.backgroundImage = 'url("' + D.realtorPhoto + '")';
+    $('profileName').textContent = D.realtorName;
+    $('profileBrand').textContent = D.brokerageShort;
+
+    // intro + call panel
+    $('introEyebrow').textContent = 'A day in your business · ' + D.market;
+    $('cpNum').textContent = D.clientPhone;
+    $('cpSub').textContent = 'Inbound · ' + D.clientLocation;
+    $('stepTagId').textContent = '◦ ' + D.clientName + ' · ' + D.clientStatus;
+
+    // research checklist
+    $('checksWrap').innerHTML = D.research.map(r =>
+      '<div class="check"><span class="check__box"><span class="spin"></span>'+
+      '<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>'+
+      '<div class="check__main"><div class="check__lbl">' + r.label + '</div>'+
+      '<div class="check__say">“' + r.say + '”</div></div></div>'
+    ).join('');
+
+    // hero brief (simple + powerful)
+    $('hbAva').textContent = D.clientInitials;
+    $('hbName').textContent = D.clientName;
+    $('hbType').innerHTML = '<span class="vip">' + D.clientStatus + '</span> · ' + D.clientTenure;
+    const hrow = (k,v,vcls,rcls) => '<div class="hb-row '+(rcls||'')+' hb-step"><span class="k">'+k+'</span><span class="v '+(vcls||'')+'">'+v+'</span></div>';
+    $('hbRows').innerHTML =
+      hrow('Property', '<b>'+D.propertyAddress+'</b>') +
+      hrow('Budget', D.budget) +
+      hrow('Main issue', D.urgency, 'warn') +
+      hrow('AI says', '<b>'+D.aiRecommendation+'</b>', '', 'reco');
+    $('hbCommNum').textContent = '';
+
+    // dashboard modal — full brief, split into two intelligence sources
+    $('modalAva').textContent = D.clientInitials;
+    $('modalName').textContent = D.clientName;
+    $('modalType').innerHTML = '<span class="vip">' + D.clientStatus + '</span> · ' + D.clientTenure;
+
+    // Card 1 · retrieved from Command
+    $('commandRows').innerHTML = D.commandRecord.map(r =>
+      '<div class="srow"><span class="srow__k">'+r.k+'</span>'+
+      '<span class="srow__v'+(r.tag==='stage'?' stage':'')+'">'+r.v+'</span></div>'
+    ).join('');
+
+    // Card 2 · TopherAI intelligence
+    $('convoSummary').textContent = D.conversationSummary;
+    $('relInsight').textContent = D.relationshipInsight;
+    $('greetingText').textContent = '"' + D.suggestedGreeting + '"';
+    $('recoVal').textContent = D.aiRecommendation;
+
+    $('modalCommAmt').innerHTML = money + '<span>on this deal</span>';
+    $('whyList').innerHTML = D.whyInterrupting.map(w => {
+      const low = w.toLowerCase();
+      const cls = (/\$|commission/.test(low)) ? 'money' : (/risk|too long|longer/.test(low)) ? 'risk' : '';
+      return '<li class="'+cls+'"><span class="tick">→</span>'+w+'</li>';
+    }).join('');
+
+    // finale
+    $('connectedSub').textContent = D.connectedSub;
+    $('endA').textContent = D.endingA;
+    $('endB').textContent = D.endingB;
+    $('endNote').textContent = D.endingNote;
+    $('endBrand').textContent = D.endingBrand;
+    // future office vision
+    $('visionHeadline').textContent = D.visionHeadline;
+    $('visionSub').textContent = D.visionSub;
+    $('visionBrand').textContent = D.visionBrand;
+
+    // live transcript
+    $('transcriptBody').innerHTML = D.transcript.map(t =>
+      '<div class="tline ' + t.who + '"><div class="tav">' + (t.who==='riley'?'R':t.name.charAt(0)) + '</div>'+
+      '<div class="tbubble"><b>' + t.name + '</b>' + t.text + '</div></div>'
+    ).join('');
+  }
+  bindData();
+
+  const steps = [...document.querySelectorAll('.step')];
+  const rstate = document.getElementById('rstate');
+  const modal = document.getElementById('modal');
+  const timerEl = document.getElementById('timer');
+  const explainBody = document.getElementById('explainBody');
+  const replay = document.getElementById('replay');
+  const trailer = document.getElementById('trailer');
+  const scenes = [...trailer.querySelectorAll('.scene')];
+  const rileyBubble = document.getElementById('rileyBubble');
+  const cdEl = document.getElementById('countdown');
+  const skip = document.getElementById('skip');
+  const finale = document.getElementById('finale');
+  const finScenes = [...finale.querySelectorAll('.scene')];
+  const endReplay = document.getElementById('endReplay');
+  const handoffBubble = document.getElementById('handoffBubble');
+  const dash = document.querySelector('.dash');
+  const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  let timers = [];
+  let callTick = null, cdTick = null;
+  let seconds = 0, cd = 45;
+
+  function clearAll(){ timers.forEach(clearTimeout); timers = []; }
+  function fmt(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+  function scene(i){ scenes.forEach((s,k)=>s.classList.toggle('on', k===i)); }
+  function finScene(i){ finScenes.forEach((s,k)=>s.classList.toggle('on', k===i)); }
+
+  // count a currency value up from $0 to target
+  function countUp(el, target, dur){
+    const start = performance.now();
+    function frame(now){
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = fmtMoney(Math.round(target * eased));
+      if(t < 1) requestAnimationFrame(frame); else el.textContent = fmtMoney(target);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // play a sequence of Riley lines in one bubble, with fades
+  function playDialogue(lines, bubbleEl, holdMs, done){
+    bubbleEl.style.transition = 'opacity .3s ease';
+    let i = 0;
+    (function show(){
+      if(i >= lines.length){ if(done) done(); return; }
+      bubbleEl.style.opacity = '0';
+      timers.push(setTimeout(()=>{
+        bubbleEl.textContent = '“' + lines[i] + '”';
+        bubbleEl.style.opacity = '1';
+        i++;
+        timers.push(setTimeout(show, holdMs));
+      }, 300));
+    })();
+  }
+
+  function startCallTimer(){
+    if(callTick) clearInterval(callTick);
+    seconds = 0; timerEl.textContent = '00:00';
+    callTick = setInterval(()=>{ seconds++; timerEl.textContent = fmt(seconds); }, 1000);
+  }
+  function startCountdown(){
+    if(cdTick) clearInterval(cdTick);
+    cd = 45; cdEl.textContent = fmt(cd);
+    cdTick = setInterval(()=>{ cd = Math.max(0, cd-1); cdEl.textContent = fmt(cd); if(cd===0) clearInterval(cdTick); }, 1000);
+  }
+
+  // Build the workspace chrome around the brief (nav, header, timeline, panels).
+  function assembleDashboard(){
+    dash.classList.remove('assembling');
+    dash.classList.add('built');
+    steps.forEach(s=>s.classList.remove('active'));
+    steps.forEach(s=>s.classList.add('done'));
+    steps[steps.length-1].classList.add('active');
+    rstate.textContent = 'Briefed you — holding the line';
+    revealTranscript();
+  }
+
+  function revealTranscript(){
+    const lines = [...document.querySelectorAll('#transcriptBody .tline')];
+    lines.forEach((l,i)=> timers.push(setTimeout(()=>l.classList.add('in'), reduce ? 0 : 300 + i*260)));
+  }
+
+  // Dismiss the ending overlay and settle back into the interactive dashboard.
+  function closeFinale(){
+    clearAll();
+    document.body.classList.remove('trailer-on');
+    finale.classList.add('gone');
+    trailer.classList.add('gone');
+    if(!dash.classList.contains('built')) assembleDashboard();
+    modal.classList.add('settled');
+    modal.classList.add('in');
+  }
+
+  // Skip / reduced-motion path: no morph, just land in the briefed dashboard.
+  function reveal(){
+    clearAll();
+    document.body.classList.remove('trailer-on');
+    finale.classList.add('gone');
+    trailer.classList.add('gone');
+    assembleDashboard();
+    void modal.offsetWidth;
+    modal.classList.add('in');
+    startCountdown();
+    startCallTimer();
+  }
+
+  // Seamless continuity: the SAME brief flies from center into its dashboard slot
+  // while the application builds itself around it. No hard cut, no rebuild.
+  function morphToDashboard(){
+    const hero = document.getElementById('herobrief');
+    const tag = document.getElementById('hbTag');
+    const H = hero.getBoundingClientRect();
+    const T = modal.getBoundingClientRect();
+
+    // lift the brief out of the cinematic overlay into free-floating flight
+    hero.classList.add('flight');
+    hero.style.left = H.left + 'px';
+    hero.style.top = H.top + 'px';
+    hero.style.width = H.width + 'px';
+    hero.style.transform = 'none';
+    hero.style.opacity = '1';
+    document.body.appendChild(hero);
+    // drop the dark cinematic backdrop so the workspace can appear behind the brief
+    document.body.classList.remove('trailer-on');
+    finale.classList.add('gone');
+    trailer.classList.add('gone');
+
+    // next frame: build the app around the brief and glide the brief into place
+    requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
+      assembleDashboard();
+      if(tag) tag.style.opacity = '0';
+      hero.style.transition = 'left 1.05s cubic-bezier(.5,0,.15,1), top 1.05s cubic-bezier(.5,0,.15,1), width 1.05s cubic-bezier(.5,0,.15,1), box-shadow .9s ease, opacity .45s ease';
+      hero.style.boxShadow = '0 40px 80px -40px rgba(0,0,0,.85), 0 0 70px -40px color-mix(in srgb,var(--coral) 60%,transparent)';
+      hero.style.left = T.left + 'px';
+      hero.style.top = T.top + 'px';
+      hero.style.width = T.width + 'px';
+    }); });
+
+    // on arrival, cross-fade the flying brief into the live (interactive) brief
+    timers.push(setTimeout(()=>{
+      modal.classList.add('settled');
+      void modal.offsetWidth;
+      modal.classList.add('in');
+      hero.style.opacity = '0';
+      startCountdown();
+      startCallTimer();
+    }, 1080));
+
+    // retire the flight element back into its scene for clean replays
+    timers.push(setTimeout(()=>{
+      hero.classList.remove('flight');
+      hero.removeAttribute('style');
+      const s5 = document.getElementById('s5');
+      if(s5) s5.appendChild(hero);
+    }, 1650));
+  }
+
+  // Play the cinematic intro, then reveal.
+  function playTrailer(){
+    clearAll();
+    if(callTick) clearInterval(callTick);
+    if(cdTick) clearInterval(cdTick);
+    modal.classList.remove('in','settled');
+    finale.classList.add('gone');
+    dash.classList.remove('built');
+    dash.classList.add('assembling');
+    // make sure the brief is back in its scene (a prior morph may have moved it)
+    const hero = document.getElementById('herobrief');
+    const s5 = document.getElementById('s5');
+    if(hero && s5 && hero.parentElement !== s5){ hero.classList.remove('flight'); hero.removeAttribute('style'); s5.appendChild(hero); }
+    steps.forEach(s=>s.classList.remove('done','active'));
+    [...document.querySelectorAll('#checksWrap .check')].forEach(c=>c.classList.remove('run','done'));
+    resetExplain();
+    timerEl.textContent = '00:00';
+    cdEl.textContent = '00:45';
+    document.body.classList.add('trailer-on');
+    trailer.classList.remove('gone');
+
+    if(reduce){ reveal(); return; }
+
+    // Scene 1: the ring / answer
+    scene(0);
+    // Scene 2: Riley's on-call dialogue (personalized lines)
+    const dialogueDur = D.rileyDialogue.length * 1900; // 300 fade + 1600 hold each
+    timers.push(setTimeout(()=>{ scene(1); playDialogue(D.rileyDialogue, rileyBubble, 1600); }, 2400));
+    // Scene 3: the AI research, on your behalf
+    const researchStart = 2400 + dialogueDur;
+    const stepGap = 620;
+    timers.push(setTimeout(()=>{
+      scene(2);
+      const checks = [...document.querySelectorAll('#checksWrap .check')];
+      checks.forEach((c,i)=>{
+        timers.push(setTimeout(()=>{
+          checks.forEach(x=>x.classList.remove('run'));
+          for(let k=0;k<i;k++) checks[k].classList.add('done');
+          c.classList.add('run');
+        }, 300 + i*stepGap));
+      });
+      timers.push(setTimeout(()=>checks.forEach(c=>{ c.classList.remove('run'); c.classList.add('done'); }), 300 + checks.length*stepGap));
+    }, researchStart));
+    // Scene 4 (flash) then Scene 5 (hero brief)
+    const researchDur = 300 + D.research.length*stepGap + 550;
+    const flashAt = researchStart + researchDur;
+    timers.push(setTimeout(()=>scene(3), flashAt));
+    timers.push(setTimeout(()=>{ scene(4); playHeroBrief(); }, flashAt + 1500));
+  }
+
+  // Cinematic hero reveal of the completed Client Brief — the product is the star.
+  function playHeroBrief(){
+    const hero = document.getElementById('herobrief');
+    const stepEls = [...hero.querySelectorAll('.hb-step')];
+    const comm = document.getElementById('hbComm');
+    const body = document.getElementById('hbBody');
+    const tag = document.getElementById('hbTag');
+    hero.classList.remove('grow');
+    stepEls.forEach(s=>s.classList.remove('in'));
+    comm.classList.remove('in','pulse'); body.classList.remove('dim'); tag.classList.remove('in');
+
+    if(reduce){
+      stepEls.forEach(s=>s.classList.add('in')); comm.classList.add('in'); tag.classList.add('in');
+      document.getElementById('hbCommNum').textContent = fmtMoney(D.commissionEstimate);
+      timers.push(setTimeout(morphToDashboard, 2000));
+      return;
+    }
+
+    const gap = 640;
+    stepEls.forEach((s,i)=> timers.push(setTimeout(()=>s.classList.add('in'), 500 + i*gap)));
+    timers.push(setTimeout(()=>tag.classList.add('in'), 900));
+
+    const afterRows = 500 + stepEls.length*gap + 500;
+    // signature moment: dim the rest, land the commission (counting up), then restore
+    const commNum = document.getElementById('hbCommNum');
+    commNum.textContent = '';
+    timers.push(setTimeout(()=>body.classList.add('dim'), afterRows));
+    timers.push(setTimeout(()=>{ comm.classList.add('in','pulse'); countUp(commNum, D.commissionEstimate, 1400); }, afterRows + 480));
+    timers.push(setTimeout(()=>comm.classList.remove('pulse'), afterRows + 1900));
+    timers.push(setTimeout(()=>body.classList.remove('dim'), afterRows + 2050));
+    // hold so the owner can read the full brief, then morph into the workspace
+    const endAt = afterRows + 2050 + 2200;
+    timers.push(setTimeout(morphToDashboard, endAt));
+  }
+
+  // Accept is the hero path: Riley hands off → Connected → memorable close.
+  function playFinale(){
+    clearAll();
+    if(cdTick) clearInterval(cdTick);
+    document.body.classList.add('trailer-on');
+    finale.classList.remove('gone');
+    finScene(0);
+
+    // build the multi-line handoff — each line appears and stays
+    handoffBubble.innerHTML = D.handoffLines.map(l => '<span class="hline">' + l + '</span>').join('');
+    const hlines = [...handoffBubble.querySelectorAll('.hline')];
+
+    if(reduce){ hlines.forEach(l=>l.classList.add('in')); finScene(2); return; }
+
+    hlines.forEach((l,i)=> timers.push(setTimeout(()=>l.classList.add('in'), 500 + i*900)));
+    const handoffEnd = 500 + hlines.length*900 + 700;
+    timers.push(setTimeout(()=>finScene(1), handoffEnd));
+    timers.push(setTimeout(()=>finScene(2), handoffEnd + 2400));
+  }
+
+  function resetExplain(){
+    explainBody.innerHTML = '<div class="explain__idle"><div class="ph">?</div><p>Choose how to route this call. Topher will show you exactly what happens next.</p></div>';
+    document.querySelectorAll('[data-action]').forEach(b=>b.classList.remove('sel'));
+  }
+
+  const outcomes = {
+    accept: {
+      badge:'Transferring', badgeColor:'var(--coral)',
+      now:'Riley is connecting the call to you now…',
+      then:'Call transferred. The client brief stays open on your screen through the whole conversation — every detail in reach as you talk.',
+      flow:['Riley','You','Live call'],
+      hot:1
+    },
+    continue: {
+      badge:'AI continuing', badgeColor:'var(--violet)',
+      now:'Riley keeps handling the call — no interruption for you.',
+      then:'Riley gathers more information, answers what she can, and protects your time. A summary lands in your inbox when the call ends.',
+      flow:['Riley','Gathers info','Summary to you'],
+      hot:0
+    },
+    callback: {
+      badge:'Callback scheduled', badgeColor:'var(--amber)',
+      now:'Riley offers ' + D.clientFirst + ' a few callback windows.',
+      then:'Riley captures the reason for the call and books a time that fits your calendar — the request is waiting for you, fully briefed, when you\'re ready.',
+      flow:['Riley','Offers times','On your calendar'],
+      hot:2
+    }
+  };
+
+  function pickColor(o){ return o.badgeColor; }
+
+  function showOutcome(action){
+    const o = outcomes[action];
+    if(!o) return;
+    if(cdTick) clearInterval(cdTick);
+    document.querySelectorAll('[data-action]').forEach(b=>b.classList.toggle('sel', b.dataset.action===action));
+
+    const flow = o.flow.map((n,i)=>{
+      const node = '<span class="es__node'+(i===o.hot?' hot':'')+'">'+n+'</span>';
+      return node + (i<o.flow.length-1 ? '<span class="es__arrow">→</span>' : '');
+    }).join('');
+
+    explainBody.innerHTML =
+      '<div class="explain__state">'+
+        '<span class="es__badge" style="background:color-mix(in srgb,'+o.badgeColor+' 16%,transparent);border:1px solid color-mix(in srgb,'+o.badgeColor+' 34%,transparent);color:'+o.badgeColor+'">'+
+          '<span style="width:7px;height:7px;border-radius:50%;background:'+o.badgeColor+';box-shadow:0 0 8px '+o.badgeColor+'"></span>'+o.badge+
+        '</span>'+
+        '<div class="es__now">'+o.now+'</div>'+
+        '<div class="es__then"><span class="ar">→</span><span>'+o.then+'</span></div>'+
+        '<div class="es__flow">'+flow+'</div>'+
+      '</div>';
+    requestAnimationFrame(()=>{ explainBody.querySelector('.explain__state').classList.add('in'); });
+  }
+
+  document.querySelectorAll('[data-action]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      showOutcome(btn.dataset.action);
+      if(btn.dataset.action === 'accept'){ playFinale(); }
+    });
+  });
+
+  endReplay.addEventListener('click', ()=>{ finale.classList.add('gone'); playTrailer(); });
+  document.getElementById('toVision').addEventListener('click', ()=> finScene(3));
+  document.getElementById('visionBack').addEventListener('click', closeFinale);
+  document.getElementById('finaleClose').addEventListener('click', closeFinale);
+
+  replay.addEventListener('click', playTrailer);
+  skip.addEventListener('click', reveal);
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && !finale.classList.contains('gone')){ e.preventDefault(); closeFinale(); return; }
+    if(!modal.classList.contains('in')) return;
+    if(!finale.classList.contains('gone')) return;
+    const map = {'Enter':'accept','a':'continue','A':'continue','s':'callback','S':'callback'};
+    if(map[e.key]){ e.preventDefault(); showOutcome(map[e.key]); if(map[e.key]==='accept') playFinale(); }
+  });
+
+  playTrailer();
+})();
+</script>
+</body>
+</html>

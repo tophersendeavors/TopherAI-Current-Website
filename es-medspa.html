@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Topher AI · Hecho para Spas Médicos · Piloto Gratis 60 Días</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  /* ------------ Tokens ------------ */
+  :root{
+    --bg:#0A0606;
+    --surface:#1A1414;
+    --surface-2:#15100F;
+    --border:#2A2020;
+    --border-strong:#3a2d2a;
+    --gold:#D4B068;
+    --gold-soft:rgba(212,176,104,.20);
+    --gold-line:rgba(212,176,104,.35);
+    --blush:#F4D4D0;
+    --rose:#8B4A5C;
+    --text:#FAF7F5;
+    --muted:#A89B96;
+    --muted-2:#8a7f7a;
+    --live:#0EA5E9;
+    --sage:#9CB89E;
+    --radius:14px;
+    --radius-lg:22px;
+    --maxw:1180px;
+    --pad:clamp(20px, 4vw, 40px);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  html, body{margin:0; padding:0; background:var(--bg); color:var(--text);}
+  body{
+    font-family:'Inter', system-ui, sans-serif;
+    font-size:1.0625rem;
+    line-height:1.6;
+    font-weight:400;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--gold); color:var(--bg);}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+  input, select{font-family:inherit; color:inherit;}
+
+  .container{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--pad);
+  }
+
+  /* ------------ Shared section atoms ------------ */
+  .badge{
+    display:inline-flex; align-items:center; gap:8px;
+    text-transform:uppercase;
+    letter-spacing:.15em;
+    font-weight:500;
+    font-size:.75rem;
+    color:var(--gold);
+  }
+  .badge::before{
+    content:""; width:18px; height:1px; background:var(--gold-line);
+  }
+  .section{
+    padding:clamp(72px, 9vw, 128px) 0;
+    position:relative;
+  }
+  .section-head{
+    max-width:780px;
+    margin:0 auto clamp(40px, 5vw, 64px);
+    text-align:center;
+  }
+  .section-head .badge{margin-bottom:18px}
+  .section-head h2{
+    font-size:clamp(2rem, 4vw, 3.25rem);
+    font-weight:700;
+    letter-spacing:-0.025em;
+    line-height:1.08;
+    margin:0;
+    text-wrap:balance;
+  }
+  .section-head p{
+    margin-top:18px;
+    color:var(--muted);
+    font-size:1.0625rem;
+  }
+  .serif-i{
+    font-family:'Instrument Serif', serif;
+    font-style:italic;
+    font-weight:400;
+    color:var(--gold);
+    letter-spacing:-0.01em;
+  }
+
+  /* ------------ Nav ------------ */
+  .nav{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    transition:background .25s ease, border-color .25s ease, backdrop-filter .25s ease;
+    border-bottom:1px solid transparent;
+  }
+  .nav.scrolled{
+    background:rgba(10,6,6,.85);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-bottom-color:var(--border);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px var(--pad);
+    max-width:var(--maxw);
+    margin:0 auto;
+    gap:24px;
+  }
+  .nav-left{display:flex; align-items:center; gap:24px;}
+  .back-link{
+    color:var(--muted);
+    font-size:.8125rem;
+    letter-spacing:.02em;
+    transition:color .2s ease;
+  }
+  .back-link:hover{color:var(--gold)}
+  .wordmark{
+    display:flex; align-items:center; gap:10px;
+    font-weight:600; letter-spacing:-0.01em;
+    color:var(--text);
+    font-size:.95rem;
+  }
+  .wordmark-mark{
+    width:26px; height:26px;
+    background:linear-gradient(140deg, var(--gold), #b8924d);
+    border-radius:7px;
+    display:grid; place-items:center;
+    color:var(--bg);
+    font-weight:800;
+    font-size:.8rem;
+    letter-spacing:-0.04em;
+    box-shadow:0 0 0 1px rgba(255,255,255,.05) inset, 0 4px 16px -8px var(--gold);
+  }
+  .nav-right{
+    display:flex; align-items:center; gap:22px;
+  }
+  .nav-phone{
+    color:var(--muted);
+    font-variant-numeric: tabular-nums;
+    font-size:.875rem;
+    transition:color .2s;
+  }
+  .nav-phone:hover{color:var(--text)}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    gap:8px;
+    padding:11px 18px;
+    border-radius:999px;
+    font-weight:600;
+    font-size:.875rem;
+    letter-spacing:-0.005em;
+    transition:transform .15s ease, box-shadow .25s ease, background .2s, color .2s, border-color .2s;
+    white-space:nowrap;
+    border:1px solid transparent;
+  }
+  .btn-primary{
+    background:var(--gold);
+    color:var(--bg);
+    box-shadow:0 10px 30px -10px rgba(212,176,104,.35);
+  }
+  .btn-primary:hover{
+    transform:translateY(-1px);
+    box-shadow:0 14px 40px -10px rgba(212,176,104,.55);
+  }
+  .btn-ghost{
+    border-color:var(--gold-line);
+    color:var(--gold);
+  }
+  .btn-ghost:hover{
+    border-color:var(--gold);
+    background:var(--gold-soft);
+  }
+  .btn-lg{padding:16px 26px; font-size:.95rem;}
+
+  /* ------------ Hero ------------ */
+  .hero{
+    position:relative;
+    padding:160px 0 clamp(80px, 10vw, 140px);
+    overflow:hidden;
+  }
+  .orb{
+    position:absolute; border-radius:50%;
+    filter:blur(80px);
+    pointer-events:none;
+    will-change:transform;
+  }
+  .orb-gold{
+    width:620px; height:620px;
+    background:rgba(212,176,104,.12);
+    top:-200px; left:-180px;
+    animation:drift1 22s ease-in-out infinite alternate;
+  }
+  .orb-rose{
+    width:560px; height:560px;
+    background:rgba(139,74,92,.08);
+    bottom:-220px; right:-160px;
+    animation:drift2 26s ease-in-out infinite alternate;
+  }
+  @keyframes drift1{
+    0%{transform:translate(0,0) scale(1)}
+    100%{transform:translate(60px,40px) scale(1.08)}
+  }
+  @keyframes drift2{
+    0%{transform:translate(0,0) scale(1)}
+    100%{transform:translate(-50px,-30px) scale(1.1)}
+  }
+
+  .hero-inner{position:relative; z-index:1; text-align:center;}
+  .hero .badge{margin-bottom:28px}
+  .hero h1{
+    font-size:clamp(3rem, 6.5vw, 5.5rem);
+    line-height:1.02;
+    letter-spacing:-0.035em;
+    font-weight:700;
+    margin:0 auto;
+    max-width:980px;
+    text-wrap:balance;
+  }
+  .hero h1 .line1{font-weight:500; color:var(--text); display:block;}
+  .hero h1 .line2{display:block; font-weight:800;}
+  .hero h1 .serif-i{
+    font-size:1.05em;
+    margin-right:.05em;
+  }
+  .hero-sub{
+    margin:28px auto 0;
+    max-width:640px;
+    color:var(--muted);
+    font-size:clamp(1rem, 1.4vw, 1.1875rem);
+    line-height:1.55;
+    text-wrap:pretty;
+  }
+  .hero-ctas{
+    display:flex; gap:12px; justify-content:center; flex-wrap:wrap;
+    margin-top:36px;
+  }
+  .hero-meta{
+    margin-top:22px;
+    color:var(--muted-2);
+    font-size:.8125rem;
+    letter-spacing:.02em;
+  }
+
+  /* trust strip */
+  .trust{
+    margin-top:80px;
+    display:flex; align-items:center; justify-content:center;
+    gap:32px;
+    flex-wrap:wrap;
+    color:var(--muted-2);
+    font-size:.75rem;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    font-weight:500;
+  }
+  .trust .dot{
+    width:4px; height:4px; border-radius:50%;
+    background:var(--border-strong);
+  }
+
+  /* ------------ Math section ------------ */
+  .math-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:1px;
+    background:var(--border);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    overflow:hidden;
+  }
+  .stat{
+    background:var(--surface);
+    padding:clamp(28px, 3.4vw, 44px) clamp(22px, 2.6vw, 32px);
+    display:flex; flex-direction:column;
+    gap:10px;
+    min-height:200px;
+  }
+  .stat-num{
+    font-size:clamp(2.5rem, 4.4vw, 3.5rem);
+    font-weight:700;
+    letter-spacing:-0.035em;
+    color:var(--gold);
+    line-height:1;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat-num small{font-size:.5em; font-weight:600; color:var(--gold); letter-spacing:-0.01em;}
+  .stat-desc{
+    color:var(--muted);
+    font-size:.9375rem;
+    line-height:1.45;
+    text-wrap:pretty;
+  }
+  .math-foot{
+    margin-top:36px;
+    text-align:center;
+    font-size:clamp(1.0625rem, 1.6vw, 1.25rem);
+    color:var(--text);
+    font-weight:500;
+    letter-spacing:-0.01em;
+  }
+  .math-foot em{color:var(--gold); font-style:normal; font-weight:600;}
+
+  /* ------------ Live section ------------ */
+  .live-section{
+    position:relative;
+  }
+  .live-section::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(60% 50% at 50% 30%, rgba(212,176,104,.07), transparent 70%);
+    pointer-events:none;
+  }
+  .live-card{
+    position:relative;
+    margin:0 auto;
+    max-width:680px;
+    background:rgba(26,20,20,.7);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--border-strong);
+    border-radius:var(--radius-lg);
+    padding:clamp(36px, 5vw, 56px) clamp(28px, 4vw, 48px);
+    text-align:center;
+    box-shadow:
+      0 0 0 1px rgba(212,176,104,.04) inset,
+      0 40px 80px -40px rgba(0,0,0,.6);
+  }
+  .live-indicator{
+    display:inline-flex; align-items:center; gap:10px;
+    font-size:.75rem; font-weight:600;
+    color:var(--live);
+    text-transform:uppercase; letter-spacing:.18em;
+    margin-bottom:24px;
+  }
+  .pulse{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--live);
+    position:relative;
+  }
+  .pulse::after{
+    content:""; position:absolute; inset:-4px;
+    border-radius:50%;
+    background:var(--live);
+    opacity:.5;
+    animation:pulse 1.8s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{transform:scale(.6); opacity:.6;}
+    100%{transform:scale(2.2); opacity:0;}
+  }
+  .live-phone{
+    display:block;
+    font-size:clamp(2.25rem, 5.5vw, 3.75rem);
+    font-weight:700;
+    letter-spacing:-0.025em;
+    color:var(--gold);
+    font-variant-numeric:tabular-nums;
+    margin:6px 0 22px;
+    line-height:1.1;
+  }
+  .live-card .btn{margin-top:4px;}
+  .live-sub{
+    margin:22px auto 0;
+    max-width:440px;
+    color:var(--muted);
+    font-size:.9375rem;
+    line-height:1.55;
+    text-wrap:pretty;
+  }
+
+  /* ------------ Flow steps ------------ */
+  .flow{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:18px;
+    position:relative;
+  }
+  .step{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:24px 22px 26px;
+    position:relative;
+    transition:border-color .25s, transform .25s;
+  }
+  .step:hover{
+    border-color:var(--gold-line);
+    transform:translateY(-2px);
+  }
+  .step-num{
+    font-family:'Instrument Serif', serif;
+    font-style:italic;
+    color:var(--gold);
+    font-size:1.75rem;
+    line-height:1;
+    margin-bottom:18px;
+    display:block;
+  }
+  .step h3{
+    font-size:1rem;
+    font-weight:600;
+    margin:0 0 8px;
+    letter-spacing:-0.005em;
+    line-height:1.3;
+  }
+  .step p{
+    margin:0;
+    color:var(--muted);
+    font-size:.875rem;
+    line-height:1.5;
+  }
+  .step-connector{
+    position:absolute;
+    top:46px; right:-13px;
+    width:14px; height:1px;
+    background:var(--gold-line);
+    z-index:2;
+  }
+  .step:last-child .step-connector{display:none}
+
+  /* ------------ Capabilities ------------ */
+  .caps{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:18px;
+  }
+  .cap{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:30px 26px;
+    transition:border-color .25s, box-shadow .25s, transform .25s;
+  }
+  .cap:hover{
+    border-color:var(--gold-line);
+    box-shadow:0 0 0 1px var(--gold-soft) inset, 0 20px 40px -30px rgba(212,176,104,.35);
+    transform:translateY(-2px);
+  }
+  .cap-icon{
+    width:42px; height:42px;
+    border:1px solid var(--gold-line);
+    border-radius:11px;
+    display:grid; place-items:center;
+    margin-bottom:22px;
+    color:var(--gold);
+    background:rgba(212,176,104,.04);
+  }
+  .cap-icon svg{display:block;}
+  .cap h3{
+    font-size:1.0625rem;
+    font-weight:600;
+    margin:0 0 8px;
+    letter-spacing:-0.01em;
+  }
+  .cap p{
+    margin:0;
+    color:var(--muted);
+    font-size:.9375rem;
+    line-height:1.55;
+    text-wrap:pretty;
+  }
+
+  /* ------------ Pilot terms ------------ */
+  .pilot-card{
+    max-width:760px; margin:0 auto;
+    background:linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+    border:1px solid var(--gold-line);
+    border-radius:var(--radius-lg);
+    padding:clamp(36px, 4.5vw, 52px);
+    position:relative;
+    box-shadow:
+      0 0 0 1px rgba(212,176,104,.04) inset,
+      0 30px 80px -40px rgba(212,176,104,.18);
+  }
+  .pilot-card::before{
+    content:""; position:absolute; inset:-1px;
+    border-radius:inherit;
+    background:linear-gradient(180deg, rgba(212,176,104,.25), transparent 60%);
+    z-index:-1;
+    filter:blur(20px);
+    opacity:.5;
+  }
+  .pilot-list{
+    list-style:none; padding:0; margin:0;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px 32px;
+  }
+  .pilot-list li{
+    display:flex; gap:14px; align-items:flex-start;
+    font-size:1rem;
+    line-height:1.5;
+    color:var(--text);
+  }
+  .check{
+    flex-shrink:0;
+    width:22px; height:22px;
+    border-radius:50%;
+    background:rgba(212,176,104,.12);
+    color:var(--gold);
+    display:grid; place-items:center;
+    margin-top:2px;
+  }
+  .check svg{display:block;}
+  .spots{
+    margin-top:36px;
+    text-align:center;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    color:var(--muted);
+    font-size:.875rem;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    font-weight:500;
+  }
+  .spots strong{color:var(--text); font-weight:600;}
+
+  /* ------------ FAQ ------------ */
+  .faq{
+    max-width:780px; margin:0 auto;
+    border-top:1px solid var(--border);
+  }
+  .faq-item{
+    border-bottom:1px solid var(--border);
+  }
+  .faq-q{
+    width:100%;
+    display:flex; justify-content:space-between; align-items:center;
+    text-align:left;
+    padding:24px 4px;
+    font-size:1.0625rem;
+    font-weight:500;
+    letter-spacing:-0.005em;
+    transition:color .2s;
+    gap:24px;
+  }
+  .faq-q:hover{color:var(--gold)}
+  .faq-toggle{
+    width:24px; height:24px;
+    border:1px solid var(--border-strong);
+    border-radius:50%;
+    display:grid; place-items:center;
+    flex-shrink:0;
+    transition:transform .25s, border-color .25s, background .25s;
+    color:var(--muted);
+  }
+  .faq-item.open .faq-toggle{
+    transform:rotate(45deg);
+    border-color:var(--gold);
+    background:var(--gold-soft);
+    color:var(--gold);
+  }
+  .faq-a{
+    max-height:0; overflow:hidden;
+    transition:max-height .35s ease;
+  }
+  .faq-a-inner{
+    padding:0 4px 28px;
+    color:var(--muted);
+    font-size:1rem;
+    line-height:1.6;
+    max-width:640px;
+    text-wrap:pretty;
+  }
+
+  /* ------------ Form ------------ */
+  .form-wrap{
+    max-width:620px;
+    margin:0 auto;
+  }
+  .form-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:clamp(28px, 4vw, 44px);
+  }
+  .field{
+    display:flex; flex-direction:column;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .field label{
+    font-size:.75rem;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--muted);
+    font-weight:500;
+  }
+  .field input, .field select{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:1rem;
+    color:var(--text);
+    transition:border-color .2s, box-shadow .2s, background .2s;
+    appearance:none;
+    width:100%;
+  }
+  .field input::placeholder{color:var(--muted-2)}
+  .field input:focus, .field select:focus{
+    outline:none;
+    border-color:var(--gold);
+    box-shadow:0 0 0 3px rgba(212,176,104,.12);
+    background:#1f1816;
+  }
+  .field select{
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='%23A89B96' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat:no-repeat;
+    background-position:right 16px center;
+    padding-right:42px;
+  }
+  .row{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px;
+  }
+  .row .field{margin-bottom:0}
+  .submit{
+    width:100%;
+    margin-top:8px;
+    background:var(--gold);
+    color:var(--bg);
+    padding:16px;
+    border-radius:12px;
+    font-weight:600;
+    font-size:.9375rem;
+    letter-spacing:-0.005em;
+    transition:transform .15s, box-shadow .25s;
+    box-shadow:0 12px 32px -12px rgba(212,176,104,.45);
+  }
+  .submit:hover{
+    transform:translateY(-1px);
+    box-shadow:0 18px 44px -12px rgba(212,176,104,.65);
+  }
+    .consent-note{
+    font-size:11px;
+    line-height:1.5;
+    color:var(--muted-2);
+    text-align:center;
+    margin-top:14px;
+    padding:0 4px;
+  }
+  .consent-note a{
+    color:var(--muted);
+    text-decoration:underline;
+    text-underline-offset:2px;
+  }
+  .consent-note a:hover{color:var(--gold);}
+  
+  .submit-note{
+    margin-top:14px;
+    text-align:center;
+    color:var(--muted-2);
+    font-size:.8125rem;
+  }
+
+  .success{
+    text-align:center;
+    padding:clamp(32px, 5vw, 48px) 24px;
+    display:none;
+  }
+  .success.show{display:block}
+  .form-card.hidden{display:none}
+  .success-icon{
+    width:56px; height:56px;
+    margin:0 auto 22px;
+    border-radius:50%;
+    background:rgba(156,184,158,.12);
+    border:1px solid rgba(156,184,158,.4);
+    display:grid; place-items:center;
+    color:var(--sage);
+  }
+  .success h3{
+    font-size:1.5rem;
+    font-weight:600;
+    letter-spacing:-0.015em;
+    margin:0 0 10px;
+  }
+  .success p{
+    margin:0;
+    color:var(--muted);
+    font-size:1rem;
+  }
+
+  /* ------------ Footer ------------ */
+  footer{
+    border-top:1px solid var(--border);
+    padding:64px 0 48px;
+    margin-top:60px;
+  }
+  .foot-grid{
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:32px;
+    align-items:flex-start;
+  }
+  .foot-left{max-width:380px;}
+  .foot-tag{
+    margin-top:18px;
+    color:var(--muted);
+    font-size:.9375rem;
+    line-height:1.55;
+    text-wrap:pretty;
+  }
+  .foot-right{
+    display:flex; flex-direction:column; gap:8px; align-items:flex-end;
+    color:var(--muted);
+    font-size:.875rem;
+  }
+  .foot-right a:hover{color:var(--gold)}
+  .foot-bottom{
+    margin-top:48px;
+    padding-top:28px;
+    border-top:1px solid var(--border);
+    display:flex; justify-content:space-between;
+    color:var(--muted-2);
+    font-size:.8125rem;
+    flex-wrap:wrap;
+    gap:18px;
+  }
+  .foot-links{display:flex; gap:24px}
+
+  /* ------------ Reveal animation ------------ */
+  .reveal{
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity .8s ease, transform .8s ease;
+  }
+  .reveal.in{opacity:1; transform:none;}
+
+  /* ------------ Responsive ------------ */
+  @media (max-width: 1024px){
+    .flow{grid-template-columns:repeat(2, 1fr)}
+    .step-connector{display:none}
+    .caps{grid-template-columns:repeat(2, 1fr)}
+  }
+  @media (max-width: 768px){
+    .math-grid{grid-template-columns:1fr 1fr}
+    .pilot-list{grid-template-columns:1fr}
+    .row{grid-template-columns:1fr}
+    .foot-grid{flex-direction:column}
+    .foot-right{align-items:flex-start}
+    .nav-phone{display:none}
+    .back-link{display:none}
+    .trust{gap:16px}
+  }
+  @media (max-width: 540px){
+    .flow{grid-template-columns:1fr}
+    .caps{grid-template-columns:1fr}
+    .math-grid{grid-template-columns:1fr}
+    .hero{padding-top:130px}
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration:.01ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;
+    }
+    html{scroll-behavior:auto}
+  }
+
+  /* ===== FLOATING CALL STATUS PANEL ===== */
+  .call-panel {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: rgba(20, 18, 15, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(196, 156, 92, 0.4);
+    border-radius: 16px;
+    padding: 18px 20px;
+    min-width: 280px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(196, 156, 92, 0.1);
+    z-index: 1000;
+    display: none;
+    animation: cp-slide-up 0.3s ease-out;
+    font-family: 'Inter', sans-serif;
+  }
+  .call-panel.show { display: block; }
+  @keyframes cp-slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .call-panel-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .call-panel-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c49c5c, #8b4513);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 15px;
+    flex-shrink: 0;
+  }
+  .call-panel-info { flex: 1; min-width: 0; }
+  .call-panel-name {
+    font-size: 14px; font-weight: 600;
+    color: #ece5d8;
+    line-height: 1.2;
+  }
+  .call-panel-status {
+    font-size: 11.5px;
+    color: #c49c5c;
+    margin-top: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .call-panel-status .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #6b9e6b;
+    box-shadow: 0 0 8px #6b9e6b;
+    animation: cp-pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes cp-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .call-panel-timer {
+    font-family: ui-monospace, 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #a89c87;
+    text-align: center;
+    margin-bottom: 12px;
+    letter-spacing: 0.04em;
+  }
+  .call-panel-end {
+    width: 100%;
+    background: linear-gradient(135deg, #c0392b, #922b21);
+    color: white;
+    border: none;
+    padding: 11px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13.5px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.2s;
+  }
+  .call-panel-end:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(192, 57, 43, 0.4);
+  }
+  .call-panel-connecting {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 13px;
+    color: #a89c87;
+  }
+  .call-panel-connecting .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(196, 156, 92, 0.3);
+    border-top-color: #c49c5c;
+    border-radius: 50%;
+    animation: cp-spin 0.8s linear infinite;
+  }
+  @keyframes cp-spin { to { transform: rotate(360deg); } }
+  @media (max-width: 540px) {
+    .call-panel {
+      bottom: 16px; right: 16px; left: 16px;
+      min-width: auto;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-left">
+      <a href="https://topherai.com/es/" class="back-link">← topherai.com</a>
+      <a href="https://topherai.com/es/" class="wordmark">
+        <span class="wordmark-mark">T</span>
+        <span>Topher AI</span>
+      </a>
+    </div>
+    <div class="nav-right">
+      <a href="#apply" class="nav-phone" style="text-decoration:none;">Postular</a>
+      <a href="#apply" class="btn btn-primary">Postular</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="orb orb-gold"></div>
+  <div class="orb orb-rose"></div>
+  <div class="container hero-inner">
+    <span class="badge">Piloto · 3 Cupos · 60 Días Gratis</span>
+    <h1>
+      <span class="line1">La recepcionista de IA</span>
+      <span class="line2">hecha para <span class="serif-i">spas médicos.</span></span>
+    </h1>
+    <p class="hero-sub">
+      Contesta cada llamada. Agenda cada cita. Envía SMS a cada lead perdido. Mientras estás con pacientes, fuera de horario, o de vacaciones.
+    </p>
+    <div class="hero-ctas">
+      <a href="#apply" class="btn btn-primary btn-lg">Postular al piloto</a>
+      <button id="hero-vapi-btn" class="btn btn-ghost btn-lg" style="cursor:pointer;font-family:inherit;border:1px solid currentColor;background:transparent;">
+        🎤 Habla con Sofía ahora
+      </button>
+    </div>
+    <p class="hero-meta">IA real · Contesta en &lt;2 segundos · Pruébala antes de postular</p>
+
+    <div class="trust">
+      <span>Vagaro</span><span class="dot"></span>
+      <span>Mindbody</span><span class="dot"></span>
+      <span>Boulevard</span><span class="dot"></span>
+      <span>Square</span><span class="dot"></span>
+      <span>GoHighLevel</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ MATH ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">Por qué existe</span>
+      <h2>Tu recepción está perdiendo plata.</h2>
+    </div>
+
+    <div class="math-grid reveal">
+      <div class="stat">
+        <div class="stat-num">67<small>%</small></div>
+        <p class="stat-desc">de las consultas a spas médicos llegan fuera de horario</p>
+      </div>
+      <div class="stat">
+        <div class="stat-num">23</div>
+        <p class="stat-desc">llamadas que pierde a la semana un spa médico promedio</p>
+      </div>
+      <div class="stat">
+        <div class="stat-num">$1,400</div>
+        <p class="stat-desc">valor promedio de vida de un paciente nuevo</p>
+      </div>
+      <div class="stat">
+        <div class="stat-num">$32,200<small>/mo</small></div>
+        <p class="stat-desc">lo que estás dejando en el buzón de voz</p>
+      </div>
+    </div>
+
+    <p class="math-foot reveal">
+      Topher catches every one of them. <em>For less than your monthly product cost.</em>
+    </p>
+  </div>
+</section>
+
+<!-- ============ LIVE ============ -->
+<section class="section live-section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">Sin slides · Sin video</span>
+      <h2>No nos creas a nosotros. <span class="serif-i">Háblale a la IA.</span></h2>
+    </div>
+
+    <div class="live-card reveal">
+      <span class="live-indicator">
+        <span class="pulse"></span>
+        En vivo · Disponible ahora
+      </span>
+      <div class="live-phone" style="cursor:default;">Sofía · Voz colombiana</div>
+      <button id="live-vapi-btn" class="btn btn-primary btn-lg" style="font-family:inherit;border:none;cursor:pointer;">
+        🎤 <span class="call-label">Hablar con Sofía ahora</span>
+      </button>
+      <p class="live-sub">
+        Esta es la misma IA que hablaría con tus pacientes. Haz clic, conversa como si fueras una paciente. Pregúntale sobre Botox, rellenos, precios, disponibilidad — lo que quieras.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FLOW ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">El flujo</span>
+      <h2>De consulta a cita agendada en menos de 3 minutos.</h2>
+    </div>
+
+    <div class="flow">
+      <div class="step reveal">
+        <span class="step-num">01</span>
+        <span class="step-connector"></span>
+        <h3>El paciente llama o envía DM</h3>
+        <p>Contestamos en menos de 2 segundos, 24/7.</p>
+      </div>
+      <div class="step reveal">
+        <span class="step-num">02</span>
+        <span class="step-connector"></span>
+        <h3>Saluda con la voz de tu spa</h3>
+        <p>Entrenada con tus servicios, precios, doctores.</p>
+      </div>
+      <div class="step reveal">
+        <span class="step-num">03</span>
+        <span class="step-connector"></span>
+        <h3>Califica y agenda</h3>
+        <p>Tratamiento, urgencia, preferencia de doctor.</p>
+      </div>
+      <div class="step reveal">
+        <span class="step-num">04</span>
+        <span class="step-connector"></span>
+        <h3>Cita confirmada</h3>
+        <p>Sincronizada con tu calendario y sistema de reservas.</p>
+      </div>
+      <div class="step reveal">
+        <span class="step-num">05</span>
+        <h3>Te llega la alerta</h3>
+        <p>Resumen del lead caliente por SMS al instante.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAPABILITIES ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">Funcionalidades</span>
+      <h2>Diseñada específicamente para spas médicos.</h2>
+    </div>
+
+    <div class="caps">
+      <div class="cap reveal">
+        <div class="cap-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>
+        </div>
+        <h3>Contesta 24/7</h3>
+        <p>Cada llamada. Cada vez. Incluso a las 11pm un domingo.</p>
+      </div>
+
+      <div class="cap reveal">
+        <div class="cap-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        </div>
+        <h3>DMs de Instagram y FB</h3>
+        <p>Responde a cada DM con la voz de tu marca, en segundos.</p>
+      </div>
+
+      <div class="cap reveal">
+        <div class="cap-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v11H7l-4 4z"></path><line x1="8" y1="10" x2="16" y2="10"></line></svg>
+        </div>
+        <h3>SMS automático en llamadas perdidas</h3>
+        <p>Envía SMS a cualquier llamada perdida antes de que el lead se enfríe.</p>
+      </div>
+
+      <div class="cap reveal">
+        <div class="cap-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M9 15l2 2 4-4"></path></svg>
+        </div>
+        <h3>Integración de reservas</h3>
+        <p>Conecta directo con tu sistema de citas o calendario.</p>
+      </div>
+
+      <div class="cap reveal">
+        <div class="cap-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 11l-3 3-2-2"></path></svg>
+        </div>
+        <h3>Califica consultas</h3>
+        <p>Captura interés del tratamiento, presupuesto, y urgencia — antes de que te vean.</p>
+      </div>
+
+      <div class="cap reveal">
+        <div class="cap-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        </div>
+        <h3>Toma control con un click</h3>
+        <p>Ve cada conversación en vivo. Interviene cuando quieras.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PILOT TERMS ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">La oferta</span>
+      <h2>60 días. Gratis. <span class="serif-i">Solo 3 spas.</span></h2>
+    </div>
+
+    <div class="pilot-card reveal">
+      <ul class="pilot-list">
+        <li><span class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>60 días completamente gratis</li>
+        <li><span class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>Sin tarjeta de crédito</li>
+        <li><span class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>Sin contrato — cancela cuando quieras</li>
+        <li><span class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>Configuración de 30 minutos, hecha por nosotros</li>
+        <li><span class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>Tú te quedas con cada cita que generemos</li>
+        <li><span class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>Retroalimentación honesta + un testimonio en video si funciona — eso es todo lo que pedimos</li>
+      </ul>
+    </div>
+
+    <div class="spots reveal">
+      <span class="pulse"></span>
+      Cupos disponibles: <strong>&nbsp;3 de 3</strong>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">Preguntas</span>
+      <h2>Lo que los dueños de spas preguntan antes de postular.</h2>
+    </div>
+
+    <div class="faq reveal">
+      <div class="faq-item">
+        <button class="faq-q">
+          ¿Va a sonar robótica?
+          <span class="faq-toggle"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">Haz clic en "Hablar con Sofía" arriba y decide por ti. La mayoría de pacientes no se dan cuenta de que es IA.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">
+          ¿Y si se equivoca en algo?
+          <span class="faq-toggle"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">Ves cada conversación en vivo. Tomas control con un click. Monitoreamos personalmente cada piloto los primeros 30 días.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">
+          ¿Funciona con mi sistema de reservas?
+          <span class="faq-toggle"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">Sí. Funciona con la mayoría de sistemas de reservas y calendarios. Si usas algo específico, lo conectamos durante la configuración.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">
+          ¿Cuál es el truco del piloto gratis?
+          <span class="faq-toggle"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">Ningún truco. Soy un fundador construyendo esto. Necesito casos de éxito reales. Tú necesitas ver si funciona. Ganamos los dos.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">
+          ¿Qué pasa después de los 60 días?
+          <span class="faq-toggle"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">Tú decides. Continúas con un plan mensual o te vas sin deber nada. Los pilotos obtienen precio de fundador fijo de por vida si continúan.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APPLY ============ -->
+<section class="section" id="apply">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">Postular</span>
+      <h2>Toma uno de los <span class="serif-i">3 cupos del piloto.</span></h2>
+      <p>Te contactaremos en menos de 24 horas para coordinar una llamada corta de 30 minutos. (Si quieres, puedes hablar con Sofía ahora mismo arriba.)</p>
+    </div>
+
+    <div class="form-wrap reveal">
+      <form class="form-card" id="applyForm" novalidate>
+        <div class="field">
+          <label for="name">Nombre completo</label>
+          <input id="name" name="name" type="text" required placeholder="Ana Martínez" autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="spa">Nombre del spa</label>
+          <input id="spa" name="spa" type="text" required placeholder="Estética Bogotá" autocomplete="organization" />
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="phone">Teléfono / WhatsApp</label>
+            <input id="phone" name="phone" type="tel" required placeholder="+57 300 ..." autocomplete="tel" />
+          </div>
+          <div class="field">
+            <label for="email">Correo electrónico</label>
+            <input id="email" name="email" type="email" required placeholder="ana@tuspa.com" autocomplete="email" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="locations">Sedes</label>
+            <select id="locations" name="locations" required>
+              <option value="">Selecciona…</option>
+              <option value="1">1 sede</option>
+              <option value="2-3">2 - 3 sedes</option>
+              <option value="4+">4 o más sedes</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="pain">Tu mayor dolor de cabeza ahora</label>
+            <select id="pain" name="pain" required>
+              <option value="">Selecciona…</option>
+              <option>Llamadas perdidas</option>
+              <option>Consultas fuera de horario</option>
+              <option>Seguimiento lento</option>
+              <option>Recepción saturada</option>
+              <option>Todas las anteriores</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="submit">Postular al piloto →</button>
+        <p class="submit-note">Te respondemos en menos de 24 horas. Promesa.</p>
+        <p class="consent-note">Al enviar este formulario, autorizas que Topher AI se comunique contigo por llamada y SMS al número proporcionado. Pueden aplicar tarifas de mensajes y datos. La frecuencia de los mensajes varía. Responde STOP para darte de baja. Consulta nuestra <a href="/privacy.html">Política de Privacidad</a> y <a href="/terms.html">Términos</a>.</p>
+      </form>
+
+      <div class="success" id="successCard">
+        <div class="success-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <h3>¡Recibido! Te contactaremos pronto.</h3>
+        <p>Revisaremos tu información en menos de 24 horas. Mientras tanto, puedes hablar con Sofía directamente arriba.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-left">
+        <a href="https://topherai.com/es/" class="wordmark">
+          <span class="wordmark-mark">T</span>
+          <span>Topher AI</span>
+        </a>
+        <p class="foot-tag">La recepcionista de IA para negocios que se niegan a perder leads en el buzón de voz.</p>
+      </div>
+      <div class="foot-right">
+        <a href="mailto:cs@topherai.com">cs@topherai.com</a>
+        <span style="color:var(--ink-3);font-size:13px;">+1 (213) 898-6724 (EE.UU.)</span>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Topher AI. Todos los derechos reservados.</span>
+      <div class="foot-links">
+        <a href="/es/privacy.html">Política de Privacidad</a>
+        <a href="/es/terms.html">Términos de Servicio</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ----- Nav scroll state -----
+  const nav = document.getElementById('nav');
+  const onScroll = () => {
+    if (window.scrollY > 12) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // ----- Reveal on scroll -----
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ----- FAQ accordion -----
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      const a = item.querySelector('.faq-a');
+      const open = item.classList.toggle('open');
+      a.style.maxHeight = open ? a.scrollHeight + 'px' : '0px';
+    });
+  });
+
+  // ----- Mobile vs desktop call label -----
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  const callLabel = document.querySelector('.call-label');
+  if (callLabel) callLabel.textContent = isMobile ? 'Tap to call' : 'Call now';
+
+  // ----- Form submit to n8n webhook -----
+  const form = document.getElementById('applyForm');
+  const success = document.getElementById('successCard');
+  const WEBHOOK_URL = 'https://topherai.app.n8n.cloud/webhook/web-lead';
+  
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    
+    const submitBtn = form.querySelector('.submit');
+    const originalBtnText = submitBtn.textContent;
+    submitBtn.textContent = 'Submitting...';
+    submitBtn.disabled = true;
+    
+    const fd = new FormData(form);
+    const payload = {
+      name: fd.get('name'),
+      email: fd.get('email'),
+      phone: fd.get('phone'),
+      role: 'med-spa',
+      industry: 'med-spa',
+      business_name: fd.get('spa'),
+      locations: fd.get('locations'),
+      pain_point: fd.get('pain'),
+      source: 'medspa_pilot_landing_es', language: 'es'
+    };
+    
+    try {
+      await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      form.classList.add('hidden');
+      success.classList.add('show');
+      success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      submitBtn.textContent = originalBtnText;
+      submitBtn.disabled = false;
+      alert('Something went wrong submitting your application. Please call us directly at (213) 898-6724.');
+      console.error('Form submission failed:', err);
+    }
+  });
+</script>
+
+<!-- ===== FLOATING CALL STATUS PANEL ===== -->
+<div id="callPanel" class="call-panel">
+  <div id="callPanelContent">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- ===== VAPI WEB DEMO (Sofía direct) ===== -->
+<script>
+const VAPI_PUBLIC_KEY = "9794aec6-8b69-43df-ad52-9107ea8170e5";
+const SOFIA_ID = "a91daf92-a477-46ed-b4cf-3e8df3a92699";
+
+let vapi = null;
+let callInProgress = false;
+
+const buttons = ['hero-vapi-btn', 'live-vapi-btn'];
+const defaultTexts = {
+  'hero-vapi-btn': '🎤 Habla con Sofía ahora',
+  'live-vapi-btn': '🎤 <span class="call-label">Hablar con Sofía ahora</span>'
+};
+
+async function initVapi() {
+  if (vapi) return;
+  try {
+    const mod = await import('https://cdn.jsdelivr.net/npm/@vapi-ai/web@2.3.6/+esm');
+    const VapiClass = mod.default?.default || mod.default || mod.Vapi || mod;
+    if (typeof VapiClass !== 'function') throw new Error('Vapi class not found');
+    vapi = new VapiClass(VAPI_PUBLIC_KEY);
+
+    vapi.on('call-start', () => {
+      callInProgress = true;
+      setAllButtons('🎤 En llamada — clic para colgar', false);
+      showCallPanel('active');
+      startCallTimer();
+    });
+    vapi.on('call-end', () => {
+      callInProgress = false;
+      resetAllButtons();
+      hideCallPanel();
+      stopCallTimer();
+    });
+    vapi.on('error', (err) => {
+      console.error('[Sofía] Error:', err);
+      callInProgress = false;
+      resetAllButtons();
+      hideCallPanel();
+      stopCallTimer();
+    });
+    console.log('[Sofía] Web SDK ready');
+  } catch (e) { console.error('[Sofía] Init failed:', e); }
+}
+
+function setAllButtons(text, enabled) {
+  buttons.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.innerHTML = text;
+      el.disabled = !enabled;
+    }
+  });
+}
+
+function resetAllButtons() {
+  buttons.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.innerHTML = defaultTexts[id];
+      el.disabled = false;
+    }
+  });
+}
+
+async function startCall() {
+  if (callInProgress) {
+    try { await vapi.stop(); } catch (e) {}
+    return;
+  }
+  if (!vapi) {
+    setAllButtons('🔄 Cargando...', false);
+    showCallPanel('connecting');
+    await initVapi();
+    if (!vapi) {
+      resetAllButtons();
+      hideCallPanel();
+      alert('No pudimos cargar el demo. Recarga la página e intenta de nuevo.');
+      return;
+    }
+  }
+  setAllButtons('🔄 Conectando con Sofía...', false);
+  showCallPanel('connecting');
+  try { await vapi.start(SOFIA_ID); }
+  catch (e) {
+    console.error('[Sofía] Start error:', e);
+    resetAllButtons();
+    hideCallPanel();
+    alert('No pudimos iniciar la llamada. Por favor recarga e intenta de nuevo.');
+  }
+}
+
+// Call panel state
+const callPanel = document.getElementById('callPanel');
+const callPanelContent = document.getElementById('callPanelContent');
+let callTimerInterval = null;
+let callStartTs = null;
+
+function showCallPanel(state) {
+  if (!callPanel || !callPanelContent) return;
+  callPanel.classList.add('show');
+  if (state === 'connecting') {
+    callPanelContent.innerHTML = `
+      <div class="call-panel-header">
+        <div class="call-panel-avatar">S</div>
+        <div class="call-panel-info">
+          <div class="call-panel-name">Sofía</div>
+          <div class="call-panel-status">Conectando...</div>
+        </div>
+      </div>
+      <div class="call-panel-connecting">
+        <div class="spinner"></div>
+        <span>Estableciendo conexión</span>
+      </div>`;
+  } else if (state === 'active') {
+    callPanelContent.innerHTML = `
+      <div class="call-panel-header">
+        <div class="call-panel-avatar">S</div>
+        <div class="call-panel-info">
+          <div class="call-panel-name">Sofía</div>
+          <div class="call-panel-status"><span class="dot"></span> En llamada</div>
+        </div>
+      </div>
+      <div class="call-panel-timer" id="callTimer">00:00</div>
+      <button class="call-panel-end" onclick="endCallFromPanel()">Colgar llamada</button>`;
+  }
+}
+
+function hideCallPanel() {
+  if (callPanel) callPanel.classList.remove('show');
+}
+
+function startCallTimer() {
+  callStartTs = Date.now();
+  stopCallTimer();
+  callTimerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - callStartTs) / 1000);
+    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    const el = document.getElementById('callTimer');
+    if (el) el.textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function stopCallTimer() {
+  if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
+  callStartTs = null;
+}
+
+window.endCallFromPanel = async function() {
+  if (callInProgress && vapi) {
+    try { await vapi.stop(); } catch (e) {}
+  }
+};
+
+window.addEventListener('load', initVapi);
+buttons.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', startCall);
+});
+</script>
+
+</body>
+</html>

@@ -1,4 +1,21 @@
+# topherai.com
 User-agent: *
+Allow: /
+
+# Workspace and export directories — not site content
+Disallow: /uploads/
+Disallow: /exports/
+Disallow: /screenshots/
+Disallow: /assets/topher-bg.js
+
+# AI crawlers are welcome — we want to be cited
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
 Allow: /
 
 Sitemap: https://topherai.com/sitemap.xml

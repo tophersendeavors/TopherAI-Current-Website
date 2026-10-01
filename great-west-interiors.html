@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TopherAI Presentation | AI for Great West Interiors</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to match topherail.com */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0);
+            background-size: 2rem 2rem;
+            color: #E2E8F0; /* Light gray text */
+        }
+
+        .slide-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            position: relative;
+            z-index: 10;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card {
+            background: rgba(10, 10, 20, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1.5rem; /* 24px */
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Glowing effect from topherail.com */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                transparent,
+                rgba(168, 85, 247, 0.2), /* purple */
+                rgba(59, 130, 246, 0.2),  /* blue */
+                transparent 30%
+            );
+            animation: rotate 6s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .icon-grid div {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .icon-grid div:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        /* Navigation dots */
+        .nav-dots {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-dot.active {
+            background: #A855F7; /* Purple */
+            transform: scale(1.2);
+            box-shadow: 0 0 10px #A855F7;
+        }
+        
+        /* Custom button style to match website */
+        .cta-button {
+            background: linear-gradient(90deg, #A855F7, #3B82F6);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-weight: 600;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Background decorative gradients -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+        <div class="absolute top-[-20%] left-[-20%] w-[60vw] h-[60vw] bg-purple-600/20 rounded-full blur-[150px] animate-[spin_20s_linear_infinite]"></div>
+        <div class="absolute bottom-[-20%] right-[-20%] w-[50vw] h-[50vw] bg-blue-600/20 rounded-full blur-[150px] animate-[spin_25s_linear_infinite_reverse]"></div>
+    </div>
+
+    <!-- Navigation Dots -->
+    <nav id="nav-dots" class="nav-dots"></nav>
+
+    <!-- Slide 1: Title -->
+    <section id="slide-1" class="slide-container">
+        <div class="card w-full max-w-4xl">
+            <div class="p-8 md:p-12 text-center">
+                <img src="https://www.topherail.com/assets/topherai-logo-9b1a7759.png" alt="TopherAI Logo" class="h-12 mx-auto mb-6" onerror="this.style.display='none'">
+                <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">AI-Powered Operations for <br><span class="text-purple-400">Great West Interiors</span></h1>
+                <p class="mt-6 text-lg text-slate-300 max-w-2xl mx-auto">Transforming commercial drywall bidding, takeoffs, and project execution with intelligent automation.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 2: The Challenge -->
+    <section id="slide-2" class="slide-container">
+        <div class="card w-full max-w-4xl">
+            <div class="p-8 md:p-12">
+                <h2 class="text-3xl font-bold text-center text-white mb-8">The High-Stakes Balancing Act</h2>
+                <div class="grid md:grid-cols-3 gap-6 text-center">
+                    <div class="p-6 rounded-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <h3 class="font-semibold text-white">Manual Bottlenecks</h3>
+                        <p class="text-slate-400 text-sm mt-2">Time-consuming plan reading and takeoffs create delays and risk costly human error.</p>
+                    </div>
+                    <div class="p-6 rounded-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                        <h3 class="font-semibold text-white">Competitive Pressure</h3>
+                        <p class="text-slate-400 text-sm mt-2">Bids must be razor-sharp on price, yet profitable. A slight miscalculation can lose the job or kill the margin.</p>
+                    </div>
+                    <div class="p-6 rounded-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5V4H4zm0 12h5v5H4v-5zm12 0h5v5h-5v-5zM9 9l4-4m0 8l4 4m-8-4l-4 4m0-8l4-4" /></svg>
+                        <h3 class="font-semibold text-white">Execution Risk</h3>
+                        <p class="text-slate-400 text-sm mt-2">Misaligned schedules and material orders lead to project delays, waste, and budget overruns.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 3: The Solution -->
+    <section id="slide-3" class="slide-container">
+        <div class="card w-full max-w-4xl">
+            <div class="p-8 md:p-12">
+                <h2 class="text-3xl font-bold text-center text-white mb-2">The TopherAI Solution</h2>
+                <p class="text-center text-slate-300 mb-8">An integrated AI toolkit to automate and optimize your core operations.</p>
+                <div class="space-y-6 icon-grid">
+                    <div class="flex items-start p-6 rounded-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-400 mr-4 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        <div>
+                            <h3 class="font-semibold text-lg text-white">AI Plan Reader & Takeoff Assistant</h3>
+                            <p class="text-slate-400 mt-1">Instantly reads PDF plans to auto-extract all drywall, framing, and ceiling quantities into takeoff spreadsheets. What took hours now takes seconds.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start p-6 rounded-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400 mr-4 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8l3 5m0 0l3-5m-3 5v4m0 0l3 5m-3-5l-3 5" /></svg>
+                        <div>
+                            <h3 class="font-semibold text-lg text-white">Predictive Bid Optimization</h3>
+                            <p class="text-slate-400 mt-1">Analyzes your past bids (won & lost) and market data to recommend optimal pricing that maximizes win probability while protecting margins.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start p-6 rounded-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-400 mr-4 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <div>
+                            <h3 class="font-semibold text-lg text-white">Automated Scheduling & Materials</h3>
+                            <p class="text-slate-400 mt-1">Post-award, the AI builds an optimal crew schedule and generates just-in-time material orders to eliminate downtime and inventory waste.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 4: Benefits & ROI -->
+    <section id="slide-4" class="slide-container">
+        <div class="card w-full max-w-4xl">
+            <div class="p-8 md:p-12">
+                <h2 class="text-3xl font-bold text-center text-white mb-8">The Tangible Impact</h2>
+                 <div class="grid md:grid-cols-2 gap-x-8 gap-y-6">
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        <span class="text-slate-200 text-lg">Drastically faster bid turnaround</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        <span class="text-slate-200 text-lg">Higher win rate on commercial projects</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        <span class="text-slate-200 text-lg">Reduced material costs & site downtime</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        <span class="text-slate-200 text-lg">Increased profit margins per job</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        <span class="text-slate-200 text-lg">Scale operations without adding overhead</span>
+                    </div>
+                     <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        <span class="text-slate-200 text-lg">Measurable ROI within the first 90 days</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 5: Call to Action -->
+    <section id="slide-5" class="slide-container">
+        <div class="card w-full max-w-4xl">
+            <div class="p-8 md:p-12 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-white">Ready to Build Smarter?</h2>
+                <p class="mt-4 text-lg text-slate-300 max-w-xl mx-auto">Let's schedule a 20-minute discovery call. We'll show you exactly how TopherAI can be applied to your current commercial projects.</p>
+                <div class="mt-8">
+                    <a href="#" class="cta-button inline-block text-white rounded-full px-8 py-4 text-lg">
+                        Book a Discovery Call
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slides = document.querySelectorAll('.slide-container');
+            const navDotsContainer = document.getElementById('nav-dots');
+            let currentSlide = 0;
+            let isScrolling = false;
+
+            // Create nav dots
+            slides.forEach((slide, index) => {
+                const dot = document.createElement('div');
+                dot.classList.add('nav-dot');
+                dot.addEventListener('click', () => {
+                    if (isScrolling) return;
+                    scrollToSlide(index);
+                });
+                navDotsContainer.appendChild(dot);
+            });
+            
+            const navDots = document.querySelectorAll('.nav-dot');
+
+            function updateActiveState() {
+                // Update slides
+                slides.forEach((slide, index) => {
+                    if (index === currentSlide) {
+                        slide.classList.add('active');
+                    } else {
+                        slide.classList.remove('active');
+                    }
+                });
+                // Update dots
+                navDots.forEach((dot, index) => {
+                    if (index === currentSlide) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+
+            function scrollToSlide(slideIndex) {
+                isScrolling = true;
+                currentSlide = slideIndex;
+                slides[currentSlide].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                updateActiveState();
+                setTimeout(() => { isScrolling = false; }, 1000); // Debounce scroll
+            }
+
+            // Initial state
+            slides[0].classList.add('active');
+            navDots[0].classList.add('active');
+
+            // Scroll event listener
+            window.addEventListener('wheel', (event) => {
+                if (isScrolling) return;
+                
+                if (event.deltaY > 0) { // Scrolling down
+                    if (currentSlide < slides.length - 1) {
+                       scrollToSlide(currentSlide + 1);
+                    }
+                } else { // Scrolling up
+                    if (currentSlide > 0) {
+                        scrollToSlide(currentSlide - 1);
+                    }
+                }
+            }, { passive: false });
+
+            // Intersection Observer for scroll snapping
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const slideId = entry.target.id;
+                        const slideIndex = Array.from(slides).findIndex(s => s.id === slideId);
+                        if (currentSlide !== slideIndex) {
+                           currentSlide = slideIndex;
+                           updateActiveState();
+                        }
+                    }
+                });
+            }, { threshold: 0.6 });
+
+            slides.forEach(slide => observer.observe(slide));
+        });
+    </script>
+
+</body>
+</html>

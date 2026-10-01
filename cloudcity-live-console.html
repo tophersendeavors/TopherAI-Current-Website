@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TopherAI — Live Client Console · Cloud City Construction (Demo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --plum-ink:#1E1C24; --plum-ink-alt:#1A1821; --surface-2:#252230;
+  --heart-coral:#E8826B; --deep-coral:#D26A52; --warm-cream:#F3E9DD;
+  --text:var(--warm-cream); --text-muted:#C9BFB4; --text-dim:#8B8494;
+  --accent:var(--heart-coral); --on-accent:var(--plum-ink);
+  --success:#6FA98C; --warning:#E0A458; --info:#8AA6C0; --error:#D26A52;
+  --font-display:'Quicksand',system-ui,sans-serif;
+  --font-body:'Hanken Grotesk',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-pill:999px;
+  --shadow-lg:0 20px 48px rgba(20,18,28,.35);
+  --glow-coral:0 0 0 1px rgba(232,130,107,.28), 0 8px 32px rgba(232,130,107,.25);
+  --hairline:rgba(243,233,221,.10);
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+body{background:var(--plum-ink); color:var(--text); font-family:var(--font-body); font-size:1rem; line-height:1.5; -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(1200px 600px at 80% -10%, rgba(232,130,107,.06), transparent 60%);}
+button{font-family:inherit; cursor:pointer;}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;}
+
+/* ===== APP SHELL: two modes (Today / Live Calls) under a shared top bar ===== */
+.app{display:grid; grid-template-rows:auto 1fr; height:100vh; min-height:0;}
+.topbar{display:flex; align-items:center; gap:14px; padding:12px 20px; border-bottom:1px solid var(--hairline); background:var(--plum-ink-alt); flex-wrap:wrap;}
+.wordmark{font-family:var(--font-display); font-weight:700; font-size:1.1rem; letter-spacing:.02em; flex:none;}
+.wordmark .dot{color:var(--accent);}
+.client-tag{font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-dim); border-left:1px solid var(--hairline); padding-left:12px;}
+.modetabs{display:flex; gap:4px; background:rgba(243,233,221,.05); border:1px solid var(--hairline); padding:3px; border-radius:var(--radius-pill);}
+.modetab{background:none; border:none; color:var(--text-dim); font-family:var(--font-display); font-weight:600; font-size:.88rem; padding:7px 16px; border-radius:var(--radius-pill); transition:color .2s, background .2s; display:flex; align-items:center; gap:7px;}
+.modetab:hover{color:var(--text-muted);}
+.modetab.active{color:var(--on-accent); background:var(--accent);}
+.modetab .badge{font-family:var(--font-mono); font-size:.62rem; min-width:17px; height:17px; padding:0 5px; border-radius:var(--radius-pill); background:var(--accent); color:var(--on-accent); display:none; align-items:center; justify-content:center; font-weight:600;}
+.modetab.active .badge{background:rgba(30,28,36,.28);}
+.modetab .badge.on{display:flex;}
+.topbar-right{margin-left:auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.sim{display:flex; align-items:center; gap:6px;}
+.sim-btn{background:var(--surface-2); border:1px solid var(--hairline); color:var(--text-muted); font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.05em; padding:7px 11px; border-radius:var(--radius-pill); display:flex; align-items:center; gap:6px; transition:border-color .2s, color .2s;}
+.sim-btn:hover{color:var(--text); border-color:rgba(243,233,221,.28);}
+.sim-btn.good:hover{border-color:rgba(111,169,140,.5); color:var(--success);}
+.sim-btn.junk:hover{border-color:rgba(224,164,88,.5); color:var(--warning);}
+.live{display:flex; align-items:center; gap:7px; font-family:var(--font-mono); font-size:.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em;}
+.live .beat{width:8px; height:8px; border-radius:50%; background:var(--success); animation:beat 2.4s var(--ease-out) infinite;}
+@keyframes beat{0%{box-shadow:0 0 0 0 rgba(111,169,140,.5);}70%{box-shadow:0 0 0 7px rgba(111,169,140,0);}100%{box-shadow:0 0 0 0 rgba(111,169,140,0);}}
+.demo-pill{font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-dim); border:1px solid var(--hairline); padding:4px 9px; border-radius:var(--radius-pill);}
+
+.mode{display:none; min-height:0;}
+.mode.on{display:block;}
+#modeLive.mode.on{display:grid; grid-template-columns:360px 1fr; min-height:0;}
+@media (max-width:840px){ #modeLive.mode.on{grid-template-columns:1fr; grid-template-rows:auto 1fr;} }
+
+/* ===== LIVE CALLS ===== */
+.queue{border-right:1px solid var(--hairline); display:flex; flex-direction:column; min-height:0; background:var(--plum-ink-alt);}
+.queue-head{padding:16px 20px 8px; display:flex; align-items:baseline; justify-content:space-between;}
+.qtabs{display:flex; gap:4px;}
+.qtab{background:none; border:none; color:var(--text-dim); font-family:var(--font-display); font-weight:600; font-size:.9rem; padding:5px 10px; border-radius:var(--radius-pill); transition:color .2s, background .2s;}
+.qtab:hover{color:var(--text-muted);}
+.qtab.active{color:var(--text); background:rgba(243,233,221,.08);}
+.queue-head .count{font-family:var(--font-mono); font-size:.75rem; color:var(--text-dim);}
+.queue-list{overflow-y:auto; padding:8px 12px 24px; flex:1; min-height:0;}
+.callcard{border:1px solid var(--hairline); border-radius:var(--radius-md); padding:14px 14px 12px; margin-bottom:10px; background:rgba(37,34,48,.5); cursor:pointer; transition:border-color .2s var(--ease-out), transform .2s var(--ease-out), background .2s;}
+.callcard:hover{border-color:rgba(243,233,221,.22); transform:translateY(-1px);}
+.callcard.active{border-color:var(--accent); background:rgba(232,130,107,.08);}
+.callcard.done{opacity:.72;}
+.callcard.done:hover{opacity:1;}
+.callcard.fresh{animation:arrive .6s var(--ease-out);}
+@keyframes arrive{0%{transform:translateY(-8px) scale(.98); opacity:0;}100%{transform:none; opacity:1;}}
+.cc-top{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+.cc-name{font-family:var(--font-display); font-weight:600; font-size:1rem;}
+.cc-time{font-family:var(--font-mono); font-size:.7rem; color:var(--text-dim); white-space:nowrap;}
+.cc-sub{font-size:.82rem; color:var(--text-muted); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.cc-foot{display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap;}
+
+.chip{font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; padding:3px 8px; border-radius:var(--radius-pill); font-weight:500;}
+.chip.hot{background:var(--accent); color:var(--on-accent);}
+.chip.warm{background:rgba(224,164,88,.18); color:var(--warning);}
+.chip.cold{background:rgba(138,166,192,.16); color:var(--info);}
+.chip.lowfit{background:rgba(139,132,148,.18); color:var(--text-dim);}
+.chip.new{background:rgba(201,191,180,.14); color:var(--text-muted);}
+.chip.decided{background:rgba(111,169,140,.16); color:var(--success);}
+.chip.await{background:rgba(232,130,107,.14); color:var(--accent);}
+
+.detail{overflow-y:auto; min-height:0;}
+.detail-inner{max-width:720px; margin:0 auto; padding:36px 40px 80px;}
+@media (max-width:560px){ .detail-inner{padding:22px 18px 70px;} }
+.hero{display:flex; align-items:flex-start; justify-content:space-between; gap:16px;}
+.hero .eyebrow{font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-dim); margin-bottom:6px;}
+.hero h1{font-family:var(--font-display); font-weight:700; font-size:2.2rem; line-height:1.05; margin:0;}
+.hero .phone{font-family:var(--font-mono); font-size:.9rem; color:var(--text-muted); margin-top:8px;}
+
+.labels{display:flex; flex-wrap:wrap; gap:7px; margin:16px 0 4px;}
+.label{font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; padding:5px 11px; border-radius:var(--radius-pill); font-weight:600; border:1px solid transparent;}
+.label.hot{background:var(--accent); color:var(--on-accent);}
+.label.area{background:rgba(111,169,140,.16); color:var(--success); border-color:rgba(111,169,140,.32);}
+.label.value{background:rgba(224,164,88,.18); color:var(--warning); border-color:rgba(224,164,88,.32);}
+.label.ready{background:rgba(138,166,192,.16); color:var(--info); border-color:rgba(138,166,192,.3);}
+.label.ret{background:rgba(138,166,192,.16); color:var(--info); border-color:rgba(138,166,192,.3);}
+.label.flag{background:rgba(210,106,82,.16); color:var(--deep-coral); border-color:rgba(210,106,82,.35);}
+
+.greeting.hero-greeting{margin-top:18px; padding:16px 18px; border-radius:var(--radius-lg); border:1px solid rgba(232,130,107,.4); background:rgba(232,130,107,.08); box-shadow:var(--glow-coral); font-size:1.02rem; line-height:1.45;}
+.greeting .lbl{display:block; font-family:var(--font-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:var(--accent); margin-bottom:8px;}
+
+.reco{display:flex; align-items:center; gap:14px; margin:22px 0 8px; padding:16px 18px; border-radius:var(--radius-lg); border:1px solid var(--hairline); background:var(--plum-ink-alt);}
+.reco.go{background:rgba(232,130,107,.10); border-color:rgba(232,130,107,.35); box-shadow:var(--glow-coral);}
+.reco.screen{background:rgba(139,132,148,.10); border-color:rgba(139,132,148,.3);}
+.reco .verdict{font-family:var(--font-display); font-weight:700; font-size:1.15rem;}
+.reco.go .verdict{color:var(--accent);}
+.reco .reasons{font-size:.85rem; color:var(--text-muted); margin-top:2px;}
+
+/* Fit / drive-time panel — the money shot for this client */
+.fit{margin-top:24px; border:1px solid var(--hairline); border-radius:var(--radius-lg); overflow:hidden;}
+.fit-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:13px 16px; background:rgba(37,34,48,.5); border-bottom:1px solid var(--hairline);}
+.fit-head h3{font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-dim); margin:0; font-weight:500;}
+.fit-verdict{font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.05em; padding:4px 10px; border-radius:var(--radius-pill); font-weight:600;}
+.fit-verdict.pass{background:rgba(111,169,140,.18); color:var(--success);}
+.fit-verdict.review{background:rgba(224,164,88,.18); color:var(--warning);}
+.fit-verdict.fail{background:rgba(210,106,82,.18); color:var(--deep-coral);}
+.fit-rows{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+@media (max-width:560px){ .fit-rows{grid-template-columns:1fr;} }
+.fit-cell{padding:13px 16px; border-bottom:1px solid var(--hairline); border-right:1px solid var(--hairline);}
+.fit-cell:nth-child(even){border-right:none;}
+.fit-k{font-family:var(--font-mono); font-size:.64rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-dim); margin-bottom:4px;}
+.fit-v{font-size:1rem; color:var(--text); font-weight:500;}
+.fit-v .sub{display:block; font-size:.78rem; color:var(--text-muted); font-weight:400; margin-top:2px;}
+.fit-v.good{color:var(--success);} .fit-v.warn{color:var(--warning);} .fit-v.bad{color:var(--deep-coral);}
+.fit-note{padding:12px 16px; font-size:.86rem; color:var(--text-muted); line-height:1.45; background:rgba(37,34,48,.3);}
+.fit-note.flag{color:var(--text); border-top:2px solid rgba(210,106,82,.4); background:rgba(210,106,82,.07);}
+
+.section{margin-top:26px;}
+.section h3{font-family:var(--font-mono); font-size:.74rem; text-transform:uppercase; letter-spacing:.12em; color:var(--text-dim); margin:0 0 12px; font-weight:500;}
+.facts{display:flex; flex-wrap:wrap; gap:8px;}
+.fact{border:1px solid var(--hairline); border-radius:var(--radius-pill); padding:7px 14px; font-size:.88rem;}
+.fact .k{color:var(--text-dim);}
+.timeline{border-left:2px solid var(--hairline); padding-left:18px; margin-left:4px;}
+.tl-item{position:relative; padding-bottom:14px;}
+.tl-item::before{content:''; position:absolute; left:-25px; top:5px; width:9px; height:9px; border-radius:50%; background:var(--text-dim);}
+.tl-item:first-child::before{background:var(--accent);}
+.tl-when{font-family:var(--font-mono); font-size:.7rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em;}
+.tl-text{font-size:.92rem; margin-top:3px;}
+
+.value-mini{display:flex; align-items:baseline; gap:10px; margin-top:24px; padding:11px 16px; border-radius:var(--radius-md); background:rgba(111,169,140,.08); border:1px solid rgba(111,169,140,.22); flex-wrap:wrap;}
+.value-mini .cm-label{font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--success);}
+.value-mini .cm-value{font-family:var(--font-display); font-weight:700; font-size:1.15rem; color:var(--text);}
+.value-mini .cm-basis{font-size:.76rem; color:var(--text-dim);}
+
+.actions{margin-top:32px; display:flex; gap:10px; flex-wrap:wrap;}
+.btn{border:1px solid var(--hairline); background:var(--surface-2); color:var(--text); padding:13px 20px; border-radius:var(--radius-md); font-weight:600; font-size:.92rem; transition:transform .15s var(--ease-out), background .2s, border-color .2s; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:7px;}
+.btn:hover{transform:translateY(-1px); border-color:rgba(243,233,221,.25);}
+.btn.primary{background:var(--accent); color:var(--on-accent); border-color:transparent;}
+.btn.primary:hover{background:var(--deep-coral);}
+.btn.ghost{background:transparent;}
+.btn.sm{padding:10px 15px; font-size:.85rem;}
+.btn[disabled],.btn.disabled{opacity:.5; cursor:default; transform:none;}
+
+.xfer-strip{position:sticky; top:0; z-index:20; margin:0 0 16px 0; padding:10px 14px; border-radius:10px; font-size:.86rem; font-weight:600; display:flex; align-items:center; gap:8px;}
+.xfer-strip.wait{background:rgba(111,169,140,.12); border:1px solid rgba(111,169,140,.3); color:var(--success);}
+.xfer-strip.live{background:rgba(232,130,107,.16); border:1px solid rgba(232,130,107,.55); color:var(--text); animation:xpulse 1.4s ease-in-out infinite;}
+@keyframes xpulse{0%,100%{box-shadow:0 0 0 0 rgba(232,130,107,0);}50%{box-shadow:0 0 0 4px rgba(232,130,107,.12);}}
+.decided-banner{margin-top:24px; padding:14px 18px; border-radius:var(--radius-md); background:rgba(111,169,140,.12); border:1px solid rgba(111,169,140,.3); color:var(--success); font-size:.9rem;}
+.decided-banner.screen{background:rgba(139,132,148,.12); border-color:rgba(139,132,148,.3); color:var(--text-muted);}
+
+.detail-empty{display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; color:var(--text-muted); padding:40px;}
+.detail-empty .idle{width:72px; height:72px; margin-bottom:20px; color:var(--accent); opacity:.9;}
+.detail-empty h3{font-family:var(--font-display); font-weight:600; color:var(--text); margin:0 0 6px; font-size:1.1rem;}
+.detail-empty p{margin:0; font-size:.9rem; max-width:320px;}
+
+/* ===== TODAY ===== */
+#modeToday{overflow-y:auto;}
+.today-inner{max-width:1180px; margin:0 auto; padding:36px 32px 90px;}
+.today-head{margin-bottom:24px;}
+.today-head h1{font-family:var(--font-display); font-weight:700; font-size:2.1rem; line-height:1.1; margin:0 0 8px;}
+.today-date{font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-dim);}
+.today-lede{font-size:.98rem; color:var(--text-muted); margin-top:10px; max-width:660px;}
+.today-status{display:inline-flex; align-items:center; gap:8px; margin-top:16px; padding:7px 13px; border-radius:var(--radius-pill); border:1px solid rgba(111,169,140,.28); background:rgba(111,169,140,.09); font-size:.82rem; color:var(--text-muted);}
+.today-status .beat{width:8px; height:8px; border-radius:50%; background:var(--success); flex:none; animation:beat 2.4s var(--ease-out) infinite;}
+
+.summary{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:32px;}
+.sum-card{border:1px solid var(--hairline); border-radius:var(--radius-lg); padding:16px 18px; background:rgba(37,34,48,.42);}
+.sum-card .sc-n{font-family:var(--font-display); font-weight:700; font-size:1.9rem; line-height:1; color:var(--text);}
+.sum-card .sc-l{font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.07em; color:var(--text-dim); margin-top:7px;}
+.sum-card.accent{border-color:rgba(232,130,107,.3); background:rgba(232,130,107,.08);}
+.sum-card.accent .sc-n{color:var(--accent);}
+.sum-card.good{border-color:rgba(111,169,140,.28); background:rgba(111,169,140,.07);}
+.sum-card.good .sc-n{color:var(--success);}
+.sum-card.screen{border-color:rgba(139,132,148,.28); background:rgba(139,132,148,.06);}
+.sum-card.screen .sc-n{color:var(--text-dim);}
+
+.today-grid{display:grid; grid-template-columns:1.55fr 1fr; gap:28px; align-items:start;}
+@media (max-width:960px){ .today-grid{grid-template-columns:1fr;} }
+.tsec{margin-bottom:30px;}
+.tsec > h2{font-family:var(--font-display); font-weight:700; font-size:1.15rem; margin:0 0 4px;}
+.tsec > .tsec-sub{font-size:.85rem; color:var(--text-dim); margin:0 0 16px;}
+.tsec-side > h3{font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.12em; color:var(--text-dim); margin:0 0 12px; font-weight:500;}
+
+.pcard{border:1px solid var(--hairline); border-radius:var(--radius-lg); padding:20px 20px 16px; margin-bottom:14px; background:rgba(37,34,48,.45); transition:border-color .2s var(--ease-out), transform .2s var(--ease-out);}
+.pcard:hover{border-color:rgba(243,233,221,.2); transform:translateY(-1px);}
+.pcard.p-critical{border-color:rgba(232,130,107,.5); background:rgba(232,130,107,.07); box-shadow:var(--glow-coral);}
+.pcard.p-high{border-color:rgba(232,130,107,.28);}
+.pc-top{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+.pc-name{font-family:var(--font-display); font-weight:700; font-size:1.28rem; line-height:1.15; margin:0;}
+.pc-role{font-size:.86rem; color:var(--text-muted); margin-top:3px;}
+.pc-pri{font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; padding:4px 10px; border-radius:var(--radius-pill); font-weight:600; white-space:nowrap; flex:none;}
+.pc-pri.critical{background:var(--accent); color:var(--on-accent);}
+.pc-pri.high{background:rgba(232,130,107,.16); color:var(--accent); border:1px solid rgba(232,130,107,.34);}
+.pc-pri.medium{background:rgba(224,164,88,.16); color:var(--warning); border:1px solid rgba(224,164,88,.3);}
+.pc-block{margin-top:14px;}
+.pc-k{font-family:var(--font-mono); font-size:.64rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-dim); margin-bottom:4px;}
+.pc-v{font-size:.94rem; line-height:1.45; color:var(--text);}
+.pc-why{margin-top:14px; padding:11px 14px; border-radius:var(--radius-md); background:rgba(243,233,221,.045); border-left:2px solid var(--accent);}
+.pc-why .pc-k{color:var(--accent);}
+.pc-meta{display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; font-family:var(--font-mono); font-size:.68rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em;}
+.pc-value{margin-top:12px; font-family:var(--font-mono); font-size:.68rem; color:var(--success); text-transform:uppercase; letter-spacing:.06em; opacity:.9;}
+.pc-rule{margin-top:10px; font-family:var(--font-mono); font-size:.62rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; opacity:.75;}
+.srcs{display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; padding-top:13px; border-top:1px solid var(--hairline);}
+.src{font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.06em; padding:4px 9px; border-radius:var(--radius-pill); font-weight:500; border:1px solid transparent;}
+.src.topher{background:rgba(232,130,107,.12); color:var(--accent); border-color:rgba(232,130,107,.28);}
+.src.area{background:rgba(111,169,140,.12); color:var(--success); border-color:rgba(111,169,140,.28);}
+.src.value{background:rgba(224,164,88,.12); color:var(--warning); border-color:rgba(224,164,88,.28);}
+.pc-acts{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;}
+
+.srow{border:1px solid var(--hairline); border-radius:var(--radius-md); padding:13px 15px; margin-bottom:9px; background:rgba(37,34,48,.35);}
+.srow.screen{border-style:dashed; opacity:.92;}
+.srow-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px;}
+.srow-name{font-family:var(--font-display); font-weight:600; font-size:.98rem;}
+.srow-time{font-family:var(--font-mono); font-size:.68rem; color:var(--text-dim); white-space:nowrap;}
+.srow-sub{font-size:.86rem; color:var(--text-muted); margin-top:4px; line-height:1.4;}
+.srow-note{font-size:.8rem; color:var(--text-dim); margin-top:5px;}
+.srow-foot{display:flex; align-items:center; gap:7px; margin-top:10px; flex-wrap:wrap;}
+
+.t-empty{border:1px dashed var(--hairline); border-radius:var(--radius-lg); padding:24px 22px; text-align:center; color:var(--text-muted); font-size:.92rem; background:rgba(37,34,48,.22);}
+.demo-footer{margin-top:40px; padding-top:18px; border-top:1px solid var(--hairline); font-size:.76rem; color:var(--text-dim); line-height:1.6;}
+.demo-tag{display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-dim); border:1px solid var(--hairline); padding:4px 10px; border-radius:var(--radius-pill);}
+.demo-tag .d{width:6px; height:6px; border-radius:50%; background:var(--info);}
+
+/* ===== INCOMING-CALL ALERT ===== */
+.alert-backdrop{position:fixed; inset:0; z-index:1050; background:rgba(20,18,28,.74); backdrop-filter:blur(9px); -webkit-backdrop-filter:blur(9px); display:none; align-items:center; justify-content:center; padding:24px;}
+.alert-backdrop.show{display:flex; animation:fadeIn .25s var(--ease-out);}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.alert-panel{position:relative; width:100%; max-width:460px; border-radius:28px; padding:30px 28px 26px; background:rgba(37,34,48,.94); border:1.5px solid rgba(232,130,107,.6);
+  box-shadow:0 0 0 1px rgba(232,130,107,.35), 0 30px 90px rgba(20,18,28,.65), 0 0 60px rgba(232,130,107,.4); animation:apulse 1.7s ease-in-out infinite; max-height:92vh; overflow-y:auto;}
+.alert-panel.screen{border-color:rgba(139,132,148,.6); box-shadow:0 0 0 1px rgba(139,132,148,.3), 0 30px 90px rgba(20,18,28,.65); animation:none;}
+@keyframes apulse{0%,100%{box-shadow:0 0 0 1px rgba(232,130,107,.35), 0 30px 90px rgba(20,18,28,.65), 0 0 36px rgba(232,130,107,.28);}
+  50%{box-shadow:0 0 0 2px rgba(232,130,107,.85), 0 30px 90px rgba(20,18,28,.65), 0 0 90px rgba(232,130,107,.55);}}
+.alert-eyebrow{display:flex; align-items:center; gap:9px; font-family:var(--font-mono); font-size:.74rem; text-transform:uppercase; letter-spacing:.14em; color:var(--accent); margin-bottom:14px;}
+.alert-eyebrow.screen{color:var(--text-dim);}
+.alert-eyebrow .rdot{width:10px; height:10px; border-radius:50%; background:var(--accent); animation:rdot 1s steps(1) infinite;}
+.alert-eyebrow.screen .rdot{background:var(--text-dim); animation:none;}
+@keyframes rdot{0%,50%{opacity:1;}51%,100%{opacity:.25;}}
+.alert-name{font-family:var(--font-display); font-weight:700; font-size:2rem; line-height:1.05; margin:0;}
+.alert-meta{display:flex; align-items:center; gap:10px; margin-top:8px; flex-wrap:wrap;}
+.alert-phone{font-family:var(--font-mono); font-size:.85rem; color:var(--text-muted);}
+.alert-job{margin-top:14px; font-size:1.02rem; color:var(--text); line-height:1.4;}
+.alert-verdict{margin-top:16px; padding:12px 16px; border-radius:var(--radius-md); font-family:var(--font-display); font-weight:700; font-size:1.02rem;}
+.alert-verdict.go{background:rgba(232,130,107,.14); color:var(--accent); border:1px solid rgba(232,130,107,.3);}
+.alert-verdict.screen{background:rgba(139,132,148,.14); color:var(--text-muted); border:1px solid rgba(139,132,148,.3);}
+.alert-verdict .sub{display:block; font-family:var(--font-body); font-weight:400; font-size:.86rem; color:var(--text-muted); margin-top:5px;}
+.alert-fit{margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.alert-fit .af{border:1px solid var(--hairline); border-radius:var(--radius-md); padding:9px 12px;}
+.alert-fit .af-k{font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.07em; color:var(--text-dim);}
+.alert-fit .af-v{font-size:.9rem; margin-top:2px; font-weight:500;}
+.alert-fit .af-v.good{color:var(--success);} .alert-fit .af-v.warn{color:var(--warning);} .alert-fit .af-v.bad{color:var(--deep-coral);}
+.alert-actions{margin-top:22px; display:grid; gap:10px;}
+.alert-actions .btn{width:100%; padding:15px; font-size:1rem;}
+.alert-actions .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.alert-silence{position:absolute; top:16px; right:16px; background:none; border:1px solid var(--hairline); color:var(--text-dim); font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.06em; padding:5px 10px; border-radius:var(--radius-pill);}
+.alert-silence:hover{color:var(--text-muted);}
+
+.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface-2); color:var(--text); border:1px solid var(--hairline); padding:12px 20px; border-radius:var(--radius-pill); box-shadow:var(--shadow-lg); opacity:0; transition:all .3s var(--ease-out); z-index:1100; font-size:.9rem; max-width:90vw; text-align:center;}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+/* ===== MOBILE ===== */
+@media (max-width:720px){
+  .topbar{padding:10px 14px; gap:9px;}
+  .wordmark{font-size:1rem;}
+  .client-tag{display:none;}
+  .modetab{padding:9px 14px; min-height:42px;}
+  .sim-btn{padding:8px 10px;}
+  .today-inner{padding:22px 16px 80px;}
+  .today-head h1{font-size:1.6rem;}
+  .summary{grid-template-columns:1fr 1fr; gap:9px; margin-bottom:26px;}
+  .sum-card{padding:13px 14px;}
+  .sum-card .sc-n{font-size:1.5rem;}
+  .today-grid{gap:8px;}
+  .hero h1{font-size:1.7rem;}
+  .pcard{padding:17px 15px 14px;}
+  .pc-acts .btn{flex:1 1 auto; min-height:48px;}
+  .alert-backdrop{padding:0; align-items:stretch;}
+  .alert-panel{max-width:none; border-radius:0; max-height:100vh;}
+  .alert-actions{position:sticky; bottom:0; background:linear-gradient(to top, rgba(37,34,48,.98) 72%, transparent); padding-top:14px;}
+  .alert-actions .btn{min-height:54px;}
+  .actions{position:sticky; bottom:0; background:linear-gradient(to top, var(--plum-ink) 72%, transparent); padding:12px 0 8px; z-index:15;}
+  .actions .btn{flex:1; min-height:52px;}
+}
+@media (prefers-reduced-motion: reduce){ .alert-panel,.beat,.callcard.fresh,.rdot,.xfer-strip.live{animation:none !important;} }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <header class="topbar">
+    <div class="wordmark">Topher<span class="dot"> </span>AI</div>
+    <div class="client-tag">Cloud City Construction · Live Client Console</div>
+    <nav class="modetabs" role="tablist" aria-label="Console views">
+      <button class="modetab active" id="modeTabToday" data-mode="today" role="tab" aria-selected="true">Today</button>
+      <button class="modetab" id="modeTabLive" data-mode="live" role="tab" aria-selected="false">Live Calls <span class="badge" id="liveBadge">0</span></button>
+    </nav>
+    <div class="topbar-right">
+      <div class="sim">
+        <button class="sim-btn good" id="simGood" title="Fire a realistic high-value local call">▶ Simulate: ideal lead</button>
+        <button class="sim-btn junk" id="simJunk" title="Fire the kind of far-edge low-value lead the old agency sent">▶ Simulate: far-edge lead</button>
+      </div>
+      <div class="live"><span class="beat"></span><span>Online · monitoring</span></div>
+      <span class="demo-pill">Demo · illustrative data</span>
+    </div>
+  </header>
+
+  <!-- ===================== TODAY ===================== -->
+  <section class="mode on" id="modeToday" role="tabpanel" aria-labelledby="modeTabToday">
+    <div class="today-inner" id="todayInner"></div>
+  </section>
+
+  <!-- =================== LIVE CALLS =================== -->
+  <section class="mode" id="modeLive" role="tabpanel" aria-labelledby="modeTabLive">
+    <aside class="queue">
+      <div class="queue-head">
+        <div class="qtabs">
+          <button class="qtab active" id="tabLive" data-view="live">Live</button>
+          <button class="qtab" id="tabArchive" data-view="archive">Archive</button>
+        </div>
+        <span class="count" id="queueCount"></span>
+      </div>
+      <div class="queue-list" id="queueList"></div>
+    </aside>
+    <main class="detail" id="detail"></main>
+  </section>
+</div>
+
+<div class="alert-backdrop" id="alertBackdrop" role="dialog" aria-modal="true" aria-label="Incoming call">
+  <div class="alert-panel" id="alertPanel">
+    <button class="alert-silence" id="silenceBtn">🔕 Silence</button>
+    <div class="alert-eyebrow" id="alertEyebrow"><span class="rdot"></span> <span id="alertEyebrowTxt">Incoming call · answered by Alex</span></div>
+    <h2 class="alert-name" id="alertName">—</h2>
+    <div class="alert-meta"><span class="chip" id="alertTier">—</span><span class="alert-phone" id="alertPhone"></span></div>
+    <div class="alert-job" id="alertJob"></div>
+    <div class="alert-verdict" id="alertVerdict"></div>
+    <div class="alert-fit" id="alertFit"></div>
+    <div class="alert-actions" id="alertActions"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TopherAI — Live Client Console · Cloud City Construction (standalone demo)
+
+   Concept demo. All callers below are illustrative sample data, not real
+   Cloud City leads. It shows how a TopherAI 24/7 Client Response System would
+   answer every call, qualify it on the things Casey actually cares about —
+   is it in an efficient drive radius of the Chino shop, and is the job worth
+   the trip — and only push the right work to him. The far-edge, low-value,
+   not-ready leads (the pattern the previous marketing company kept sending)
+   get caught and logged instead of interrupting his day.
+
+   AGENT NAME: "Alex" is the TopherAI client-response persona (answers as
+   Cloud City Construction). SERVICE BASE: the Chino shop (91710).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const AGENT='Alex';
+const OWNER_FIRST='Casey';
+const BASE='the Chino shop';
+
+/* Deterministic, inspectable qualification. Two rules the client asked for:
+   (1) drive-time / service-area fit from the Chino base, (2) job value.
+   Readiness is a supporting signal. Every verdict shows the rule that fired. */
+const DRIVE = { core:'≤ 30 min', edge:'30–75 min', far:'75 min +' };
+const ZONE_LABEL = { core:'Core service area', edge:'Serviceable', far:'Far edge' };
+function valueTier(v){ return v>=150000 ? 'high' : v>=40000 ? 'mid' : 'low'; }
+
+function qualify(c){
+  const vt = valueTier(c.budgetVal);
+  const near = c.zone==='core' || c.zone==='edge';
+  const ready = c.readiness==='ready';
+  let verdict, priority, headline, fit, reasons=[];
+
+  if(c.returning){
+    verdict='call_now'; priority='critical'; fit='pass';
+    headline='Returning client — call now';
+    reasons=['Repeat Cloud City client', ZONE_LABEL[c.zone]+' ('+c.driveLabel+')', 'Prior paid work on record'];
+  } else if(c.zone==='far' && (vt==='low' || !ready)){
+    verdict='screen_out'; priority='low'; fit='fail';
+    headline='Screen & log — low fit';
+    reasons=[
+      'Far edge of service area — '+c.driveLabel+' each way from '+BASE,
+      vt==='low' ? 'Small job ('+c.budget+') — round-trip drive costs more than the job returns' : 'Job value OK, but far edge',
+      !ready ? 'Not ready to start ('+c.timelineShort+')' : 'Ready, but distance dominates'
+    ];
+  } else if(near && vt==='high' && ready){
+    verdict='call_now'; priority='critical'; fit='pass';
+    headline='Call now — ideal fit';
+    reasons=[ZONE_LABEL[c.zone]+' ('+c.driveLabel+')', 'High-value job ('+c.budget+')', 'Ready to start ('+c.timelineShort+')'];
+  } else if(near && (vt==='high' || (vt==='mid' && c.commercial))){
+    verdict='high_priority'; priority='high'; fit='pass';
+    headline='High priority';
+    reasons=[ZONE_LABEL[c.zone]+' ('+c.driveLabel+')', (c.commercial?'Commercial ':'')+'Strong job value ('+c.budget+')', ready?'Ready to start':'Timeline: '+c.timelineShort];
+  } else if(near && vt==='mid'){
+    verdict='nurture'; priority='medium'; fit='review';
+    headline='Warm — worth a follow-up';
+    reasons=[ZONE_LABEL[c.zone]+' ('+c.driveLabel+')', 'Mid-size job ('+c.budget+')', 'Timeline: '+c.timelineShort];
+  } else {
+    verdict='nurture'; priority='medium'; fit='review';
+    headline='Review';
+    reasons=[ZONE_LABEL[c.zone]+' ('+c.driveLabel+')', 'Job value '+c.budget, 'Timeline: '+c.timelineShort];
+  }
+  return {verdict, priority, headline, fit, reasons};
+}
+
+/* ── Sample callers (illustrative) ─────────────────────────────────────────── */
+const CALLERS = [
+  {
+    id:'cc1', name:'Marcus Bell', phone:'(909) 555-0142', city:'Chino Hills', zip:'91709',
+    zone:'core', driveLabel:'~14 min', jobType:'Whole-home remodel',
+    budget:'$185,000', budgetVal:185000, timeline:'Ready in 3–4 weeks', timelineShort:'3–4 weeks', readiness:'ready',
+    context:'Architectural plans complete, permits already pulled. Wants to break ground before fall. Found Cloud City through a neighbor\'s remodel.',
+    greeting:'Hi Marcus, this is '+AGENT+' with Cloud City Construction — thanks for calling. I understand you\'ve got plans and permits ready for a whole-home remodel in Chino Hills. Let me get Casey the details.',
+    history:[
+      {when:'Today', t:'Called in — plans + permits ready, wants to start before fall'},
+      {when:'Referral', t:'Neighbor used Cloud City for a kitchen last year'}
+    ]
+  },
+  {
+    id:'cc2', name:'Denise Alvarez', phone:'(714) 555-0198', city:'Orange', zip:'92866',
+    zone:'edge', driveLabel:'~42 min', jobType:'Commercial build-out — restaurant', commercial:true,
+    budget:'$420,000', budgetVal:420000, timeline:'Build budget approved, wants to start next month', timelineShort:'~1 month', readiness:'ready',
+    context:'Second location for an existing restaurant group. GC budget approved by ownership. Needs a contractor who can handle commercial timelines and inspections.',
+    greeting:'Hi Denise, this is '+AGENT+' with Cloud City Construction. I hear you\'re opening a second restaurant location in Orange and the build budget\'s approved — commercial build-outs are right in Casey\'s wheelhouse. Let me flag this for him now.',
+    history:[
+      {when:'Today', t:'Called in — $420K restaurant build-out, budget approved, ~1 month out'},
+      {when:'Note', t:'Existing multi-location operator — potential repeat commercial work'}
+    ]
+  },
+  {
+    id:'cc3', name:'Priya & Sam Rao', phone:'(714) 555-0176', city:'Anaheim Hills', zip:'92808',
+    zone:'edge', driveLabel:'~38 min', jobType:'Kitchen + primary bath remodel',
+    budget:'$78,000', budgetVal:78000, timeline:'Exploring, 2–3 month horizon', timelineShort:'2–3 months', readiness:'exploring',
+    context:'Getting two to three bids. Design not finalized. Responsive and friendly — good nurture candidate for a design consult.',
+    greeting:'Hi Priya, this is '+AGENT+' with Cloud City Construction. Sounds like you\'re weighing a kitchen and primary bath remodel — happy to set up a design consult with Casey whenever you\'re ready to compare bids.',
+    history:[
+      {when:'Today', t:'Called in — kitchen + bath, gathering bids, 2–3 months out'}
+    ]
+  },
+  {
+    id:'cc4', name:'Gary Whitfield', phone:'(760) 555-0111', city:'Indio', zip:'92201',
+    zone:'far', driveLabel:'~1 hr 50 min', jobType:'Bathroom refresh',
+    budget:'$6,500', budgetVal:6500, timeline:'Maybe sometime next year', timelineShort:'next year, tentative', readiness:'not_ready',
+    context:'Small guest-bath refresh out in Indio. Not ready to start — "just getting numbers." This is the exact far-edge, low-value, not-ready pattern the old marketing company kept sending.',
+    greeting:'Hi Gary, this is '+AGENT+' with Cloud City Construction. Thanks for calling about the guest bath. That\'s a bit outside the area Casey\'s crews run day-to-day, so I\'ll take your details and be honest with you about fit rather than waste your time.',
+    history:[
+      {when:'Today', t:'Called in — $6.5K bath refresh in Indio, "maybe next year"'},
+      {when:'Flag', t:'Far edge (~1h50 each way) + small job + not ready → the low-fit pattern Casey asked to filter'}
+    ]
+  },
+  {
+    id:'cc5', name:'Robert Tran', phone:'(951) 555-0133', city:'Eastvale', zip:'92880',
+    zone:'core', driveLabel:'~22 min', jobType:'ADU / new construction',
+    budget:'$240,000', budgetVal:240000, timeline:'Permits submitted, ready in ~6 weeks', timelineShort:'~6 weeks', readiness:'ready',
+    context:'Detached ADU, permits already submitted to the city. Financing in place. Wants a builder who does ground-up, not just remodels.',
+    greeting:'Hi Robert, this is '+AGENT+' with Cloud City Construction — thanks for calling about the ADU in Eastvale. Ground-up is exactly what Casey does. With permits already in, let me get him looped in right away.',
+    history:[
+      {when:'Today', t:'Called in — $240K detached ADU, permits submitted, financing in place'}
+    ]
+  },
+  {
+    id:'cc6', name:'Halcyon Dental', contact:'Dr. Lena Ortiz', phone:'(909) 555-0164', city:'Ontario', zip:'91764',
+    zone:'core', driveLabel:'~16 min', jobType:'Commercial tenant improvement', commercial:true, returning:true,
+    budget:'$95,000', budgetVal:95000, timeline:'Wants Casey back for the next suite', timelineShort:'this quarter', readiness:'ready',
+    context:'Repeat client — Cloud City built out their first suite last year. Expanding into the neighboring unit and asked for Casey by name.',
+    greeting:'Hi Dr. Ortiz, welcome back — this is '+AGENT+' with Cloud City Construction. Great to hear you\'re expanding into the next suite. I\'ll let Casey know you asked for him directly.',
+    history:[
+      {when:'Today', t:'Called in — expanding to neighboring suite, asked for Casey by name'},
+      {when:'Last year', t:'Cloud City completed their first suite build-out (~$110K)'}
+    ]
+  }
+];
+
+/* Attach computed qualification + drive detail to each caller. */
+CALLERS.forEach(c=>{ c.q = qualify(c); c.driveZone = ZONE_LABEL[c.zone]; c.driveWindow = DRIVE[c.zone]; });
+
+/* Session state for the Live queue (starts with a few already-logged calls). */
+let liveCalls = [];   // {caller, status, decision, ts}
+let activeId = null, view='live', mode='today', ringTimer=null, audioCtx=null;
+
+/* Seed the queue: two live callers already waiting, plus the screened one logged. */
+function seed(){
+  liveCalls = [
+    { caller:CALLERS.find(c=>c.id==='cc2'), status:'awaiting', ts:Date.now()-1000*60*6 },
+    { caller:CALLERS.find(c=>c.id==='cc3'), status:'awaiting', ts:Date.now()-1000*60*18 }
+  ];
+}
+
+/* ── TODAY ─────────────────────────────────────────────────────────────────── */
+function buildToday(){
+  // Priorities: everything that passed screening, ranked by priority.
+  const order={critical:0,high:1,medium:2,low:3};
+  const passed = CALLERS.filter(c=>c.q.verdict!=='screen_out')
+    .filter(c=>!completed.has(c.id))
+    .sort((a,b)=>order[a.q.priority]-order[b.q.priority]);
+  const active = liveCalls.filter(l=>l.decision==='take' && !completed.has(l.caller.id)).map(l=>l.caller);
+  const priorities = passed.filter(c=>!active.some(a=>a.id===c.id));
+  const screened = CALLERS.filter(c=>c.q.verdict==='screen_out');
+  return {active, priorities, screened};
+}
+
+function renderToday(){
+  const d=buildToday();
+  const hot = d.priorities.filter(c=>c.q.priority==='critical'||c.q.priority==='high').length;
+  const dateStr=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+
+  $('#todayInner').innerHTML=`
+    <header class="today-head">
+      <div class="today-date">${esc(dateStr)}</div>
+      <h1>Good morning, ${esc(OWNER_FIRST)}</h1>
+      <p class="today-lede">${esc(AGENT)} answered every call to Cloud City and qualified each one on drive-time from ${esc(BASE)} and job value — so only the work worth your time reaches this list.</p>
+      <div class="today-status"><span class="beat"></span><span>${esc(AGENT)} is online and answering calls 24/7</span></div>
+    </header>
+
+    <div class="summary">
+      <div class="sum-card accent"><div class="sc-n">${d.priorities.length}</div><div class="sc-l">Worth your time today</div></div>
+      <div class="sum-card good"><div class="sc-n">${hot}</div><div class="sc-l">Hot &amp; ready</div></div>
+      <div class="sum-card"><div class="sc-n">2</div><div class="sc-l">Appointments today</div></div>
+      <div class="sum-card screen"><div class="sc-n">${d.screened.length}</div><div class="sc-l">Screened out for you</div></div>
+    </div>
+
+    <div class="today-grid">
+      <div>
+        ${d.active.length?`
+        <section class="tsec">
+          <h2>Calls you're handling now</h2>
+          <p class="tsec-sub">You took ${d.active.length===1?'this call':'these calls'}. ${d.active.length===1?'It stays':'They stay'} here until you mark ${d.active.length===1?'it':'them'} complete.</p>
+          ${d.active.map(activeCard).join('')}
+        </section>`:''}
+
+        <section class="tsec">
+          <h2>Worth your time</h2>
+          <p class="tsec-sub">Passed both checks — inside an efficient drive of ${esc(BASE)}, and a job worth the trip. Ranked by a fixed rule set; every card shows the rule that surfaced it.</p>
+          ${d.priorities.length ? d.priorities.map(priorityCard).join('')
+            : `<div class="t-empty">You're caught up. ${esc(AGENT)} will surface anything worth your attention.</div>`}
+        </section>
+      </div>
+
+      <div>
+        <section class="tsec tsec-side">
+          <h3>Screened out for you</h3>
+          <p class="tsec-sub" style="margin-bottom:12px;">The far-edge, low-value, not-ready calls — captured and logged, not pushed to you. This is the pattern the old marketing kept sending.</p>
+          ${d.screened.length ? d.screened.map(screenRow).join('')
+            : `<div class="t-empty">Nothing screened out yet today.</div>`}
+        </section>
+
+        <section class="tsec tsec-side">
+          <h3>Today's appointments</h3>
+          ${apptRow({time:'10:30 AM', name:'Robert Tran', type:'ADU walk-through', loc:'Eastvale'})}
+          ${apptRow({time:'2:00 PM', name:'Halcyon Dental — Dr. Ortiz', type:'Site visit, suite expansion', loc:'Ontario'})}
+        </section>
+      </div>
+    </div>
+
+    <footer class="demo-footer">
+      <span class="demo-tag"><span class="d"></span> Demo · illustrative data</span>
+      <p style="margin:12px 0 0;">This is a concept demo built for Cloud City Construction. All callers and figures above are illustrative sample data, not live leads. Drive-time estimates are approximate and for demonstration only. TopherAI · 24/7 Client Response System.</p>
+    </footer>`;
+  wireToday();
+}
+
+function priorityCard(c){
+  const q=c.q, pri=q.priority;
+  const cls=pri==='critical'?'p-critical':(pri==='high'?'p-high':'');
+  const badges=[{t:'TopherAI call',k:'topher'}];
+  if(q.fit==='pass') badges.push({t:'Service-area fit',k:'area'});
+  if(valueTier(c.budgetVal)!=='low') badges.push({t:'Job value OK',k:'value'});
+  return `<article class="pcard ${cls}" data-cid="${esc(c.id)}">
+    <div class="pc-top">
+      <div>
+        <h3 class="pc-name">${esc(c.name)}${c.contact?` <span style="font-weight:500;font-size:.9rem;color:var(--text-muted);">· ${esc(c.contact)}</span>`:''}</h3>
+        <div class="pc-role">${esc(c.jobType)} · ${esc(c.city)}${c.returning?' · Returning client':''}</div>
+      </div>
+      <span class="pc-pri ${pri}">${pri==='critical'?'Call now':pri==='high'?'High':'Warm'}</span>
+    </div>
+    <div class="pc-why"><div class="pc-k">Why ${esc(AGENT)} surfaced this</div><div class="pc-v">${esc(q.reasons.join(' · '))}</div></div>
+    <div class="pc-block"><div class="pc-k">What they want</div><div class="pc-v">${esc(c.context)}</div></div>
+    <div class="pc-meta">
+      <span>📍 ${esc(c.driveZone)} · ${esc(c.driveLabel)} from shop</span>
+      <span>🗓 ${esc(c.timelineShort)}</span>
+    </div>
+    <div class="pc-value">Est. job value ${esc(c.budget)}</div>
+    <div class="pc-rule">Rule: ${esc(q.headline)}</div>
+    <div class="pc-acts">
+      <a class="btn primary sm" href="tel:${esc(c.phone.replace(/[^0-9+]/g,''))}">Call now</a>
+      <button class="btn sm" data-review="${esc(c.id)}">Review brief</button>
+      <button class="btn ghost sm" data-complete="${esc(c.id)}">Mark handled</button>
+    </div>
+    <div class="srcs">${badges.map(b=>`<span class="src ${b.k}">${esc(b.t)}</span>`).join('')}</div>
+  </article>`;
+}
+
+function activeCard(c){
+  return `<article class="pcard p-critical" data-cid="${esc(c.id)}">
+    <div class="pc-top">
+      <div><h3 class="pc-name">${esc(c.name)}</h3><div class="pc-role">${esc(c.jobType)} · ${esc(c.city)}</div></div>
+      <span class="pc-pri critical">In progress</span>
+    </div>
+    <div class="xfer-strip live" style="position:static;margin:14px 0 0;">● You took this call — connecting you now.</div>
+    <div class="pc-block"><div class="pc-k">Suggested opening</div><div class="pc-v">“${esc(c.greeting)}”</div></div>
+    <div class="pc-acts">
+      <button class="btn primary sm" data-review="${esc(c.id)}">Open brief</button>
+      <a class="btn sm" href="tel:${esc(c.phone.replace(/[^0-9+]/g,''))}">Call back</a>
+      <button class="btn ghost sm" data-complete="${esc(c.id)}">Mark complete</button>
+    </div>
+  </article>`;
+}
+
+function screenRow(c){
+  return `<div class="srow screen">
+    <div class="srow-top"><span class="srow-name">${esc(c.name)}</span><span class="srow-time">${esc(c.driveLabel)}</span></div>
+    <div class="srow-sub">${esc(c.jobType)} · ${esc(c.city)} · ${esc(c.budget)}</div>
+    <div class="srow-note">${esc(c.q.reasons[0])}</div>
+    <div class="srow-note">Captured &amp; logged — ${esc(AGENT)} was upfront about fit and didn't book a wasted drive.</div>
+    <div class="srow-foot"><span class="src area">Screened by service-area rule</span></div>
+  </div>`;
+}
+function apptRow(a){
+  return `<div class="srow">
+    <div class="srow-top"><span class="srow-name">${esc(a.name)}</span><span class="srow-time">${esc(a.time)}</span></div>
+    <div class="srow-sub">${esc(a.type)} · ${esc(a.loc)}</div>
+  </div>`;
+}
+
+function wireToday(){
+  $('#todayInner').querySelectorAll('[data-review]').forEach(b=>b.addEventListener('click',()=>openBrief(b.dataset.review)));
+  $('#todayInner').querySelectorAll('[data-complete]').forEach(b=>b.addEventListener('click',()=>markHandled(b.dataset.complete)));
+}
+
+/* ── LIVE CALLS: queue + detail ────────────────────────────────────────────── */
+const completed = new Set();
+function isDone(l){ return l.status==='completed' || l.decision==='ai' || l.decision==='screen' || completed.has(l.caller.id); }
+function liveQueue(){ return liveCalls.filter(l=>!isDone(l)); }
+function archiveQueue(){ return liveCalls.filter(isDone); }
+function visible(){ return view==='archive'?archiveQueue():liveQueue(); }
+
+function renderQueue(fresh){
+  const list=visible();
+  const ln=liveQueue().length, an=archiveQueue().length;
+  $('#queueCount').textContent = view==='archive' ? (an?String(an):'') : (ln?String(ln):'');
+  $('#tabLive').classList.toggle('active',view==='live');
+  $('#tabArchive').classList.toggle('active',view==='archive');
+  const b=$('#liveBadge'); b.textContent=String(ln); b.classList.toggle('on',ln>0);
+  if(!list.length){
+    $('#queueList').innerHTML = view==='archive'
+      ? `<div class="t-empty" style="margin:12px;">No past calls yet.</div>`
+      : `<div class="t-empty" style="margin:12px;">No live calls right now. Use the Simulate buttons up top to fire one.</div>`;
+    return;
+  }
+  $('#queueList').innerHTML=list.map((l,i)=>{
+    const c=l.caller, q=c.q, done=isDone(l);
+    const outcome = done ? (l.decision==='screen'?'Screened & logged':l.status==='completed'?'Completed':l.decision==='ai'?'AI handled':'Done')
+                         : (l.decision==='take'?'You took it':'Awaiting you');
+    const tier = q.verdict==='screen_out'?'lowfit':q.priority==='critical'?'hot':q.priority==='high'?'hot':q.priority==='medium'?'warm':'new';
+    const tlabel = q.verdict==='screen_out'?'Low fit':q.priority==='critical'?'Call now':q.priority==='high'?'High':q.priority==='medium'?'Warm':'New';
+    return `<div class="callcard${c.id===activeId?' active':''}${done?' done':''}${fresh&&i===0&&view==='live'?' fresh':''}" data-id="${esc(c.id)}" tabindex="0" role="button">
+      <div class="cc-top"><span class="cc-name">${esc(c.name)}</span><span class="cc-time">${timeAgo(l.ts)}</span></div>
+      <div class="cc-sub">${esc(c.jobType)} · ${esc(c.city)}</div>
+      <div class="cc-foot"><span class="chip ${tier}">${esc(tlabel)}</span><span class="chip ${done?'decided':'await'}">${esc(outcome)}</span></div>
+    </div>`;
+  }).join('');
+  $('#queueList').querySelectorAll('.callcard').forEach(el=>{
+    el.addEventListener('click',()=>selectCall(el.dataset.id));
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(); selectCall(el.dataset.id);} });
+  });
+}
+
+function showIdle(){
+  activeId=null;
+  $('#detail').innerHTML=`<div class="detail-empty">
+    <svg class="idle" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21 L24 7 L42 21 M10 19.5 V40 H38 V19.5"/><path d="M20 40 V29 H28 V40" opacity=".5"/></svg>
+    <h3>Waiting for the next call</h3>
+    <p>Every call to Cloud City lands here the moment ${esc(AGENT)} answers it. Use the Simulate buttons up top to see one arrive.</p>
+  </div>`;
+}
+function selectCall(id){ activeId=id; const l=liveCalls.find(x=>x.caller.id===id); if(!l) return; renderQueue(); renderDetail(l); }
+function openBrief(id){
+  setMode('live');
+  if(!liveCalls.some(l=>l.caller.id===id)){ const c=CALLERS.find(x=>x.id===id); liveCalls.push({caller:c,status:'logged',ts:Date.now()}); }
+  selectCall(id);
+  requestAnimationFrame(()=>{ const d=$('#detail'); if(d) d.scrollTo({top:0,behavior:'smooth'}); });
+}
+
+function renderDetail(l){
+  const c=l.caller, q=c.q;
+  const go = q.verdict==='call_now'||q.verdict==='high_priority';
+  const screen = q.verdict==='screen_out';
+  const fitClass = q.fit;
+  const vt=valueTier(c.budgetVal);
+  $('#detail').innerHTML=`<div class="detail-inner">
+    ${l.decision==='take' && !isDone(l) ? `<div class="xfer-strip live">● You took this call — connecting you to ${esc(c.name)} now.</div>`:''}
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Incoming · ${timeAgo(l.ts)} · answered by ${esc(AGENT)}</div>
+        <h1>${esc(c.name)}</h1>
+        ${c.contact?`<div class="phone">${esc(c.contact)}</div>`:''}
+        <div class="phone">${esc(c.phone)} · ${esc(c.city)}, CA ${esc(c.zip)}</div>
+      </div>
+    </div>
+
+    <div class="labels">
+      ${c.returning?`<span class="label ret">Returning client</span>`:''}
+      ${q.priority==='critical'&&!screen?`<span class="label hot">Hot &amp; ready</span>`:''}
+      ${q.fit==='pass'?`<span class="label area">In service area</span>`:''}
+      ${vt!=='low'?`<span class="label value">Job value OK</span>`:''}
+      ${c.readiness==='ready'?`<span class="label ready">Ready to start</span>`:''}
+      ${screen?`<span class="label flag">Low fit — far edge</span>`:''}
+    </div>
+
+    <div class="greeting hero-greeting"><span class="lbl">What ${esc(AGENT)} said when answering</span>${esc(c.greeting)}</div>
+
+    <div class="reco ${go?'go':screen?'screen':''}">
+      <div>
+        <div class="verdict">${esc(q.headline)}</div>
+        <div class="reasons">${esc(q.reasons.join('  ·  '))}</div>
+      </div>
+    </div>
+
+    <div class="fit">
+      <div class="fit-head">
+        <h3>Fit check · ${esc(AGENT)} qualified this call</h3>
+        <span class="fit-verdict ${fitClass}">${fitClass==='pass'?'Good fit':fitClass==='review'?'Worth a look':'Low fit'}</span>
+      </div>
+      <div class="fit-rows">
+        <div class="fit-cell"><div class="fit-k">Location</div><div class="fit-v">${esc(c.city)}, CA</div></div>
+        <div class="fit-cell"><div class="fit-k">Drive from ${esc(BASE)}</div><div class="fit-v ${c.zone==='far'?'bad':c.zone==='edge'?'warn':'good'}">${esc(c.driveLabel)}<span class="sub">${esc(c.driveZone)}</span></div></div>
+        <div class="fit-cell"><div class="fit-k">Job type</div><div class="fit-v">${esc(c.jobType)}</div></div>
+        <div class="fit-cell"><div class="fit-k">Est. value</div><div class="fit-v ${vt==='high'?'good':vt==='mid'?'warn':'bad'}">${esc(c.budget)}<span class="sub">${vt==='high'?'High-value job':vt==='mid'?'Mid-size job':'Small job'}</span></div></div>
+        <div class="fit-cell"><div class="fit-k">Readiness</div><div class="fit-v ${c.readiness==='ready'?'good':c.readiness==='exploring'?'warn':'bad'}">${esc(c.timeline)}</div></div>
+        <div class="fit-cell"><div class="fit-k">Verdict</div><div class="fit-v ${go?'good':screen?'bad':'warn'}">${esc(q.headline)}</div></div>
+      </div>
+      ${screen?`<div class="fit-note flag">This is the far-edge, low-value, not-ready pattern the old marketing company kept sending. ${esc(AGENT)} captured the details, was honest with the caller about fit, and logged it — instead of booking you a ${esc(c.driveLabel)} drive for a ${esc(c.budget)} job.</div>`
+             :`<div class="fit-note">${esc(AGENT)} confirmed this job is inside an efficient drive of ${esc(BASE)} and worth the trip before surfacing it to you.</div>`}
+    </div>
+
+    <div class="section"><h3>What they told ${esc(AGENT)}</h3><div class="pc-v">${esc(c.context)}</div></div>
+
+    ${c.history&&c.history.length?`<div class="section"><h3>History</h3><div class="timeline">${c.history.map(h=>`<div class="tl-item"><div class="tl-when">${esc(h.when)}</div><div class="tl-text">${esc(h.t)}</div></div>`).join('')}</div></div>`:''}
+
+    ${!screen?`<div class="value-mini"><span class="cm-label">Est. job value</span><span class="cm-value">${esc(c.budget)}</span><span class="cm-basis">${esc(c.jobType)} · ${esc(c.city)}</span></div>`:''}
+
+    ${renderDecision(l)}
+  </div>`;
+  $('#detail').querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>decide(c.id,b.dataset.act)));
+  $('#detail').querySelectorAll('[data-complete]').forEach(b=>b.addEventListener('click',()=>markHandled(b.dataset.complete)));
+}
+
+function renderDecision(l){
+  const c=l.caller, screen=c.q.verdict==='screen_out';
+  const done = `<div class="actions"><button class="btn primary" data-complete="${esc(c.id)}">Mark call complete</button></div>`;
+  if(isDone(l)){
+    if(l.decision==='screen') return `<div class="decided-banner screen">✓ Screened &amp; logged — no wasted drive booked.</div>`;
+    return `<div class="decided-banner">✓ Handled${l.status==='completed'?' · complete':''}.</div>`;
+  }
+  if(l.decision==='take') return `<div class="decided-banner">✓ You took this call.</div>${done}`;
+  if(screen){
+    return `<div class="actions">
+      <button class="btn ghost" data-act="screen">Screen &amp; log (recommended)</button>
+      <button class="btn" data-act="take">Take it anyway</button>
+    </div>`;
+  }
+  return `<div class="actions">
+    <button class="btn primary" data-act="take">Take the call</button>
+    <button class="btn" data-act="ai">Let ${esc(AGENT)} handle it</button>
+    <button class="btn ghost" data-act="screen">Screen &amp; log</button>
+  </div>`;
+}
+
+function decide(id,act){
+  const l=liveCalls.find(x=>x.caller.id===id); if(!l) return;
+  l.decision=act;
+  if(act==='take'){ l.status='taken'; setMode('live'); selectCall(id); requestAnimationFrame(()=>{const d=$('#detail'); if(d)d.scrollTo({top:0,behavior:'smooth'});}); toast('You took the call — '+l.caller.name); }
+  else if(act==='ai'){ l.status='ai_handled'; toast(AGENT+' will handle '+l.caller.name); if(activeId===id&&view==='live') showIdle(); }
+  else if(act==='screen'){ l.status='screened'; toast('Screened & logged — '+l.caller.name); if(activeId===id&&view==='live') showIdle(); }
+  stopRing();
+  renderQueue(); renderToday();
+  if(activeId===id && !isDone(l)) renderDetail(l);
+}
+function markHandled(id){
+  let l=liveCalls.find(x=>x.caller.id===id);
+  if(!l){ const c=CALLERS.find(x=>x.id===id); l={caller:c,ts:Date.now()}; liveCalls.push(l); }
+  l.status='completed'; completed.add(id);
+  if(activeId===id && view==='live') showIdle();
+  renderQueue(); renderToday();
+  toast('Marked complete — moved to Archive');
+}
+
+/* ── INCOMING-CALL ALERT (driven by the Simulate buttons) ──────────────────── */
+function fireCall(id){
+  const c=CALLERS.find(x=>x.id===id); if(!c) return;
+  // add to live queue if not present
+  let l=liveCalls.find(x=>x.caller.id===id);
+  if(!l){ l={caller:c,status:'awaiting',ts:Date.now()}; liveCalls.unshift(l); } else { l.ts=Date.now(); l.status='awaiting'; delete l.decision; completed.delete(id); }
+  renderQueue(true); renderToday();
+  const q=c.q, screen=q.verdict==='screen_out';
+  const go = q.verdict==='call_now'||q.verdict==='high_priority';
+  $('#alertPanel').classList.toggle('screen',screen);
+  $('#alertEyebrow').classList.toggle('screen',screen);
+  $('#alertEyebrowTxt').textContent = 'Incoming call · answered by '+AGENT;
+  $('#alertName').textContent=c.contact?c.name+' · '+c.contact:c.name;
+  const tEl=$('#alertTier');
+  tEl.className='chip '+(screen?'lowfit':go?'hot':'warm');
+  tEl.textContent=screen?'Low fit':go?'Hot':'Warm';
+  $('#alertPhone').textContent=c.phone+' · '+c.city;
+  $('#alertJob').textContent=c.jobType+' — '+c.context.split('.')[0]+'.';
+  const vEl=$('#alertVerdict');
+  vEl.className='alert-verdict '+(screen?'screen':'go');
+  vEl.innerHTML=`${esc(q.headline)}<span class="sub">${esc(q.reasons.join(' · '))}</span>`;
+  const vt=valueTier(c.budgetVal);
+  $('#alertFit').innerHTML=`
+    <div class="af"><div class="af-k">Drive from shop</div><div class="af-v ${c.zone==='far'?'bad':c.zone==='edge'?'warn':'good'}">${esc(c.driveLabel)}</div></div>
+    <div class="af"><div class="af-k">Est. value</div><div class="af-v ${vt==='high'?'good':vt==='mid'?'warn':'bad'}">${esc(c.budget)}</div></div>`;
+  const acts=$('#alertActions');
+  if(screen){
+    acts.innerHTML=`<button class="btn ghost" id="aScreen">Screen &amp; log (recommended)</button>
+      <div class="row2"><button class="btn" id="aReview">View brief</button><button class="btn" id="aTake">Take it anyway</button></div>`;
+    $('#aScreen').onclick=()=>{ decide(id,'screen'); hideAlert(); };
+    $('#aTake').onclick=()=>{ hideAlert(); decide(id,'take'); };
+  } else {
+    acts.innerHTML=`<button class="btn primary" id="aTake">Take the call</button>
+      <div class="row2"><button class="btn" id="aAi">Let ${esc(AGENT)} handle</button><button class="btn ghost" id="aReview">View brief</button></div>`;
+    $('#aTake').onclick=()=>{ hideAlert(); decide(id,'take'); };
+    $('#aAi').onclick=()=>{ decide(id,'ai'); hideAlert(); };
+  }
+  $('#aReview').onclick=()=>{ hideAlert(); openBrief(id); };
+  $('#alertBackdrop').classList.add('show');
+  startRing(screen);
+}
+function hideAlert(){ $('#alertBackdrop').classList.remove('show'); stopRing(); }
+$('#silenceBtn').addEventListener('click',stopRing);
+
+/* Simple synthesized ring so the demo has presence, no external files. */
+function ensureAudio(){ if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume(); }
+function ringBurst(){ if(!audioCtx) return; const t=audioCtx.currentTime; [0,0.5].forEach(off=>{ [480,440].forEach(f=>{ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.type='sine'; o.frequency.value=f; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0,t+off); g.gain.linearRampToValueAtTime(.12,t+off+.04); g.gain.setValueAtTime(.12,t+off+.35); g.gain.linearRampToValueAtTime(0,t+off+.4); o.start(t+off); o.stop(t+off+.4); }); }); }
+function startRing(soft){ ensureAudio(); stopRing(); if(!audioCtx) return; if(!soft) ringBurst(); ringTimer=setInterval(()=>{ if(!soft) ringBurst(); }, 3500); if(soft){ /* softer: single blip */ const t=audioCtx.currentTime; const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.type='sine'; o.frequency.value=520; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.08,t+.04); g.gain.linearRampToValueAtTime(0,t+.5); o.start(t); o.stop(t+.5); } }
+function stopRing(){ if(ringTimer){ clearInterval(ringTimer); ringTimer=null; } }
+
+$('#simGood').addEventListener('click',()=>fireCall('cc1'));   // ideal local, high-value, ready
+$('#simJunk').addEventListener('click',()=>fireCall('cc4'));   // far edge, low value, not ready
+
+/* ── Mode switching ────────────────────────────────────────────────────────── */
+function setMode(m){
+  mode=m;
+  $('#modeToday').classList.toggle('on',m==='today');
+  $('#modeLive').classList.toggle('on',m==='live');
+  $('#modeTabToday').classList.toggle('active',m==='today');
+  $('#modeTabLive').classList.toggle('active',m==='live');
+  $('#modeTabToday').setAttribute('aria-selected',String(m==='today'));
+  $('#modeTabLive').setAttribute('aria-selected',String(m==='live'));
+}
+document.addEventListener('click',e=>{ const t=e.target.closest('.modetab'); if(t) setMode(t.dataset.mode); });
+document.addEventListener('click',e=>{ const t=e.target.closest('.qtab'); if(t){ view=t.dataset.view; const sel=liveCalls.find(x=>x.caller.id===activeId); if(sel&&((view==='live'&&isDone(sel))||(view==='archive'&&!isDone(sel)))) showIdle(); renderQueue(); } });
+
+/* ── helpers ───────────────────────────────────────────────────────────────── */
+function timeAgo(ts){ if(!ts) return ''; const s=Math.floor((Date.now()-ts)/1000); if(s<60) return 'just now'; const m=Math.floor(s/60); if(m<60) return m+'m ago'; const h=Math.floor(m/60); return h+'h ago'; }
+let toastT; function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
+
+/* ── boot ──────────────────────────────────────────────────────────────────── */
+seed();
+setMode('today');
+renderToday();
+renderQueue();
+showIdle();
+</script>
+</body>
+</html>
