@@ -16,4 +16,16 @@ deployment:
     - /bin/cp knowledge/index.html /home/soluykqf/topherai.com/knowledge/index.html
     - 'if [ -f /home/soluykqf/topherai.com/knowledge/cost-of-missed-calls.html ]; then /bin/cp -p /home/soluykqf/topherai.com/knowledge/cost-of-missed-calls.html /home/soluykqf/deploy-backups/topherai.com/missed-calls-$(date +%Y%m%d-%H%M%S).html; fi'
     - /bin/cp knowledge/cost-of-missed-calls.html /home/soluykqf/topherai.com/knowledge/cost-of-missed-calls.html
+    - /bin/mkdir -p /home/soluykqf/topherai.com/solutions/ai-answering-service
+    - 'if [ -f /home/soluykqf/topherai.com/solutions/ai-answering-service/index.html ]; then /bin/cp -p /home/soluykqf/topherai.com/solutions/ai-answering-service/index.html /home/soluykqf/deploy-backups/topherai.com/solutions-ai-answering-service-$(date +%Y%m%d-%H%M%S).html; fi'
+    - /bin/cp solutions/ai-answering-service/index.html /home/soluykqf/topherai.com/solutions/ai-answering-service/index.html
+    - /bin/mkdir -p /home/soluykqf/topherai.com/solutions/ai-client-intake
+    - 'if [ -f /home/soluykqf/topherai.com/solutions/ai-client-intake/index.html ]; then /bin/cp -p /home/soluykqf/topherai.com/solutions/ai-client-intake/index.html /home/soluykqf/deploy-backups/topherai.com/solutions-ai-client-intake-$(date +%Y%m%d-%H%M%S).html; fi'
+    - /bin/cp solutions/ai-client-intake/index.html /home/soluykqf/topherai.com/solutions/ai-client-intake/index.html
+    - /bin/mkdir -p /home/soluykqf/topherai.com/industries/law-firms
+    - 'if [ -f /home/soluykqf/topherai.com/industries/law-firms/index.html ]; then /bin/cp -p /home/soluykqf/topherai.com/industries/law-firms/index.html /home/soluykqf/deploy-backups/topherai.com/industries-law-firms-$(date +%Y%m%d-%H%M%S).html; fi'
+    - /bin/cp industries/law-firms/index.html /home/soluykqf/topherai.com/industries/law-firms/index.html
+    - /bin/mkdir -p /home/soluykqf/topherai.com/tools/missed-call-cost-calculator
+    - 'if [ -f /home/soluykqf/topherai.com/tools/missed-call-cost-calculator/index.html ]; then /bin/cp -p /home/soluykqf/topherai.com/tools/missed-call-cost-calculator/index.html /home/soluykqf/deploy-backups/topherai.com/tools-missed-call-cost-calculator-$(date +%Y%m%d-%H%M%S).html; fi'
+    - /bin/cp tools/missed-call-cost-calculator/index.html /home/soluykqf/topherai.com/tools/missed-call-cost-calculator/index.html
     - /bin/cp sitemap.xml /home/soluykqf/topherai.com/sitemap.xml
