@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Topher AI · Recepcionista de IA que contesta cada llamada · 24/7</title>
+<meta name="description" content="Topher AI es la recepcionista de IA que contesta cada llamada de tu negocio en menos de 2 segundos. Califica leads, agenda citas, te envía alertas en tiempo real. En español nativo." />
+<style>
+  :root {
+    --bg: #0a0b14;
+    --bg-2: #0f1020;
+    --surface: rgba(255,255,255,0.03);
+    --surface-2: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.15);
+    --text: #e8eaf2;
+    --text-strong: #fff;
+    --muted: #8b94aa;
+    --muted-2: #5a6378;
+    --accent: #38bdf8;
+    --accent-2: #0ea5e9;
+    --gold: #D4B068;
+    --copper: #9a3412;
+    --green: #34d399;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+  }
+  body {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(14,165,233,0.15) 0%, transparent 60%),
+      var(--bg);
+    min-height: 100vh;
+  }
+  /* ===== PILOT BANNER ===== */
+  .pilot-banner {
+    display: block;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--copper) 100%);
+    color: #fff;
+    text-decoration: none;
+    padding: 11px 16px;
+    text-align: center;
+    font-size: 13.5px;
+    font-weight: 500;
+    letter-spacing: 0.005em;
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    line-height: 1.4;
+  }
+  .pilot-banner strong { font-weight: 600; }
+  .pilot-banner .cta {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    margin-left: 4px;
+    font-weight: 600;
+  }
+  /* ===== NAV ===== */
+  nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .wordmark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-strong);
+  }
+  .wordmark-mark {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #818cf8);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 17px;
+  }
+  .wordmark-text {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .lang-switch {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+  }
+  .lang-switch a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .lang-switch a.active {
+    background: var(--surface-2);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .lang-switch a:hover:not(.active) { color: var(--text); }
+  .nav-cta {
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    color: white;
+    padding: 9px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    transition: transform 0.1s, box-shadow 0.2s;
+  }
+  .nav-cta:hover {
+    box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+    transform: translateY(-1px);
+  }
+  /* ===== HERO ===== */
+  .hero {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 24px 60px;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: 999px;
+    font-size: 11.5px;
+    color: var(--green);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    margin-bottom: 28px;
+  }
+  .live-badge .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  h1 {
+    font-size: clamp(40px, 5.8vw, 68px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    color: var(--text-strong);
+    margin-bottom: 24px;
+  }
+  h1 .accent {
+    background: linear-gradient(135deg, var(--accent), #818cf8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero-lede {
+    font-size: clamp(16px, 1.5vw, 19px);
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 42ch;
+    margin-bottom: 36px;
+  }
+  .hero-lede strong { color: var(--text); font-weight: 500; }
+  .cta-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    color: white;
+    padding: 14px 24px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.1s, box-shadow 0.25s;
+  }
+  .btn-primary:hover {
+    box-shadow: 0 8px 24px rgba(56, 189, 248, 0.4);
+    transform: translateY(-1px);
+  }
+  .btn-secondary {
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    padding: 14px 24px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.08);
+  }
+  .hero-call {
+    margin-top: 8px;
+    padding: 18px 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: inline-block;
+  }
+  .hero-call .label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .hero-call .number {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-strong);
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+  .hero-call .number:hover { color: var(--accent); }
+  .hero-call .sub {
+    font-size: 12.5px;
+    color: var(--muted-2);
+    margin-top: 4px;
+  }
+  /* ===== DEMO CARD (right side of hero) ===== */
+  .demo-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    backdrop-filter: blur(8px);
+    position: relative;
+    overflow: hidden;
+    min-height: 460px;
+  }
+  /* Overlay cards that swap in over the demo conversation */
+  .vapi-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    z-index: 30;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    text-align: center;
+  }
+  .vapi-overlay.show { display: flex; }
+  #vapi-connecting-card {
+    background: rgba(10, 11, 20, 0.96);
+    border: 1px solid rgba(14, 165, 233, 0.2);
+  }
+  #vapi-active-card {
+    background: linear-gradient(160deg, #020d1f 0%, #0a1628 100%);
+    border: 1px solid rgba(212, 176, 104, 0.3);
+  }
+  .vapi-spinner {
+    width: 48px; height: 48px;
+    border: 4px solid rgba(212, 176, 104, 0.2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: vapi-spin 0.9s linear infinite;
+    margin-bottom: 16px;
+  }
+  @keyframes vapi-spin { to { transform: rotate(360deg); } }
+  .vapi-connecting-label {
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .vapi-mic-circle {
+    position: relative;
+    width: 96px; height: 96px;
+    margin-bottom: 24px;
+  }
+  .vapi-ripple {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.4;
+    animation: vapi-ripple 2s ease-out infinite;
+  }
+  .vapi-ripple.delay { animation-delay: 1s; opacity: 0.3; }
+  @keyframes vapi-ripple {
+    0% { transform: scale(1); opacity: 0.4; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+  .vapi-mic-inner {
+    position: relative;
+    z-index: 10;
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--gold), var(--copper));
+    box-shadow: 0 0 30px rgba(212, 176, 104, 0.5);
+    font-size: 36px;
+  }
+  .vapi-listening-title {
+    color: var(--text-strong);
+    font-weight: 800;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  .vapi-listening-sub {
+    color: var(--muted);
+    font-size: 13.5px;
+    margin-bottom: 24px;
+    line-height: 1.5;
+    max-width: 30ch;
+  }
+  .vapi-timer {
+    font-family: ui-monospace, 'JetBrains Mono', monospace;
+    font-size: 16px;
+    color: var(--gold);
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+  }
+  .vapi-end-btn {
+    padding: 10px 24px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.4);
+    background: rgba(248, 113, 113, 0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .vapi-end-btn:hover {
+    background: rgba(248, 113, 113, 0.2);
+  }
+  .demo-card .demo-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .demo-caller {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .demo-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--copper));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .demo-name {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--text-strong);
+  }
+  .demo-intent {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .demo-status {
+    font-size: 11px;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .demo-status .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  .demo-transcript {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .demo-msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .demo-msg.ai {
+    flex-direction: row-reverse;
+  }
+  .demo-msg-avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+  }
+  .demo-msg.ai .demo-msg-avatar {
+    background: linear-gradient(135deg, var(--accent), #818cf8);
+  }
+  .demo-msg.user .demo-msg-avatar {
+    background: rgba(30,41,59,0.8);
+    color: var(--muted);
+  }
+  .demo-msg-bubble {
+    padding: 10px 14px;
+    border-radius: 14px;
+    max-width: 85%;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .demo-msg.ai .demo-msg-bubble {
+    background: rgba(14, 165, 233, 0.12);
+    border: 1px solid rgba(14, 165, 233, 0.2);
+    border-top-right-radius: 4px;
+    color: var(--text);
+  }
+  .demo-msg.user .demo-msg-bubble {
+    background: rgba(30, 41, 59, 0.6);
+    border-top-left-radius: 4px;
+    color: var(--muted);
+  }
+  .demo-outcome {
+    background: rgba(52, 211, 153, 0.08);
+    border: 1px solid rgba(52, 211, 153, 0.25);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .demo-outcome .check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--green);
+    color: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .demo-outcome-text {
+    font-size: 12.5px;
+    color: var(--green);
+    font-weight: 600;
+  }
+  /* ===== SECTIONS ===== */
+  section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 70px 24px;
+  }
+  .section-eyebrow {
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-size: clamp(28px, 3.5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-strong);
+    margin-bottom: 18px;
+    max-width: 22ch;
+  }
+  .section-lede {
+    font-size: 16.5px;
+    color: var(--muted);
+    line-height: 1.65;
+    max-width: 58ch;
+    margin-bottom: 40px;
+  }
+  /* ===== PILLARS GRID ===== */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .pillar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+  }
+  .pillar-icon {
+    width: 44px; height: 44px;
+    border-radius: 11px;
+    background: rgba(14, 165, 233, 0.12);
+    border: 1px solid rgba(14, 165, 233, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 18px;
+  }
+  .pillar-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-strong);
+    margin-bottom: 8px;
+    letter-spacing: -0.005em;
+  }
+  .pillar-body {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  /* ===== INDUSTRIES STRIP ===== */
+  .industries-strip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .industries-left .label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .industries-left .heading {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-strong);
+  }
+  .industries-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .ind-tag {
+    padding: 8px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    font-size: 12.5px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .ind-tag.medspa {
+    background: rgba(212, 176, 104, 0.12);
+    border-color: rgba(212, 176, 104, 0.3);
+    color: var(--gold);
+    font-weight: 600;
+  }
+  /* ===== CTA BIG ===== */
+  .cta-section {
+    text-align: center;
+    padding: 80px 24px;
+  }
+  .cta-section h2 {
+    font-size: clamp(30px, 4vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 18px;
+    color: var(--text-strong);
+  }
+  .cta-section p {
+    font-size: 16.5px;
+    color: var(--muted);
+    max-width: 50ch;
+    margin: 0 auto 32px;
+    line-height: 1.6;
+  }
+  /* ===== FOOTER ===== */
+  footer {
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+    padding: 36px 24px;
+  }
+  .foot-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .foot-left {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .foot-left a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+  }
+  .foot-left a:hover { color: var(--accent); }
+  .foot-right {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    color: var(--muted-2);
+    font-size: 12.5px;
+  }
+  .foot-right a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12.5px;
+  }
+  .foot-right a:hover { color: var(--accent); }
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    .pillars { grid-template-columns: 1fr; }
+    .industries-strip { flex-direction: column; align-items: flex-start; }
+    .hero { padding: 50px 20px 40px; }
+    section { padding: 50px 20px; }
+  }
+  @media (max-width: 540px) {
+    .pilot-banner { font-size: 12px; padding: 10px 12px; }
+    .cta-row { flex-direction: column; align-items: stretch; }
+    .btn-primary, .btn-secondary { justify-content: center; }
+  }
+
+  /* Demo CTA line in hero card */
+  .demo-cta-line {
+    font-size: 16px;
+    color: var(--text-strong);
+    margin: 8px 0 4px;
+    line-height: 1.45;
+    max-width: 32ch;
+  }
+  .demo-cta-line strong { color: var(--accent); font-weight: 600; }
+  /* Buttons must look identical whether <a> or <button> */
+  button.btn-primary, button.btn-secondary {
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  button.btn-secondary { border-color: var(--border-strong); }
+  button.btn-primary:disabled, button.btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ===== PILOT BANNER ===== -->
+<a href="/es/medspa.html" class="pilot-banner">
+  💆 <strong>Spas Médicos:</strong> Piloto gratis de 60 días — solo 3 cupos.
+  <span class="cta">Postula ahora →</span>
+</a>
+
+<!-- ===== NAV ===== -->
+<nav>
+  <a href="/es/" class="wordmark">
+    <span class="wordmark-mark">T</span>
+    <span class="wordmark-text">Topher AI</span>
+  </a>
+  <div class="nav-right">
+    <div class="lang-switch">
+      <a href="/">EN</a>
+      <a href="/es/" class="active">ES</a>
+    </div>
+    <a href="/es/medspa.html" class="nav-cta">Postular al piloto</a>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="live-badge">
+        <span class="dot"></span>
+        IA EN VIVO · LLAMADAS REALES · SIN SCRIPTS
+      </div>
+
+      <h1>La IA que contesta <span class="accent">cada llamada.</span></h1>
+
+      <p class="hero-lede">
+        Califica al cliente. Agenda la cita. Te envía la alerta.<br>
+        <strong>En tiempo real</strong> — mientras estás con un paciente, en una cirugía, o durmiendo.
+      </p>
+
+      <div class="cta-row">
+        <button id="hero-vapi-btn" class="btn-primary">
+          🎤 Habla con Sofía ahora
+        </button>
+        <a href="#how-it-works" class="btn-secondary">
+          ▶ Cómo funciona
+        </a>
+      </div>
+
+      <div class="hero-call">
+        <div class="label">Demo en vivo · IA real</div>
+        <div class="demo-cta-line">
+          <strong>Haz clic en el botón y habla con Sofía</strong> — la IA que contestará en tu spa.
+        </div>
+        <div class="sub">Voz colombiana nativa · Contesta en 2 segundos · Háblale como si fueras una paciente</div>
+      </div>
+    </div>
+
+    <!-- ===== DEMO CARD (with Vapi call state overlays) ===== -->
+    <div class="demo-card">
+
+      <!-- Connecting overlay (shown briefly while call connects) -->
+      <div id="vapi-connecting-card" class="vapi-overlay">
+        <div class="vapi-spinner"></div>
+        <span class="vapi-connecting-label">Conectando con Sofía...</span>
+      </div>
+
+      <!-- Active call overlay (shown while in call) -->
+      <div id="vapi-active-card" class="vapi-overlay">
+        <div class="vapi-mic-circle">
+          <div class="vapi-ripple"></div>
+          <div class="vapi-ripple delay"></div>
+          <div class="vapi-mic-inner">🎤</div>
+        </div>
+        <div class="vapi-listening-title">Sofía te escucha</div>
+        <div class="vapi-listening-sub">Habla con naturalidad — pregúntale sobre tratamientos,<br>precios, o agenda una cita.</div>
+        <div class="vapi-timer" id="vapi-timer">00:00</div>
+        <button class="vapi-end-btn" onclick="endVapiCall()">📵 Colgar llamada</button>
+      </div>
+      <div class="demo-header">
+        <div class="demo-caller">
+          <div class="demo-avatar">A</div>
+          <div>
+            <div class="demo-name">Ashley T.</div>
+            <div class="demo-intent">Paciente Nueva · Inyectables</div>
+          </div>
+        </div>
+        <div class="demo-status">
+          <span class="dot"></span>
+          En vivo
+        </div>
+      </div>
+
+      <div class="demo-transcript">
+        <div class="demo-msg user">
+          <div class="demo-msg-avatar">👤</div>
+          <div class="demo-msg-bubble">Hola, quiero agendar una consulta — me interesa el Botox y tal vez un poco de relleno.</div>
+        </div>
+        <div class="demo-msg ai">
+          <div class="demo-msg-avatar">T</div>
+          <div class="demo-msg-bubble">¡Claro! ¿Es tu primera vez con inyectables, o ya te has hecho tratamientos antes?</div>
+        </div>
+        <div class="demo-msg user">
+          <div class="demo-msg-avatar">👤</div>
+          <div class="demo-msg-bubble">Primera vez. La verdad, un poco nerviosa.</div>
+        </div>
+        <div class="demo-msg ai">
+          <div class="demo-msg-avatar">T</div>
+          <div class="demo-msg-bubble">Totalmente normal. La doctora Chen es excelente con primera vez. ¿Te agendo para la próxima semana? Tengo martes a las 3:00 PM.</div>
+        </div>
+      </div>
+
+      <div class="demo-outcome">
+        <div class="check">✓</div>
+        <div class="demo-outcome-text">Cita agendada · Martes 3:00 PM · SMS de confirmación enviado</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section id="how-it-works">
+  <div class="section-eyebrow">CÓMO FUNCIONA</div>
+  <h2 class="section-title">Tres cosas que hace que ninguna recepcionista puede.</h2>
+  <p class="section-lede">
+    No es un menú telefónico automático. No es un servicio de mensajes. Es una conversación real con una IA que sabe vender tu negocio.
+  </p>
+
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-icon">⚡</div>
+      <div class="pillar-title">Contesta en menos de 2 segundos</div>
+      <div class="pillar-body">
+        Día, noche, fin de semana, festivo. La IA contesta antes del segundo timbre. Cada llamada, sin excepciones, sin música de espera.
+      </div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🎯</div>
+      <div class="pillar-title">Califica al cliente en la conversación</div>
+      <div class="pillar-body">
+        Pregunta lo que importa: qué necesita, cuándo lo necesita, si está listo para agendar. Tú recibes leads ya calificados, no mensajes para devolver llamadas.
+      </div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">📲</div>
+      <div class="pillar-title">Te avisa al instante</div>
+      <div class="pillar-body">
+        Mensaje de texto con el resumen completo de la llamada. Si es un lead caliente, te enteras antes de que la persona cuelgue.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== INDUSTRIES ===== -->
+<section>
+  <div class="industries-strip">
+    <div class="industries-left">
+      <div class="label">DISEÑADA PARA</div>
+      <div class="heading">Negocios de servicio que viven del teléfono</div>
+    </div>
+    <div class="industries-list">
+      <span class="ind-tag medspa">Spas médicos ★</span>
+      <span class="ind-tag">Inmobiliarias</span>
+      <span class="ind-tag">Bufetes</span>
+      <span class="ind-tag">Contratistas</span>
+      <span class="ind-tag">Aseguradoras</span>
+      <span class="ind-tag">Clínicas dentales</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BILINGUAL CALLOUT ===== -->
+<section>
+  <div class="section-eyebrow">EN ESPAÑOL DE VERDAD</div>
+  <h2 class="section-title">Voz colombiana nativa, no acento traducido.</h2>
+  <p class="section-lede">
+    La mayoría de las "IA en español" suenan robóticas, con acento extraño, o pronuncian las palabras como si las estuvieran leyendo de un script. Sofía no. Sofía habla como una bogotana — porque eso es exactamente como la entrenamos. Tus pacientes piensan que hablaron con una recepcionista real.
+  </p>
+  <div class="cta-row">
+    <button id="bilingual-vapi-btn" class="btn-primary">
+      🎤 Habla con Sofía ahora
+    </button>
+  </div>
+</section>
+
+<!-- ===== CTA BIG ===== -->
+<section class="cta-section">
+  <h2>Estamos buscando tres spas para el piloto.</h2>
+  <p>
+    Sesenta días gratis. Sin tarjeta de crédito. Sin compromiso. Solo retroalimentación honesta.<br>
+    Los pilotos obtienen precio de fundador fijo de por vida.
+  </p>
+  <div class="cta-row" style="justify-content: center;">
+    <a href="/es/medspa.html" class="btn-primary">Postular al piloto →</a>
+    <button id="bottom-vapi-btn" class="btn-secondary">🎤 O escucha a Sofía primero</button>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="foot-grid">
+    <div class="foot-left">
+      <a href="/es/" class="wordmark" style="margin-right: 10px;">
+        <span class="wordmark-mark">T</span>
+        <span class="wordmark-text">Topher AI</span>
+      </a>
+      <a href="mailto:cs@topherai.com">cs@topherai.com</a>
+      <span style="color:var(--muted-2); font-size:12.5px;">+1 (213) 898-6724 (EE.UU.)</span>
+    </div>
+    <div class="foot-right">
+      <span>© 2026 Topher AI.</span>
+      <a href="/es/privacy.html">Privacidad</a>
+      <a href="/es/terms.html">Términos</a>
+    </div>
+  </div>
+</footer>
+
+
+
+<!-- ===== VAPI WEB DEMO (Sofía only — this IS the Spanish page) ===== -->
+<script>
+const VAPI_PUBLIC_KEY = "9794aec6-8b69-43df-ad52-9107ea8170e5";
+const SOFIA_ID = "a91daf92-a477-46ed-b4cf-3e8df3a92699";
+
+let vapi = null;
+let callInProgress = false;
+let callTimerInterval = null;
+let callStartTs = null;
+
+async function initVapi() {
+  if (vapi) return;
+  try {
+    const mod = await import('https://cdn.jsdelivr.net/npm/@vapi-ai/web@2.3.6/+esm');
+    const VapiClass = mod.default?.default || mod.default || mod.Vapi || mod;
+    if (typeof VapiClass !== 'function') throw new Error('Vapi class not found');
+    vapi = new VapiClass(VAPI_PUBLIC_KEY);
+
+    vapi.on('call-start', () => {
+      callInProgress = true;
+      console.log('[Sofía] Call started');
+      hideConnectingCard();
+      showActiveCard();
+      startCallTimer();
+      setAllButtons('🎤 En llamada — clic para colgar', false);
+    });
+    vapi.on('call-end', () => {
+      callInProgress = false;
+      console.log('[Sofía] Call ended');
+      hideActiveCard();
+      hideConnectingCard();
+      stopCallTimer();
+      resetAllButtons();
+    });
+    vapi.on('error', (err) => {
+      console.error('[Sofía] Error:', err);
+      callInProgress = false;
+      hideActiveCard();
+      hideConnectingCard();
+      stopCallTimer();
+      resetAllButtons();
+    });
+
+    console.log('[Sofía] Web SDK ready');
+  } catch (e) {
+    console.error('[Sofía] Init failed:', e);
+  }
+}
+
+// Overlay card helpers
+function showConnectingCard() {
+  const el = document.getElementById('vapi-connecting-card');
+  if (el) el.classList.add('show');
+}
+function hideConnectingCard() {
+  const el = document.getElementById('vapi-connecting-card');
+  if (el) el.classList.remove('show');
+}
+function showActiveCard() {
+  const el = document.getElementById('vapi-active-card');
+  if (el) el.classList.add('show');
+}
+function hideActiveCard() {
+  const el = document.getElementById('vapi-active-card');
+  if (el) el.classList.remove('show');
+}
+
+// Call timer
+function startCallTimer() {
+  callStartTs = Date.now();
+  stopCallTimer();
+  callTimerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - callStartTs) / 1000);
+    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    const el = document.getElementById('vapi-timer');
+    if (el) el.textContent = `${m}:${s}`;
+  }, 1000);
+}
+function stopCallTimer() {
+  if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
+  callStartTs = null;
+}
+
+// Button state management
+const buttons = [
+  { id: 'hero-vapi-btn', defaultText: '🎤 Habla con Sofía ahora' },
+  { id: 'bilingual-vapi-btn', defaultText: '🎤 Habla con Sofía ahora' },
+  { id: 'bottom-vapi-btn', defaultText: '🎤 O escucha a Sofía primero' }
+];
+function setAllButtons(text, enabled) {
+  buttons.forEach(b => {
+    const el = document.getElementById(b.id);
+    if (el) { el.textContent = text; el.disabled = !enabled; }
+  });
+}
+function resetAllButtons() {
+  buttons.forEach(b => {
+    const el = document.getElementById(b.id);
+    if (el) { el.textContent = b.defaultText; el.disabled = false; }
+  });
+}
+
+async function startCall() {
+  if (callInProgress) {
+    try { await vapi.stop(); } catch (e) {}
+    return;
+  }
+  if (!vapi) {
+    setAllButtons('🔄 Cargando...', false);
+    showConnectingCard();
+    await initVapi();
+    if (!vapi) {
+      resetAllButtons();
+      hideConnectingCard();
+      alert('No pudimos cargar el demo. Recarga la página e intenta de nuevo.');
+      return;
+    }
+  }
+  setAllButtons('🔄 Conectando con Sofía...', false);
+  showConnectingCard();
+  try {
+    await vapi.start(SOFIA_ID);
+  } catch (e) {
+    console.error('[Sofía] Start error:', e);
+    resetAllButtons();
+    hideConnectingCard();
+    alert('No pudimos iniciar la llamada. Por favor recarga e intenta de nuevo.');
+  }
+}
+
+window.endVapiCall = async function() {
+  if (callInProgress && vapi) {
+    try { await vapi.stop(); } catch (e) {}
+  }
+};
+
+window.addEventListener('load', initVapi);
+
+buttons.forEach(b => {
+  const el = document.getElementById(b.id);
+  if (el) el.addEventListener('click', startCall);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Topher — No solo contesta. Sabe cómo te sientes.</title>
+<meta name="description" content="Topher is an AI phone agent with an Emotional Brain. Toda IA puede contestar tu teléfono. Topher cuida a quienes te llaman." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Quicksand:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<link rel="icon" type="image/svg+xml" href="/assets/topher-heart.svg" />
+
+<link rel="stylesheet" href="/topher.css" />
+<link rel="canonical" href="https://topherai.com/es/topher.html" />
+<link rel="alternate" hreflang="en" href="https://topherai.com/topher.html" />
+<link rel="alternate" hreflang="es" href="https://topherai.com/es/topher.html" />
+<link rel="alternate" hreflang="x-default" href="https://topherai.com/topher.html" />
+
+<!-- Robots: allow indexing -->
+<meta name="robots" content="index, follow" />
+
+<!-- ===== Open Graph (Facebook, LinkedIn, iMessage, most link previews) ===== -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Topher AI" />
+<meta property="og:title" content="Topher AI — The AI receptionist with a heart" />
+<meta property="og:description" content="Topher answers your phone 24/7 and actually understands how each caller feels — reading emotion in real time and responding the way your best person would. Toda IA puede contestar tu teléfono. Topher cuida a quienes te llaman." />
+<meta property="og:url" content="https://topherai.com/" />
+<meta property="og:image" content="https://topherai.com/assets/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Topher AI — the AI receptionist with a heart" />
+
+<!-- ===== Twitter / X card ===== -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Topher AI — The AI receptionist with a heart" />
+<meta name="twitter:description" content="An AI phone agent that reads how each caller feels and responds the way a skilled human would. Answers 24/7. Never sounds robotic." />
+<meta name="twitter:image" content="https://topherai.com/assets/og-image.png" />
+
+<!-- ===== Structured data: local service business (helps Google understand you) ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Topher AI",
+  "description": "AI phone receptionist that reads caller emotion in real time and responds with human-level care. Answers calls 24/7, books appointments, and never sounds robotic.",
+  "url": "https://topherai.com/",
+  "telephone": "+1-213-898-6724",
+  "email": "hello@topherai.com",
+  "serviceType": "AI phone answering and virtual receptionist service",
+  "areaServed": "US",
+  "audience": {
+    "@type": "Audience",
+    "audienceType": "Med spas, clinics, law firms, and service businesses"
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": "Topher AI",
+    "url": "https://topherai.com/",
+    "email": "hello@topherai.com",
+    "logo": "https://topherai.com/assets/topher-heart.svg"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- The Emotional Field — the page literally senses and adapts -->
+<div class="field" aria-hidden="true">
+  <div class="field__blob field__blob--a"></div>
+  <div class="field__blob field__blob--b"></div>
+  <div class="field__blob field__blob--c"></div>
+  <div class="field__veil"></div>
+  <div class="field__grain"></div>
+</div>
+
+<div class="shell">
+
+  <!-- Nav -->
+  <header class="nav" id="nav">
+    <div class="nav__inner">
+      <a class="brand" href="/"><span class="brand__mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 87 C22 66 7 50 7 30 C7 16.5 17 7.5 29 7.5 C39.5 7.5 46.5 14.5 50 22 C53.5 14.5 60.5 7.5 71 7.5 C83 7.5 93 16.5 93 30 C93 50 78 66 50 87 Z" fill="#E8826B"/><path d="M18 47 L35 47 L40 35 L47.5 59 L53.5 39 L57.5 47 L82 47" fill="none" stroke="#F3E9DD" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Topher<span class="brand__ai">&nbsp;AI</span></a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="/#industries">Industrias</a>
+        <a href="/#how-it-works">Cómo Funciona</a>
+        <a href="/topher.html" class="is-active" aria-current="page">Míralo Pensar</a>
+        <a href="/#pricing">Precios</a>
+        <a href="/knowledge/">Recursos</a>
+      </nav>
+      <a class="nav__cta" href="tel:+12138986724"><span class="dot"></span>Llama al demo en vivo</a>
+      <div class="nav__lang">
+        <a href="/topher.html">EN</a>
+        <span class="is-active">ES</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section class="hero" data-screen-label="Hero">
+      <div class="brain" id="brain" aria-hidden="true">
+        <div class="brain__img"></div>
+        <div class="brain__tint"></div>
+        <div class="brain__glow"></div>
+        <canvas id="brainCanvas"></canvas>
+        <div class="brain__scrim"></div>
+      </div>
+      <div class="wrap">
+        <div class="hero__head">
+          <span class="eyebrow">El Cerebro Emocional · para el teléfono</span>
+          <h1>No solo contesta.<br />Sabe <span class="em">cómo te sientes</span>.</h1>
+          <p class="hero__sub">Topher es un agente telefónico con IA que percibe cómo se siente cada persona que llama y responde como lo haría alguien con verdadera habilidad humana. Siempre dice que es IA — la meta es <strong>habilidad, no engaño</strong>.</p>
+          <div class="hero__proof"><span class="dot"></span>Ahora contestando llamadas fuera de horario para med&nbsp;spas, clínicas y bufetes.</div>        </div>
+
+        <!-- The signature: Watch it think -->
+        <div class="console" id="console" data-screen-label="Watch it think console">
+          <div class="console__bar">
+            <span class="console__live"><span class="pip"></span>Míralo pensar · en vivo</span>
+            <div class="tabs" id="tabs" role="tablist" aria-label="Call scenarios"></div>
+          </div>
+          <div class="console__body">
+            <div class="console__call">
+              <div class="panel-label"><span>La llamada</span><span>audio · transcrito</span></div>
+              <div class="turns" id="turns"></div>
+            </div>
+            <div class="console__brain">
+              <div class="panel-label"><span>El cerebro, pensando</span><span>emocional · traza</span></div>
+              <div class="trace" id="trace"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The shift -->
+    <section class="shift" data-emotion="care">
+      <div class="wrap reveal">
+        <p>Toda IA puede <span class="strike">contestar tu teléfono</span>. Topher <span class="em">cuida a quienes te llaman</span>.</p>
+      </div>
+    </section>
+
+    <!-- Three pillars -->
+    <section class="section" data-emotion="calm">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow">Lo que hace entre líneas</span>
+          <h2>Recuerda a todos, y te dice quién te necesita.</h2>
+        </div>
+        <div class="pillars">
+          <article class="pillar reveal d1" style="--tint: var(--grief)">
+            <div class="pillar__icon"></div>
+            <h3>Nunca olvida a <em>quien llama</em></h3>
+            <p>Cada llamada se recuerda para siempre. La próxima vez que llame Sally, Topher ya sabe su nombre, su historia y dónde quedaron — sin empezar de cero.</p>
+            <div class="pillar__tag">Memoria que perdura</div>
+          </article>
+          <article class="pillar reveal d2" style="--tint: var(--warm)">
+            <div class="pillar__icon"></div>
+            <h3>Te dice dónde poner tu <em>calidez</em></h3>
+            <p>Topher señala a quienes necesitan un seguimiento personal — el paciente nuevo nervioso, el cliente fiel pasando una semana difícil — para que tu atención llegue donde importa.</p>
+            <div class="pillar__tag">Cuidado, priorizado</div>
+          </article>
+          <article class="pillar reveal d3" style="--tint: var(--anger)">
+            <div class="pillar__icon"></div>
+            <h3>Detecta la llamada molesta antes de la mala <em>reseña</em></h3>
+            <p>Cuando alguien que llama está frustrado, Topher calma la conversación en el momento y te avisa de inmediato — para que te enteres de la llamada difícil por Topher, no por una reseña de una estrella.</p>
+            <div class="pillar__tag">Reputación, protegida</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- El Resumen Matutino de Cuidado -->
+    <section class="section" data-emotion="warm">
+      <div class="wrap">
+        <div class="brief">
+          <div class="brief__copy reveal">
+            <span class="eyebrow">Cada mañana, en tu bandeja</span>
+            <h2>Despierta con una <span class="em">lista de cuidado</span>, no un registro de llamadas.</h2>
+            <p>Una lista clara de quién llamó durante la noche, cómo se sintió, y la una o dos personas que merecen una palabra tuya hoy.</p>
+            <ul class="brief__list">
+              <li><span class="tick">→</span><span>Ordenada por quién necesita calidez, no por la hora.</span></li>
+              <li><span class="tick">→</span><span>Cada persona lleva la emoción que Topher percibió.</span></li>
+              <li><span class="tick">→</span><span>Cada llamada es auditable — lee la traza completa cuando quieras.</span></li>
+            </ul>
+          </div>
+          <div class="brief__phone reveal d1">
+            <div class="phone">
+              <div class="phone__screen">
+                <div class="phone__notch"></div>
+                <div class="phone__top">
+                  <div class="phone__date">Jueves · 7:14 AM</div>
+                  <div class="phone__title">Tu <em>lista de cuidado</em></div>
+                  <div class="phone__meta">11 calls overnight · 3 need a personal word</div>
+                </div>
+                <div class="care-list">
+                  <div class="care-card" style="--ce: var(--anger)">
+                    <span class="care-card__dot"></span>
+                    <div>
+                      <div class="care-card__name">Tom B.<span>molesto</span></div>
+                      <div class="care-card__why">Tercera llamada por facturación. Topher lo resolvió — un mensajito cerraría el círculo.</div>
+                    </div>
+                  </div>
+                  <div class="care-card" style="--ce: var(--grief)">
+                    <span class="care-card__dot"></span>
+                    <div>
+                      <div class="care-card__name">Ruth M.<span>en duelo</span></div>
+                      <div class="care-card__why">Canceló las citas de su difunto esposo. Atendido con cuidado — no requiere devolución.</div>
+                    </div>
+                  </div>
+                  <div class="care-card" style="--ce: var(--warm)">
+                    <span class="care-card__dot"></span>
+                    <div>
+                      <div class="care-card__name">Maria L.<span>ansiosa</span></div>
+                      <div class="care-card__why">Nerviosa por la consulta de mañana. Un mensaje tranquilizador tuyo significaría mucho.</div>
+                    </div>
+                  </div>
+                  <div class="care-card" style="--ce: var(--care)">
+                    <span class="care-card__dot"></span>
+                    <div>
+                      <div class="care-card__name">8 más<span>de rutina</span></div>
+                      <div class="care-card__why">Reservadas, confirmadas y cerradas. Nada te necesita.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Guarantees -->
+    <section class="section guarantees" data-emotion="grief">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow">La confianza es la marca</span>
+          <h2>Las promesas que no cambian con el plan.</h2>
+        </div>
+      </div>
+      <div class="guard-grid reveal d1">
+        <div class="guard">
+          <div class="guard__n">01</div>
+          <h3>Protección en crisis en todos los planes</h3>
+          <p>Alguien en angustia real es una persona, no una venta perdida. Topher pasa la llamada a un humano — garantizado, en todos los planes. Esto es distinto del enojo cotidiano; una crisis real siempre llega a una persona.</p>
+        </div>
+        <div class="guard">
+          <div class="guard__n">02</div>
+          <h3>Nunca dice ser humano</h3>
+          <p>Topher se identifica como IA en cada llamada. La meta es habilidad a nivel humano, nunca engañar haciéndose pasar por humano.</p>
+        </div>
+        <div class="guard">
+          <div class="guard__n">03</div>
+          <h3>Nunca vende a alguien en angustia</h3>
+          <p>Cuando alguien está en duelo o abrumado, Topher ayuda y da un paso atrás. No insistirá en una venta en un día difícil.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="section" data-emotion="calm">
+      <div class="wrap">
+        <div class="section__head reveal" style="max-width:600px">
+          <span class="eyebrow">Precios</span>
+          <h2>Elige la profundidad de cuidado que tus clientes merecen.</h2>
+          <p>La memoria de quien llama, la detección de emociones y la seguridad en crisis vienen en <strong>todos</strong> los planes. Los niveles agregan cuánto hace Topher con lo que recuerda.</p>
+        </div>
+        <div class="tiers">
+          <div class="tier reveal d1">
+            <div class="tier__name">Essential</div>
+            <div class="tier__price">$397<sub>/mo</sub></div>
+            <div class="tier__line">Contesta cada llamada, agenda y recuerda — con seguridad en crisis incluida.</div>
+            <ul class="tier__feats">
+              <li><span class="tick">✓</span>Atención de llamadas y gestión de reservas 24/7</li>
+              <li><span class="tick">✓</span>Memoria de llamadas que nunca olvida</li>
+              <li><span class="tick">✓</span>Detección de emociones en cada llamada</li>
+              <li><span class="tick">✓</span>Escalamiento de crisis a un humano</li>
+            </ul>
+            <a class="tier__btn" href="tel:+12138986724">Escúchalo en la línea de demo</a>
+          </div>
+          <div class="tier tier--feat reveal d2">
+            <div class="tier__flag">El más elegido</div>
+            <div class="tier__name">Growth</div>
+            <div class="tier__price">$697<sub>/mo</sub></div>
+            <div class="tier__line">Agrega el Resumen Matutino de Cuidado y las señales de seguimiento que hacen crecer las relaciones.</div>
+            <ul class="tier__feats">
+              <li><span class="tick">✓</span>Todo lo de Essential, más:</li>
+              <li><span class="tick">✓</span>El Resumen Matutino de Cuidado</li>
+              <li><span class="tick">✓</span>Señales de seguimiento personal</li>
+              <li><span class="tick">✓</span>Alertas de recuperación de llamadas molestas</li>
+            </ul>
+            <a class="tier__btn" href="tel:+12138986724">Escúchalo en la línea de demo</a>
+          </div>
+          <div class="tier reveal d3">
+            <div class="tier__name">Topher Care</div>
+            <div class="tier__price">$1,097<sub>/mo</sub></div>
+            <div class="tier__line">Para negocios donde cada relación con quien llama es el negocio.</div>
+            <ul class="tier__feats">
+              <li><span class="tick">✓</span>Todo lo de Growth, más:</li>
+              <li><span class="tick">✓</span>Atención bilingüe, inglés y español</li>
+              <li><span class="tick">✓</span>Voz y tono personalizados</li>
+              <li><span class="tick">✓</span>Auditorías completas de llamadas a demanda</li>
+            </ul>
+            <a class="tier__btn" href="tel:+12138986724">Escúchalo en la línea de demo</a>
+          </div>
+        </div>
+        <div class="tiers__anchor reveal">
+          <p>Un solo cliente salvado paga un año de la diferencia.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final" data-emotion="care">
+      <div class="wrap reveal">
+        <h2>Contestado en 2 segundos. Recordado <span class="em">para siempre</span>.</h2>
+        <div class="final__dial">
+          <a class="dial" href="tel:+12138986724">
+            <span class="dial__ic" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </span>
+            <span class="dial__no">+1 (213) 898-6724</span>
+          </a>
+          <span class="dial__sub">Llámalo ahora — escucharás el cerebro en acción</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__top">
+        <div class="footer__brand"><span class="brand__mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 87 C22 66 7 50 7 30 C7 16.5 17 7.5 29 7.5 C39.5 7.5 46.5 14.5 50 22 C53.5 14.5 60.5 7.5 71 7.5 C83 7.5 93 16.5 93 30 C93 50 78 66 50 87 Z" fill="#E8826B"/><path d="M18 47 L35 47 L40 35 L47.5 59 L53.5 39 L57.5 47 L82 47" fill="none" stroke="#F3E9DD" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Topher<span class="brand__ai">&nbsp;AI</span></div>
+        <div class="footer__honesty">
+          <div class="honest">Topher siempre se identifica como IA. Está hecho para tener habilidad a nivel humano, nunca para hacerse pasar por humano.</div>
+          <div class="honest">La función de crisis es complementaria — dirige las llamadas urgentes a una persona. No sustituye a los servicios de emergencia.</div>
+          <div class="honest">Topher nunca usa manipulación emocional para vender, y no presionará a alguien en angustia. Cada llamada es auditable.</div>
+        </div>
+      </div>
+      <div class="footer__base">
+        <span>© 2026 Topher AI</span>
+        <span>Toda IA puede contestar tu teléfono. Topher cuida a quienes te llaman.</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Sticky mobile conversion — the phone number is the whole game -->
+<a class="mobile-call" href="tel:+12138986724">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+  Call the live demo
+</a>
+
+<script src="/topher-brain.js"></script>
+<script src="/es/topher-es.js"></script>
+</body>
+</html>
