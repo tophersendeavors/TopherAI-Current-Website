@@ -1,0 +1,8 @@
+---
+# Deploy verified SEO changes individually. Expand only after checking live files.
+deployment:
+  tasks:
+    - /usr/bin/test -d /home/soluykqf/topherai.com
+    - /bin/mkdir -p /home/soluykqf/deploy-backups/topherai.com
+    - 'if [ -f /home/soluykqf/topherai.com/sitemap.xml ]; then /bin/cp -p /home/soluykqf/topherai.com/sitemap.xml /home/soluykqf/deploy-backups/topherai.com/sitemap-$(date +%Y%m%d-%H%M%S).xml; fi'
+    - /bin/cp sitemap.xml /home/soluykqf/topherai.com/sitemap.xml
