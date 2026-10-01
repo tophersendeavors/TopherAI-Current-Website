@@ -7,4 +7,6 @@ deployment:
     - 'if [ -f /home/soluykqf/topherai.com/sitemap.xml ]; then /bin/cp -p /home/soluykqf/topherai.com/sitemap.xml /home/soluykqf/deploy-backups/topherai.com/sitemap-$(date +%Y%m%d-%H%M%S).xml; fi'
     - 'if [ -f /home/soluykqf/topherai.com/index.html ]; then /bin/cp -p /home/soluykqf/topherai.com/index.html /home/soluykqf/deploy-backups/topherai.com/index-$(date +%Y%m%d-%H%M%S).html; fi'
     - /bin/cp index.html /home/soluykqf/topherai.com/index.html
+    - 'if [ -f /home/soluykqf/topherai.com/es-home.html ]; then /bin/cp -p /home/soluykqf/topherai.com/es-home.html /home/soluykqf/deploy-backups/topherai.com/es-home-$(date +%Y%m%d-%H%M%S).html; fi'
+    - /bin/cp es-home.html /home/soluykqf/topherai.com/es-home.html
     - /bin/cp sitemap.xml /home/soluykqf/topherai.com/sitemap.xml
