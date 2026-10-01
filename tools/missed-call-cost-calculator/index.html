@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Missed Call Cost Calculator — What Unanswered Calls Cost | Topher AI</title>
+<meta name="description" content="Estimate potential initial revenue from missed new-prospect calls, account for existing follow-up, and compare your own recovery assumptions. No email required.">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="canonical" href="https://topherai.com/tools/missed-call-cost-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://topherai.com/tools/missed-call-cost-calculator/">
+<meta property="og:title" content="Missed Call Cost Calculator">
+<meta property="og:description" content="Estimate potential initial revenue from missed new-prospect calls, account for existing follow-up, and compare your own recovery assumptions. No email required.">
+<meta property="og:image" content="https://topherai.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://topherai.com/#organization",
+      "name": "Topher AI",
+      "url": "https://topherai.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://topherai.com/favicon-512x512.png"
+      },
+      "telephone": "+1-213-898-6724"
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://topherai.com/tools/missed-call-cost-calculator/#app",
+      "name": "Missed Call Cost Calculator",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any (web browser)",
+      "description": "Estimates potential initial job or engagement revenue from a monthly group of missed new prospects, after existing follow-up, using user-selected conversion and additional recovery assumptions.",
+      "url": "https://topherai.com/tools/missed-call-cost-calculator/",
+      "publisher": {
+        "@id": "https://topherai.com/#organization"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://topherai.com/tools/missed-call-cost-calculator/",
+      "name": "Missed Call Cost Calculator",
+      "about": [
+        {
+          "@type": "Thing",
+          "name": "Missed calls"
+        },
+        {
+          "@type": "Thing",
+          "name": "Lead response time"
+        },
+        {
+          "@type": "Thing",
+          "name": "Prospect follow-up"
+        }
+      ],
+      "isPartOf": {
+        "@type": "WebSite",
+        "url": "https://topherai.com",
+        "name": "Topher AI"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://topherai.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Missed Call Cost Calculator",
+          "item": "https://topherai.com/tools/missed-call-cost-calculator/"
+        }
+      ]
+    }
+  ]
+}</script>
+<link rel="icon" type="image/svg+xml" href="../../assets/topher-heart.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Hanken Grotesk','sans-serif']},colors:{electric:{400:'#EE9A86',500:'#E8826B',600:'#D26A52'}}}}}</script>
+<link rel="stylesheet" href="../../assets/topher-site.css">
+<style>
+.calc-field{margin-bottom:26px}
+.calc-field label{display:block;font-family:'Quicksand',sans-serif;font-size:.9rem;font-weight:700;color:#F2EEE9;margin-bottom:10px}
+.calc-row{display:flex;align-items:center;gap:16px}
+.calc-row input[type=range]{flex:1;-webkit-appearance:none!important;-moz-appearance:none;appearance:none!important;height:6px;border-radius:100px;background:linear-gradient(90deg,#E8826B 0%,#D26A52 100%);background-color:#332C38;outline:none;accent-color:#E8826B;cursor:pointer;margin:0;padding:0;border:0}
+.calc-row input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:100px;background:#332C38}
+.calc-row input[type=range]::-moz-range-track{height:6px;border-radius:100px;background:#332C38}
+.calc-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none!important;appearance:none!important;width:20px;height:20px;margin-top:-7px;border-radius:50%;background:#E8826B;cursor:pointer;box-shadow:0 2px 10px rgba(232,130,107,.5);border:2px solid #1A1821}
+.calc-row input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#E8826B;cursor:pointer;border:2px solid #1A1821}
+.calc-row output{font-family:'Quicksand',sans-serif;font-size:1.02rem;font-weight:700;color:#E8826B;min-width:78px;text-align:right;white-space:nowrap}
+.calc-hint{display:block;font-size:.78rem;color:#8C8289;margin-top:8px;line-height:1.5}
+.rrow{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:11px 0;border-bottom:1px solid rgba(243,233,221,0.07)}
+.rrow span{font-size:.85rem;color:#9B9099}
+.rrow b{font-family:'Quicksand',sans-serif;font-size:1rem;font-weight:700;color:#F2EEE9;white-space:nowrap}
+</style>
+<style id="topher-chrome">
+.nav-item{position:relative}
+.nav-link{font-size:.875rem;font-weight:500;color:#B4ABAF;display:inline-flex;align-items:center;gap:5px;padding:8px 0;transition:color .15s;white-space:nowrap}
+.nav-link:hover,.nav-item:hover>.nav-link,.nav-link[aria-current]{color:#F2EEE9}
+.nav-link .caret{font-size:9px;opacity:.6;transition:transform .18s}
+.nav-item:hover .caret{transform:rotate(180deg)}
+.nav-menu{position:absolute;top:100%;left:-14px;min-width:262px;background:#211E29;border:1px solid rgba(243,233,221,0.09);border-radius:14px;padding:8px;box-shadow:0 18px 48px rgba(0,0,0,.5);opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .16s;z-index:60}
+.nav-item:hover .nav-menu,.nav-menu:hover,.nav-item:focus-within .nav-menu{opacity:1;visibility:visible;transform:translateY(0)}
+.nav-menu a{display:block;padding:9px 12px;border-radius:9px;font-size:.85rem;font-weight:500;color:#C6BCC2;line-height:1.35;transition:all .13s}
+.nav-menu a:hover{background:rgba(232,130,107,0.11);color:#F2EEE9}
+.nav-menu a small{display:block;font-size:.72rem;color:#8C8289;font-weight:400;margin-top:2px}
+.nav-menu a:hover small{color:#9B9099}
+.nav-menu-label{font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6E6571;padding:8px 12px 5px}
+.nav-menu hr{border:0;border-top:1px solid rgba(243,233,221,0.07);margin:6px 8px}
+@media(max-width:900px){.nav-desktop{display:none}}
+.mob-menu{display:none;background:#1A1821;border-top:1px solid rgba(243,233,221,0.08);padding:14px 0 20px}
+.mob-menu.open{display:block}
+.mob-menu a{display:block;padding:10px 20px;font-size:.9rem;color:#C6BCC2}
+.mob-menu a:hover{color:#F2EEE9;background:rgba(232,130,107,0.08)}
+.mob-label{font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6E6571;padding:14px 20px 4px}
+.f-h{font-size:10.5px;font-weight:700;color:#F3E9DD;text-transform:uppercase;letter-spacing:.07em;margin:0 0 15px}
+.f-l{display:flex;flex-direction:column;gap:9px;list-style:none;padding:0;margin:0}
+.f-l a{font-size:.84rem;color:#8C8289;line-height:1.4;text-decoration:none}
+.f-l a:hover{color:#C6BCC2}
+.glass-nav{background:rgba(26,24,33,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 1px 0 rgba(243,233,221,0.07)}
+.text-gradient-blue{background:linear-gradient(135deg,#E8826B 0%,#D26A52 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.btn-glow{box-shadow:0 4px 20px rgba(232,130,107,0.28),0 2px 8px rgba(243,233,221,0.08);color:#F3E9DD!important;transition:all .18s}
+.btn-glow:hover{box-shadow:0 8px 32px rgba(232,130,107,0.45);transform:translateY(-1px);color:#F3E9DD!important}
+</style>
+</head>
+<body>
+<!-- NAV START -->
+<nav class="fixed w-full z-50 glass-nav" aria-label="Main navigation">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center py-4">
+<a href="../../" class="flex items-center gap-2.5" aria-label="Topher AI home">
+<span style="width:34px;height:32px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block;" aria-hidden="true"><path d="M50 87 C22 66 7 50 7 30 C7 16.5 17 7.5 29 7.5 C39.5 7.5 46.5 14.5 50 22 C53.5 14.5 60.5 7.5 71 7.5 C83 7.5 93 16.5 93 30 C93 50 78 66 50 87 Z" fill="#E8826B"/><path d="M18 47 L35 47 L40 35 L47.5 59 L53.5 39 L57.5 47 L82 47" fill="none" stroke="#F3E9DD" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+<span class="font-bold text-xl tracking-tight" style="color:#F2EEE9;">Topher <span class="text-gradient-blue">AI</span></span>
+</a>
+<div class="nav-desktop flex items-center" style="gap:30px;">
+<div class="nav-item"><a href="../../solutions/ai-client-intake/" class="nav-link">Solutions <i class="fas fa-chevron-down caret"></i></a>
+<div class="nav-menu">
+<div class="nav-menu-label">By job to be done</div>
+<a href="../../solutions/ai-client-intake/">AI Client Intake<small>Qualify and capture every new inquiry</small></a>
+<a href="../../solutions/ai-answering-service/">AI Answering Service<small>Every call answered, 24/7</small></a>
+<a href="../../solutions/ai-receptionist/">AI Receptionist<small>A full front desk that never clocks out</small></a>
+<hr>
+<a href="../../tools/missed-call-cost-calculator/">Missed Call Cost Calculator<small>See what unanswered calls cost you</small></a>
+</div></div>
+<div class="nav-item"><a href="../../industries/law-firms/" class="nav-link">Industries <i class="fas fa-chevron-down caret"></i></a>
+<div class="nav-menu">
+<div class="nav-menu-label">Built for your intake</div>
+<a href="../../industries/law-firms/">Law Firms<small>Client intake, conflicts, consultations</small></a>
+<a href="../../knowledge/real-estate/ai-receptionist-for-realtors.html">Real Estate<small>Buyer and seller lead response</small></a>
+<a href="../../knowledge/industries/ai-receptionist-for-med-spas.html">Med Spas<small>Bookings, treatment FAQs, no-shows</small></a>
+<a href="../../knowledge/industries/ai-receptionist-for-insurance-agencies.html">Insurance<small>Quote requests and policy questions</small></a>
+</div></div>
+<div class="nav-item"><a href="../../knowledge/" class="nav-link">Resources <i class="fas fa-chevron-down caret"></i></a>
+<div class="nav-menu">
+<a href="../../knowledge/">Knowledge Center<small>Guides, comparisons, and answers</small></a>
+<a href="../../blog/">Blog<small>Practical guides to client response</small></a>
+<a href="../../tools/missed-call-cost-calculator/">Missed Call Calculator<small>Your revenue leak, quantified</small></a>
+<hr>
+<a href="../../topher.html">See It Think<small>Inside the emotional reasoning engine</small></a>
+</div></div>
+<a href="../../index.html#pricing" class="nav-link">Pricing</a>
+</div>
+<div class="flex items-center gap-3">
+<a href="tel:2138986724" class="hidden lg:inline-flex items-center gap-2 text-sm font-semibold" style="color:#D26A52;"><i class="fas fa-phone text-xs"></i>(213) 898-6724</a>
+<a href="../../index.html#contact" class="px-5 py-2.5 rounded-full text-sm font-semibold btn-glow" style="background:linear-gradient(135deg,#D26A52,#E8826B);">Book Demo</a>
+<button onclick="document.getElementById('mobMenu').classList.toggle('open')" aria-label="Menu" style="background:none;border:none;color:#B4ABAF;font-size:19px;cursor:pointer;padding:4px 2px;" class="lg:hidden md:hidden nav-burger"><i class="fas fa-bars"></i></button>
+</div>
+</div>
+</div>
+<div class="mob-menu" id="mobMenu">
+<div class="mob-label">Solutions</div>
+<a href="../../solutions/ai-client-intake/">AI Client Intake</a>
+<a href="../../solutions/ai-answering-service/">AI Answering Service</a>
+<a href="../../solutions/ai-receptionist/">AI Receptionist</a>
+<div class="mob-label">Industries</div>
+<a href="../../industries/law-firms/">Law Firms</a>
+<a href="../../knowledge/real-estate/ai-receptionist-for-realtors.html">Real Estate</a>
+<a href="../../knowledge/industries/ai-receptionist-for-med-spas.html">Med Spas</a>
+<a href="../../knowledge/industries/ai-receptionist-for-insurance-agencies.html">Insurance</a>
+<div class="mob-label">Resources</div>
+<a href="../../knowledge/">Knowledge Center</a>
+<a href="../../blog/">Blog</a>
+<a href="../../tools/missed-call-cost-calculator/">Missed Call Calculator</a>
+<a href="../../topher.html">See It Think</a>
+<div class="mob-label">Company</div>
+<a href="../../index.html#pricing">Pricing</a>
+<a href="tel:2138986724">(213) 898-6724</a>
+</div>
+</nav>
+
+<main>
+<section class="relative overflow-hidden" style="padding-top:104px;padding-bottom:16px;">
+<div class="absolute inset-0 hero-glow pointer-events-none"></div>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center" style="z-index:10;">
+<nav class="breadcrumb mb-7 justify-center" aria-label="Breadcrumb"><a href="../../">Home</a><i class="fas fa-chevron-right"></i><span style="color:#6E6571;">Tools</span><i class="fas fa-chevron-right"></i><span class="cur">Missed Call Cost Calculator</span></nav>
+<h1 style="font-size:clamp(2rem,4.4vw,3rem);font-weight:900;color:#F4F0EB;letter-spacing:-0.035em;line-height:1.07;margin:0 0 18px;">Missed Call Cost Calculator</h1>
+<p class="lede" style="margin:0 auto;max-width:54ch;">Estimate the potential revenue behind missed new-prospect calls, allowing for the follow-up you already do.</p>
+</div>
+</section>
+
+<section style="padding:34px 0 0;">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid lg:grid-cols-5 gap-7 items-start" style="align-items:start;">
+
+<div class="card lg:col-span-3" style="padding:30px;">
+<p class="calc-hint" style="margin:0 0 24px;color:#B4ABAF;">Starting values are illustrative assumptions, not industry benchmarks or measured Topher AI results. Replace them with your own figures.</p>
+<div class="calc-field">
+<label for="calls">New-prospect calls per month</label>
+<div class="calc-row"><input type="range" id="calls" min="0" max="1200" step="1" value="200" aria-describedby="callsHint"><output id="callsOut" for="calls">200</output></div>
+<span class="calc-hint" id="callsHint">Count each eligible new prospect once. Exclude repeat calls, existing customers, spam, and inquiries you cannot serve.</span>
+</div>
+<div class="calc-field">
+<label for="missed">Percentage of those prospects missed initially</label>
+<div class="calc-row"><input type="range" id="missed" min="0" max="100" step="1" value="25" aria-describedby="missedHint"><output id="missedOut" for="missed">25%</output></div>
+<span class="calc-hint" id="missedHint">Use call logs where available. Include eligible prospects whose first call goes unanswered or to voicemail.</span>
+</div>
+<div class="calc-field">
+<label for="baseline">Missed prospects already reached by your follow-up</label>
+<div class="calc-row"><input type="range" id="baseline" min="0" max="100" step="1" value="50" aria-describedby="baselineHint"><output id="baselineOut" for="baseline">50%</output></div>
+<span class="calc-hint" id="baselineHint">Of the initially missed prospects, how many reconnect through callbacks, repeat contact, or other existing follow-up? These are excluded from the remaining opportunity.</span>
+</div>
+<div class="calc-field">
+<label for="conv">Assumed conversion rate if reached</label>
+<div class="calc-row"><input type="range" id="conv" min="0" max="100" step="1" value="10" aria-describedby="convHint"><output id="convOut" for="conv">10%</output></div>
+<span class="calc-hint" id="convHint">Of the remaining prospects, the share you assume would become customers if reached. Your measured rate for comparable prospects can inform this assumption.</span>
+</div>
+<div class="calc-field">
+<label for="value">Average initial job or engagement revenue</label>
+<div class="calc-row"><input type="range" id="value" min="0" max="25000" step="100" value="3000" aria-describedby="valueHint"><output id="valueOut" for="value">$3,000</output></div>
+<span class="calc-hint" id="valueHint">Revenue in USD from one initial job or engagement. Exclude lifetime value and repeat business; this is revenue before costs, not profit.</span>
+</div>
+<div class="calc-field" style="margin-bottom:0;">
+<label for="recover">Additional recovery assumption</label>
+<div class="calc-row"><input type="range" id="recover" min="0" max="100" step="1" value="50" aria-describedby="recoverHint"><output id="recoverOut" for="recover">50%</output></div>
+<span class="calc-hint" id="recoverHint">What share of the prospects still unrecovered could an improved process reach? This is your scenario assumption, not a forecast of Topher AI performance.</span>
+</div>
+</div>
+
+<div class="lg:col-span-2 flex flex-col gap-4">
+<div class="card" style="border-color:rgba(232,130,107,0.28);padding:26px;background:linear-gradient(160deg,#241F27,#1E1B24);">
+<div style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#8C8289;margin-bottom:10px;">Potential revenue from one month's unrecovered prospects</div>
+<div id="rLost" style="font-family:'Quicksand',sans-serif;font-size:2.6rem;font-weight:700;color:#E8826B;line-height:1;letter-spacing:-.035em;">$7,500</div>
+<p style="font-size:.83rem;color:#9B9099;margin:12px 0 0;line-height:1.5;">Assumes all remaining prospects are reached and convert at your chosen rate. Initial job or engagement revenue may arrive later; this is not monthly cash flow.</p>
+</div>
+<div class="card" style="padding:22px;">
+<div class="rrow"><span>Initially missed prospects</span><b id="rMissed">50</b></div>
+<div class="rrow"><span>Still unrecovered after follow-up</span><b id="rOpen">25</b></div>
+<div class="rrow"><span>Potential customers if all are reached</span><b id="rCust">2.5</b></div>
+<div class="rrow" style="border-bottom:0;padding-bottom:0;"><span>Revenue under your additional recovery assumption</span><b id="rRecover">$3,750</b></div>
+<p class="calc-hint" style="margin-top:14px;">All results refer to the same month's group of prospects. Estimates may include fractions of a prospect or customer; displayed figures are rounded.</p>
+</div>
+<a href="../../index.html#contact" class="px-6 py-3.5 rounded-full font-semibold btn-glow text-center" style="background:linear-gradient(135deg,#D26A52,#E8826B);">Book a demo</a>
+<p style="font-size:.76rem;color:#8C8289;text-align:center;margin:0;line-height:1.5;">The calculation runs in your browser and saves your inputs on this device.</p>
+</div>
+
+</div>
+</div>
+</section>
+
+<section style="padding:56px 0 0;">
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 prose">
+<h2 id="how">How the calculation works</h2>
+<p>Start with one month's eligible new prospects, and subtract those your existing follow-up already reaches. The remaining opportunity uses your conversion and initial-revenue assumptions:</p>
+<div class="card my-6" style="font-family:ui-monospace,Menlo,monospace;font-size:.85rem;color:#C6BCC2;line-height:2;">
+missed prospects = new prospects × missed %<br>
+unrecovered = missed prospects × (1 − existing follow-up %)<br>
+potential customers = unrecovered × conversion %<br>
+potential initial revenue = potential customers × initial job value<br>
+recovery scenario revenue = potential initial revenue × additional recovery %
+</div>
+<p>Percentages are divided by 100 for the calculation. For example, 200 new prospects × 25% initially missed × 50% still unrecovered = 25 prospects. At an assumed 10% conversion and $3,000 initial job value, that represents $7,500 in potential initial revenue. Reaching an additional 50% of those prospects gives a $3,750 scenario using the same conversion assumption.</p>
+<p>These are estimates for a monthly group of prospects, not measured losses or guaranteed recoveries. The calculation does not predict when revenue arrives, whether you have capacity to serve the customers, or profit after delivery costs and service fees.</p>
+
+<h2 id="reality">How to choose your inputs</h2>
+<p>Review the same reporting period across your call logs and customer records:</p>
+<ul>
+<li><strong>Count eligible prospects once.</strong> Separate new inquiries from repeat attempts, existing-customer calls, and spam. If you cannot identify missed callers, label your estimate as an assumption.</li>
+<li><strong>Check initial handling.</strong> Include unanswered eligible inquiries during working hours, after hours, and when lines are busy.</li>
+<li><strong>Credit your current follow-up.</strong> Match missed inquiries to callbacks and later contact before treating them as unrecovered.</li>
+<li><strong>Use comparable outcomes.</strong> Review your conversion rate and initial job revenue for similar prospects, allowing enough time for them to become customers.</li>
+</ul>
+<p>Try several recovery and conversion assumptions to see how sensitive the result is. An answered call alone does not establish a sale.</p>
+
+<h2 id="next">What to do with the number</h2>
+<p>Use the result to decide what to measure in a trial: additional prospects reached, qualified inquiries, and resulting customers. Compare the actual incremental profit after delivery costs with the full cost of the service. A revenue estimate alone cannot establish whether a subscription pays for itself.</p>
+<div class="grid sm:grid-cols-3 gap-4 my-8">
+<a href="../../solutions/ai-answering-service/" class="rel-card"><span class="k">Solution</span><span class="t">AI Answering Service</span><span class="d">Every call answered, including the invisible ones.</span></a>
+<a href="../../solutions/ai-client-intake/" class="rel-card"><span class="k">Solution</span><span class="t">AI Client Intake</span><span class="d">Answered and qualified, not just picked up.</span></a>
+<a href="../../knowledge/how-much-does-an-ai-receptionist-cost.html" class="rel-card"><span class="k">Guide</span><span class="t">What It Costs</span><span class="d">Category pricing, tier by tier.</span></a>
+</div>
+</div>
+</section>
+
+<section style="background:#141219;padding:66px 0;margin-top:44px;">
+<div class="max-w-3xl mx-auto px-4 text-center">
+<h2 style="font-size:clamp(1.7rem,3.4vw,2.4rem);font-weight:800;color:#F3E9DD;letter-spacing:-.025em;margin:0 0 15px;">Explore your call-handling options</h2>
+<p style="font-size:1rem;color:#938995;margin:0 0 30px;line-height:1.65;">Bring your call figures to a demo and discuss the intake and follow-up process you want to improve.</p>
+<div class="flex flex-col sm:flex-row gap-4 justify-center">
+<a href="../../index.html#contact" class="px-7 py-4 rounded-full font-semibold btn-glow" style="background:linear-gradient(135deg,#D26A52,#E8826B);">Book a Demo</a>
+<a href="tel:2138986724" class="px-7 py-4 rounded-full font-semibold btn-ghost"><i class="fas fa-phone text-xs mr-2"></i>Call (213) 898-6724</a>
+</div>
+</div>
+</section>
+
+</main>
+<!-- FOOTER START -->
+<footer style="padding:56px 0 30px;">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-2 md:grid-cols-5 gap-9 mb-10">
+<div class="col-span-2 md:col-span-1">
+<div class="flex items-center gap-2.5 mb-4">
+<span style="width:32px;height:30px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block;" aria-hidden="true"><path d="M50 87 C22 66 7 50 7 30 C7 16.5 17 7.5 29 7.5 C39.5 7.5 46.5 14.5 50 22 C53.5 14.5 60.5 7.5 71 7.5 C83 7.5 93 16.5 93 30 C93 50 78 66 50 87 Z" fill="#E8826B"/><path d="M18 47 L35 47 L40 35 L47.5 59 L53.5 39 L57.5 47 L82 47" fill="none" stroke="#F3E9DD" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+<span class="font-bold text-lg" style="color:#F3E9DD;">Topher AI</span>
+</div>
+<p style="color:#8C8289;font-size:.83rem;line-height:1.65;max-width:210px;margin:0 0 14px;">Intelligent client response infrastructure for growing businesses.</p>
+<a href="tel:2138986724" style="font-size:.86rem;font-weight:600;color:#D26A52;">(213) 898-6724</a>
+</div>
+<div>
+<h4 class="f-h">Solutions</h4>
+<ul class="f-l">
+<li><a href="../../solutions/ai-client-intake/">AI Client Intake</a></li>
+<li><a href="../../solutions/ai-answering-service/">AI Answering Service</a></li>
+<li><a href="../../solutions/ai-receptionist/">AI Receptionist</a></li>
+<li><a href="../../index.html#how-it-works">How It Works</a></li>
+<li><a href="../../index.html#pricing">Pricing</a></li>
+</ul>
+</div>
+<div>
+<h4 class="f-h">Industries</h4>
+<ul class="f-l">
+<li><a href="../../industries/law-firms/">Law Firms</a></li>
+<li><a href="../../knowledge/real-estate/ai-receptionist-for-realtors.html">Real Estate</a></li>
+<li><a href="../../knowledge/industries/ai-receptionist-for-med-spas.html">Med Spas</a></li>
+<li><a href="../../knowledge/industries/ai-receptionist-for-insurance-agencies.html">Insurance</a></li>
+<li><a href="../../knowledge/real-estate/ai-for-apartment-leasing.html">Apartment Leasing</a></li>
+</ul>
+</div>
+<div>
+<h4 class="f-h">Resources</h4>
+<ul class="f-l">
+<li><a href="../../knowledge/">Knowledge Center</a></li>
+<li><a href="../../blog/">Blog</a></li>
+<li><a href="../../tools/missed-call-cost-calculator/">Missed Call Calculator</a></li>
+<li><a href="../../knowledge/what-is-an-ai-receptionist.html">What Is an AI Receptionist?</a></li>
+<li><a href="../../knowledge/how-much-does-an-ai-receptionist-cost.html">Pricing Guide</a></li>
+</ul>
+</div>
+<div>
+<h4 class="f-h">Company</h4>
+<ul class="f-l">
+<li><a href="../../topher.html">See It Think</a></li>
+<li><a href="../../index.html#contact">Book a Demo</a></li>
+<li><a href="mailto:hello@topherai.com">hello@topherai.com</a></li>
+<li><a href="../../es/">Español</a></li>
+</ul>
+</div>
+</div>
+<div style="padding-top:22px;border-top:1px solid rgba(255,255,255,0.05);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
+<p style="font-size:12px;color:#8C8289;margin:0;">© 2026 Topher AI. All rights reserved.</p>
+<div style="display:flex;gap:22px;">
+<a href="../../privacy.html" style="font-size:12px;color:#8C8289;">Privacy Policy</a>
+<a href="../../terms.html" style="font-size:12px;color:#8C8289;">Terms of Service</a>
+</div>
+</div>
+</div>
+</footer>
+
+<script>
+document.querySelectorAll('.toc a').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)window.scrollTo({top:t.getBoundingClientRect().top+window.scrollY-88,behavior:'smooth'})})});
+const secs=[...document.querySelectorAll('.prose h2[id]')];
+if(secs.length)addEventListener('scroll',()=>{let cur=secs[0];for(const s of secs)if(s.getBoundingClientRect().top<140)cur=s;document.querySelectorAll('.toc a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur.id))},{passive:true});
+</script>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const money=n=>'$'+Math.round(n).toLocaleString('en-US');
+ const ids=['calls','missed','baseline','conv','value','recover'];
+ const storageKey='topher-mcc-v2';
+ const count=n=>n.toLocaleString('en-US',{maximumFractionDigits:1});
+ function run(){
+  const calls=+$('calls').value,missed=+$('missed').value,baseline=+$('baseline').value,conv=+$('conv').value,value=+$('value').value,rec=+$('recover').value;
+  $('callsOut').textContent=calls.toLocaleString('en-US');
+  $('missedOut').textContent=missed+'%';
+  $('baselineOut').textContent=baseline+'%';
+  $('convOut').textContent=conv+'%';
+  $('valueOut').textContent=money(value);
+  $('recoverOut').textContent=rec+'%';
+  const mc=calls*missed/100,open=mc*(1-baseline/100),cust=open*conv/100,lost=cust*value,recov=lost*rec/100;
+  $('rMissed').textContent=count(mc);
+  $('rOpen').textContent=count(open);
+  $('rCust').textContent=cust.toFixed(1);
+  $('rLost').textContent=money(lost);
+  $('rRecover').textContent=money(recov);
+  try{localStorage.setItem(storageKey,JSON.stringify({calls,missed,baseline,conv,value,recover:rec}))}catch(e){}
+ }
+ try{const s=JSON.parse(localStorage.getItem(storageKey)||'null');if(s&&typeof s==='object'){ids.forEach(id=>{const input=$(id);if(typeof s[id]==='number'&&Number.isFinite(s[id]))input.value=Math.min(+input.max,Math.max(+input.min,s[id]));})}}catch(e){}
+ ids.forEach(i=>$(i).addEventListener('input',run));
+ run();
+})();
+</script>
+</body>
+</html>
