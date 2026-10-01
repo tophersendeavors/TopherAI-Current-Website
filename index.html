@@ -985,6 +985,17 @@ window.goToForm=function(interest,sourceDetail){
   setTimeout(function(){var n=document.getElementById('f-name');if(n)n.focus({preventScroll:true})},620);
 };
 
+/* Service-page consultation attribution, using approved service slugs. */
+(function(){
+  var service=new URLSearchParams(location.search).get('service');
+  var allowed=['ai-answering-service','ai-client-intake','ai-receptionist'];
+  if(allowed.indexOf(service)!==-1){
+    var source=document.getElementById('f-source-detail');
+    if(source)source.value='service_page_'+service;
+    window.topherLeadSource='website_form_service_'+service;
+  }
+})();
+
 /* ── contact form → same n8n webhook, same payload keys ── */
 var cform=document.getElementById('contact-form'),cbtn=document.getElementById('submit-btn'),
     cmsg=document.getElementById('formMsg'),cphone=document.getElementById('f-phone');
@@ -1002,7 +1013,7 @@ cform.addEventListener('submit',function(e){
     cmsg.className='bad';cmsg.textContent='Please add your name, business name, and a valid email.';return;
   }
   cbtn.disabled=true;cbtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending…';
-  var payload={name:name,email:email,phone:phone,role:role,source:'website_form',
+  var payload={name:name,email:email,phone:phone,role:role,source:window.topherLeadSource||'website_form',
                interest:interest,source_detail:sourceDetail||'homepage_form',
                business_name:businessName,website:website,followup_consent:followupConsent,
                consent_page:location.href.split('#')[0]};
@@ -1019,7 +1030,7 @@ cform.addEventListener('submit',function(e){
   }).then(function(result){
     if(!result||result.success!==true)throw new Error('Lead receipt was not confirmed');
     try {
-      if(typeof gtag==='function')gtag('event','generate_lead',{lead_source:'homepage_form'});
+      if(typeof gtag==='function')gtag('event','generate_lead',{lead_source:payload.source_detail});
       if(typeof fbq==='function')fbq('track','Lead',{content_name:'Homepage consultation request'});
     } catch(analyticsError) { console.warn('[TOPHER] lead tracking unavailable'); }
     cbtn.innerHTML='<i class="fas fa-check"></i> Got it — we\'ll be in touch';
