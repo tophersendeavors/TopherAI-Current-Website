@@ -464,7 +464,7 @@ src="https://www.facebook.com/tr?id=1826282408412111&ev=PageView&noscript=1"/>
 <div class="glow" style="background:radial-gradient(ellipse 80% 55% at 50% 0%,rgba(232,130,107,.13),transparent 66%)"></div>
 <div class="wrap" style="position:relative">
 <span class="eyebrow"><span class="dot-live"></span> Live demo · English &amp; Español</span>
-<h1>Hear it answer<br>before you decide.</h1>
+<h1>Your AI receptionist.<br>Hear it before you decide.</h1>
 <p class="lede">Most AI receptionist websites tell you how their product sounds. We let you hear ours right now. It answers in seconds, qualifies the caller, and books the appointment directly into your calendar — 24/7.</p>
 <p class="hero-price">Answer, qualify, and book in English + Spanish from <strong>$99/month</strong>.</p>
 
@@ -838,6 +838,19 @@ src="https://www.facebook.com/tr?id=1826282408412111&ev=PageView&noscript=1"/>
 </section>
 
 <!-- ═══ 6 · CLOSE ═══ -->
+<section class="sect band band-800 hairline-t" id="business-call-coverage">
+<div class="wrap">
+<p class="eyebrow">For businesses that rely on incoming calls</p>
+<h2>AI call answering, client intake,<br>and appointment booking.</h2>
+<p>Choose the call workflow your business needs: answering after hours, handling overflow when your team is busy, collecting new-client details, or booking appointments using approved calendar rules. Your services, hours, questions, and transfer rules determine how the receptionist responds.</p>
+<div class="grid2" style="margin-top:24px">
+<div><h3>Answer calls in English and Spanish</h3><p>Start with <a href="/solutions/ai-answering-service/">24/7 AI answering</a> for incoming calls, messages, and your configured handoff rules. Listen to the live demonstration before deciding.</p></div>
+<div><h3>Qualify inquiries and book the next step</h3><p>Explore <a href="/solutions/ai-client-intake/">AI client intake</a> for the details your team needs and <a href="/solutions/ai-receptionist/">AI receptionist services</a> for your front-desk workflow. Calendar access and booking rules are configured and tested for your business.</p></div>
+</div>
+<p style="margin-top:24px">Do you serve a different industry? Tell us your services and call workflow. We will review the fit and required integrations with you. <a href="#contact">Request a consultation</a>.</p>
+</div>
+</section>
+
 <section class="close band band-950" id="contact" data-screen-label="Closing CTA and contact form">
 <div class="glow" style="background:radial-gradient(ellipse 60% 70% at 50% 100%,rgba(232,130,107,.11),transparent 68%)"></div>
 <div class="wrap-narrow" style="position:relative">
@@ -880,7 +893,7 @@ src="https://www.facebook.com/tr?id=1826282408412111&ev=PageView&noscript=1"/>
     </select>
   </div>
   <input type="hidden" name="source_detail" id="f-source-detail" value="">
-  <button type="submit" id="submit-btn" class="btn btn-primary" style="width:100%;margin-top:6px">Book my free 20 minutes →</button>
+  <button type="submit" id="submit-btn" class="btn btn-primary" style="width:100%;margin-top:6px">Request my free consultation →</button>
   <p id="formMsg" role="status" aria-live="polite"></p>
   <p class="form-note">Rather hear it first? <a href="#" onclick="TopherDemo.start('en');return false" style="font-weight:600">Start the live demo</a> — no form required.</p>
 </form>
@@ -943,6 +956,70 @@ src="https://www.facebook.com/tr?id=1826282408412111&ev=PageView&noscript=1"/>
 
 <script src="assets/topher-industries.js"></script>
 <script src="assets/topher-demo.js"></script>
+<script>
+/* ── ad attribution: capture once, persist for the session ── */
+var ATTR_KEYS=['gclid','gbraid','wbraid','utm_source','utm_medium','utm_campaign','utm_term','utm_content'];
+var attribution=(function(){
+  var stored={};
+  try{stored=JSON.parse(sessionStorage.getItem('topher_attr')||'{}')}catch(e){stored={}}
+  var q=new URLSearchParams(location.search),touched=false;
+  ATTR_KEYS.forEach(function(k){var v=q.get(k);if(v&&!stored[k]){stored[k]=v;touched=true}});
+  if(!stored.landing_page){stored.landing_page=location.href.split('#')[0];touched=true}
+  if(!stored.referrer){stored.referrer=document.referrer||'';touched=true}
+  if(touched){try{sessionStorage.setItem('topher_attr',JSON.stringify(stored))}catch(e){}}
+  return stored;
+})();
+
+/* ── jump to the form, tagging which CTA sent them ── */
+window.goToForm=function(interest,sourceDetail){
+  var sel=document.getElementById('f-interest'),sd=document.getElementById('f-source-detail');
+  if(sel&&interest)sel.value=interest;
+  if(sd&&sourceDetail)sd.value=sourceDetail;
+  var el=document.getElementById('contact');
+  if(el)window.scrollTo({top:el.getBoundingClientRect().top+scrollY-88,behavior:'smooth'});
+  setTimeout(function(){var n=document.getElementById('f-name');if(n)n.focus({preventScroll:true})},620);
+};
+
+/* ── contact form → same n8n webhook, same payload keys ── */
+var cform=document.getElementById('contact-form'),cbtn=document.getElementById('submit-btn'),
+    cmsg=document.getElementById('formMsg'),cphone=document.getElementById('f-phone');
+/* Keep the caller's international phone format; phone is optional. */
+cform.addEventListener('submit',function(e){
+  e.preventDefault();
+  var q=function(n){return cform.querySelector('[name="'+n+'"]')};
+  var name=q('name').value.trim(),email=q('email').value.trim(),
+      phone=q('phone').value.trim(),role=q('role').value,
+      interest=q('interest').value,sourceDetail=q('source_detail').value;
+  cmsg.className='';cmsg.textContent='';
+  if(!name||!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    cmsg.className='bad';cmsg.textContent='Please add your name and a valid email.';return;
+  }
+  cbtn.disabled=true;cbtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending…';
+  var payload={name:name,email:email,phone:phone,role:role,source:'website_form',
+               interest:interest,source_detail:sourceDetail||'homepage_form'};
+  ATTR_KEYS.forEach(function(k){if(attribution[k])payload[k]=attribution[k]});
+  if(attribution.landing_page)payload.landing_page=attribution.landing_page;
+  if(attribution.referrer)payload.referrer=attribution.referrer;
+  fetch('https://topherai.app.n8n.cloud/webhook/web-lead',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).then(function(res){
+    if(!res.ok)throw new Error('Server returned '+res.status);
+    try {
+      if(typeof gtag==='function')gtag('event','generate_lead',{lead_source:'homepage_form'});
+      if(typeof fbq==='function')fbq('track','Lead',{content_name:'Homepage consultation request'});
+    } catch(analyticsError) { console.warn('[TOPHER] lead tracking unavailable'); }
+    cbtn.innerHTML='<i class="fas fa-check"></i> Got it — we\'ll be in touch';
+    cmsg.className='ok';cmsg.textContent="We'll reach out within one business day.";
+    setTimeout(function(){location.href='thankyou.html'},1400);
+  }).catch(function(err){
+    console.error('[TOPHER] form submit failed:',err);
+    cbtn.disabled=false;cbtn.innerHTML='Request my free consultation →';
+    cmsg.className='bad';cmsg.textContent='Something went wrong. Try again, or call (213) 898-6724.';
+  });
+});
+
+</script>
 <script>
 /* waveform bars */
 document.getElementById('waveA').innerHTML = Array.from({length:22},function(_,i){
@@ -1036,29 +1113,6 @@ function playReel(){
 }
 paint(window.TOPHER_INDUSTRIES[0]);playReel();
 
-/* ── ad attribution: capture once, persist for the session ── */
-var ATTR_KEYS=['gclid','gbraid','wbraid','utm_source','utm_medium','utm_campaign','utm_term','utm_content'];
-var attribution=(function(){
-  var stored={};
-  try{stored=JSON.parse(sessionStorage.getItem('topher_attr')||'{}')}catch(e){stored={}}
-  var q=new URLSearchParams(location.search),touched=false;
-  ATTR_KEYS.forEach(function(k){var v=q.get(k);if(v&&!stored[k]){stored[k]=v;touched=true}});
-  if(!stored.landing_page){stored.landing_page=location.href.split('#')[0];touched=true}
-  if(!stored.referrer){stored.referrer=document.referrer||'';touched=true}
-  if(touched){try{sessionStorage.setItem('topher_attr',JSON.stringify(stored))}catch(e){}}
-  return stored;
-})();
-
-/* ── jump to the form, tagging which CTA sent them ── */
-window.goToForm=function(interest,sourceDetail){
-  var sel=document.getElementById('f-interest'),sd=document.getElementById('f-source-detail');
-  if(sel&&interest)sel.value=interest;
-  if(sd&&sourceDetail)sd.value=sourceDetail;
-  var el=document.getElementById('contact');
-  if(el)window.scrollTo({top:el.getBoundingClientRect().top+scrollY-88,behavior:'smooth'});
-  setTimeout(function(){var n=document.getElementById('f-name');if(n)n.focus({preventScroll:true})},620);
-};
-
 /* ── Live Command console: two staged views ── */
 (function(){
   var tab1=document.getElementById('lcTab1'),tab2=document.getElementById('lcTab2'),
@@ -1100,45 +1154,6 @@ window.goToForm=function(interest,sourceDetail){
     if(es[0].isIntersecting&&!played){played=true;run();obs.disconnect()}
   },{threshold:.3}).observe(document.querySelector('.console'));
 })();
-
-/* ── contact form → same n8n webhook, same payload keys ── */
-var cform=document.getElementById('contact-form'),cbtn=document.getElementById('submit-btn'),
-    cmsg=document.getElementById('formMsg'),cphone=document.getElementById('f-phone');
-cphone.addEventListener('input',function(){
-  var d=cphone.value.replace(/\D/g,'').slice(0,10);
-  cphone.value=d.length>6?'('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6)
-    :d.length>3?'('+d.slice(0,3)+') '+d.slice(3):d.length?'('+d:'';
-});
-cform.addEventListener('submit',function(e){
-  e.preventDefault();
-  var q=function(n){return cform.querySelector('[name="'+n+'"]')};
-  var name=q('name').value.trim(),email=q('email').value.trim(),
-      phone=q('phone').value.trim(),role=q('role').value,
-      interest=q('interest').value,sourceDetail=q('source_detail').value;
-  cmsg.className='';cmsg.textContent='';
-  if(!name||!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    cmsg.className='bad';cmsg.textContent='Please add your name and a valid email.';return;
-  }
-  cbtn.disabled=true;cbtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending…';
-  var payload={name:name,email:email,phone:phone,role:role,source:'website_form',
-               interest:interest,source_detail:sourceDetail||'homepage_form'};
-  ATTR_KEYS.forEach(function(k){if(attribution[k])payload[k]=attribution[k]});
-  if(attribution.landing_page)payload.landing_page=attribution.landing_page;
-  if(attribution.referrer)payload.referrer=attribution.referrer;
-  fetch('https://topherai.app.n8n.cloud/webhook/web-lead',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
-  }).then(function(res){
-    if(!res.ok)throw new Error('Server returned '+res.status);
-    cbtn.innerHTML='<i class="fas fa-check"></i> Got it — we\'ll be in touch';
-    cmsg.className='ok';cmsg.textContent="We'll reach out within one business day.";
-    setTimeout(function(){location.href='thankyou.html'},1400);
-  }).catch(function(err){
-    console.error('[TOPHER] form submit failed:',err);
-    cbtn.disabled=false;cbtn.innerHTML='Book my free 20 minutes →';
-    cmsg.className='bad';cmsg.textContent='Something went wrong. Try again, or call (213) 898-6724.';
-  });
-});
 
 /* ── reveal + sticky ── */
 var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
