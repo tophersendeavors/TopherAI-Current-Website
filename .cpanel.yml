@@ -12,4 +12,8 @@ deployment:
     - /bin/mkdir -p /home/soluykqf/topherai.com/knowledge/law-firms
     - 'if [ -f /home/soluykqf/topherai.com/knowledge/law-firms/ai-intake-for-law-firms.html ]; then /bin/cp -p /home/soluykqf/topherai.com/knowledge/law-firms/ai-intake-for-law-firms.html /home/soluykqf/deploy-backups/topherai.com/legal-intake-$(date +%Y%m%d-%H%M%S).html; fi'
     - /bin/cp knowledge/law-firms/ai-intake-for-law-firms.html /home/soluykqf/topherai.com/knowledge/law-firms/ai-intake-for-law-firms.html
+    - 'if [ -f /home/soluykqf/topherai.com/knowledge/index.html ]; then /bin/cp -p /home/soluykqf/topherai.com/knowledge/index.html /home/soluykqf/deploy-backups/topherai.com/knowledge-index-$(date +%Y%m%d-%H%M%S).html; fi'
+    - /bin/cp knowledge/index.html /home/soluykqf/topherai.com/knowledge/index.html
+    - 'if [ -f /home/soluykqf/topherai.com/knowledge/cost-of-missed-calls.html ]; then /bin/cp -p /home/soluykqf/topherai.com/knowledge/cost-of-missed-calls.html /home/soluykqf/deploy-backups/topherai.com/missed-calls-$(date +%Y%m%d-%H%M%S).html; fi'
+    - /bin/cp knowledge/cost-of-missed-calls.html /home/soluykqf/topherai.com/knowledge/cost-of-missed-calls.html
     - /bin/cp sitemap.xml /home/soluykqf/topherai.com/sitemap.xml
