@@ -438,7 +438,7 @@ details.hist-wrap[open] summary::after{content:" ▴"}
 <div class="glow" style="background:radial-gradient(ellipse 80% 55% at 50% 0%,rgba(232,130,107,.13),transparent 66%)"></div>
 <div class="wrap" style="position:relative">
 <span class="eyebrow"><span class="dot-live"></span> Demo en vivo · Español e inglés</span>
-<h1>Escúchela contestar<br>antes de decidir.</h1>
+<h1>Su recepcionista con IA.<br>Escúchela antes de decidir.</h1>
 <p class="lede">La mayoría de los sitios de recepcionistas con IA le describen cómo suena su producto. Nosotros se lo dejamos escuchar ahora mismo. Presione el botón — contesta en unos tres segundos, y suena como la recepción que usted quisiera tener.</p>
 <p class="hero-price">Cobertura 24/7 en español e inglés desde <strong>$99/mes</strong>.</p>
 
@@ -800,7 +800,7 @@ details.hist-wrap[open] summary::after{content:" ▴"}
 <div class="glow" style="background:radial-gradient(ellipse 60% 70% at 50% 100%,rgba(232,130,107,.11),transparent 68%)"></div>
 <div class="wrap-narrow" style="position:relative">
 <span class="eyebrow"><span class="dot-live"></span> ¿Todavía aquí?</span>
-<h2>Entonces aún no<br>la ha escuchado.</h2>
+<h2>Hablemos de las llamadas<br>de su negocio.</h2>
 <p class="lede" style="max-width:520px;margin:0 auto 32px">Treinta segundos y lo sabrá. Ese es todo el argumento.</p>
 <div class="pick">
   <button class="btn btn-primary btn-lg" onclick="TopherDemo.start('es')"><i class="fas fa-microphone" style="font-size:.85rem"></i> Iniciar la llamada</button>
@@ -816,6 +816,7 @@ details.hist-wrap[open] summary::after{content:" ▴"}
     <div class="fld"><label for="f-name">Nombre completo</label><input id="f-name" name="name" type="text" required autocomplete="name" placeholder="Ana García"></div>
     <div class="fld"><label for="f-email">Correo electrónico</label><input id="f-email" name="email" type="email" required autocomplete="email" placeholder="ana@negocio.com"></div>
   </div>
+  <div class="fld"><label for="f-business">Nombre del negocio</label><input id="f-business" name="business_name" type="text" required autocomplete="organization" placeholder="Nombre de su negocio"></div>
   <div class="fld"><label for="f-phone">Número de teléfono</label><input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(213) 555-0100"></div>
   <div class="fld"><label for="f-role">¿Qué tipo de negocio?</label>
     <select id="f-role" name="role">
@@ -837,8 +838,11 @@ details.hist-wrap[open] summary::after{content:" ▴"}
       <option value="Not sure yet" selected>Aún no estoy seguro</option>
     </select>
   </div>
+  <div class="fld"><label for="f-website">Sitio web del negocio (opcional)</label><input id="f-website" name="website" type="text" inputmode="url" autocomplete="url" placeholder="ejemplo.com"></div>
+  <label style="display:flex;align-items:flex-start;gap:10px;font-size:.85rem;line-height:1.55;margin:18px 0;"><input id="f-consent" name="followup_consent" type="checkbox" style="width:18px;min-width:18px;height:18px;margin-top:4px;"><span>Opcional: Autorizo el seguimiento de esta solicitud por mensaje de texto o teléfono, incluida una llamada automatizada con IA. No es obligatorio para solicitar una consulta.</span></label>
+  <p class="form-note">Usaremos su correo para responder a esta solicitud. Consulte nuestra <a href="/privacy.html">Política de Privacidad</a>.</p>
   <input type="hidden" name="source_detail" id="f-source-detail" value="">
-  <button type="submit" id="submit-btn" class="btn btn-primary" style="width:100%;margin-top:6px">Reservar mis 20 minutos gratis →</button>
+  <button type="submit" id="submit-btn" class="btn btn-primary" style="width:100%;margin-top:6px">Solicitar mi consulta gratis →</button>
   <p id="formMsg" role="status" aria-live="polite"></p>
   <p class="form-note">¿Prefiere escucharla primero? <a href="#" onclick="TopherDemo.start('es');return false" style="font-weight:600">Inicie la demo en vivo</a> — sin formulario.</p>
 </form>
@@ -901,6 +905,79 @@ details.hist-wrap[open] summary::after{content:" ▴"}
 
 <script src="assets/topher-industries-es.js"></script>
 <script src="assets/topher-demo.js"></script>
+<script>
+/* ── ad attribution: capture once, persist for the session ── */
+var ATTR_KEYS=['gclid','gbraid','wbraid','utm_source','utm_medium','utm_campaign','utm_term','utm_content'];
+var attribution=(function(){
+  var stored={};
+  try{stored=JSON.parse(sessionStorage.getItem('topher_attr')||'{}')}catch(e){stored={}}
+  var q=new URLSearchParams(location.search),touched=false;
+  ATTR_KEYS.forEach(function(k){var v=q.get(k);if(v&&!stored[k]){stored[k]=v;touched=true}});
+  if(!stored.landing_page){stored.landing_page=location.href.split('#')[0];touched=true}
+  if(!stored.referrer){stored.referrer=document.referrer||'';touched=true}
+  if(touched){try{sessionStorage.setItem('topher_attr',JSON.stringify(stored))}catch(e){}}
+  return stored;
+})();
+
+/* ── jump to the form, tagging which CTA sent them ── */
+window.goToForm=function(interest,sourceDetail){
+  var sel=document.getElementById('f-interest'),sd=document.getElementById('f-source-detail');
+  if(sel&&interest)sel.value=interest;
+  if(sd&&sourceDetail)sd.value=sourceDetail;
+  var el=document.getElementById('contact');
+  if(el)window.scrollTo({top:el.getBoundingClientRect().top+scrollY-88,behavior:'smooth'});
+  setTimeout(function(){var n=document.getElementById('f-name');if(n)n.focus({preventScroll:true})},620);
+};
+
+/* ── contact form → same n8n webhook, same payload keys ── */
+var cform=document.getElementById('contact-form'),cbtn=document.getElementById('submit-btn'),
+    cmsg=document.getElementById('formMsg'),cphone=document.getElementById('f-phone');
+/* Keep the caller's international phone format; phone is optional. */
+cform.addEventListener('submit',function(e){
+  e.preventDefault();
+  var q=function(n){return cform.querySelector('[name="'+n+'"]')};
+  var name=q('name').value.trim(),email=q('email').value.trim(),
+      phone=q('phone').value.trim(),role=q('role').value,
+      interest=q('interest').value,sourceDetail=q('source_detail').value,
+      businessName=q('business_name').value.trim(),website=q('website').value.trim(),
+      followupConsent=q('followup_consent').checked;
+  cmsg.className='';cmsg.textContent='';
+  if(!name||!businessName||!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    cmsg.className='bad';cmsg.textContent='Agregue su nombre, el nombre de su negocio y un correo válido.';return;
+  }
+  cbtn.disabled=true;cbtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Enviando…';
+  var payload={name:name,email:email,phone:phone,role:role,source:'website_form',language:'es',
+               interest:interest,source_detail:sourceDetail||'homepage_form',
+               business_name:businessName,website:website,followup_consent:followupConsent,
+               consent_page:location.href.split('#')[0]};
+  if(followupConsent)payload.consent_timestamp=new Date().toISOString();
+  ATTR_KEYS.forEach(function(k){if(attribution[k])payload[k]=attribution[k]});
+  if(attribution.landing_page)payload.landing_page=attribution.landing_page;
+  if(attribution.referrer)payload.referrer=attribution.referrer;
+  fetch('https://topherai.app.n8n.cloud/webhook/web-lead',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).then(function(res){
+    if(!res.ok)throw new Error('Server returned '+res.status);
+    return res.json();
+  }).then(function(result){
+    if(!result||result.success!==true)throw new Error('Lead receipt was not confirmed');
+    try {
+      if(typeof gtag==='function')gtag('event','generate_lead',{lead_source:'homepage_form'});
+      if(typeof fbq==='function')fbq('track','Lead',{content_name:'Spanish homepage consultation request'});
+    } catch(analyticsError) { console.warn('[TOPHER] lead tracking unavailable'); }
+    cbtn.innerHTML='<i class="fas fa-check"></i> Recibido — le contactaremos';
+    cmsg.className='ok';cmsg.textContent="Recibimos su solicitud. Le responderemos por correo.";
+    setTimeout(function(){location.href='thankyou.html'},1400);
+  }).catch(function(err){
+    console.error('[TOPHER] form submit failed:',err);
+    cbtn.disabled=false;cbtn.innerHTML='Solicitar mi consulta gratis →';
+    cmsg.className='bad';cmsg.textContent='Algo salió mal. Intente de nuevo o llame al (213) 898-6724.';
+  });
+});
+
+
+</script>
 <script>
 /* waveform bars */
 document.getElementById('waveA').innerHTML = Array.from({length:22},function(_,i){
@@ -994,29 +1071,6 @@ function playReel(){
 }
 paint(window.TOPHER_INDUSTRIES[0]);playReel();
 
-/* ── ad attribution: capture once, persist for the session ── */
-var ATTR_KEYS=['gclid','gbraid','wbraid','utm_source','utm_medium','utm_campaign','utm_term','utm_content'];
-var attribution=(function(){
-  var stored={};
-  try{stored=JSON.parse(sessionStorage.getItem('topher_attr')||'{}')}catch(e){stored={}}
-  var q=new URLSearchParams(location.search),touched=false;
-  ATTR_KEYS.forEach(function(k){var v=q.get(k);if(v&&!stored[k]){stored[k]=v;touched=true}});
-  if(!stored.landing_page){stored.landing_page=location.href.split('#')[0];touched=true}
-  if(!stored.referrer){stored.referrer=document.referrer||'';touched=true}
-  if(touched){try{sessionStorage.setItem('topher_attr',JSON.stringify(stored))}catch(e){}}
-  return stored;
-})();
-
-/* ── jump to the form, tagging which CTA sent them ── */
-window.goToForm=function(interest,sourceDetail){
-  var sel=document.getElementById('f-interest'),sd=document.getElementById('f-source-detail');
-  if(sel&&interest)sel.value=interest;
-  if(sd&&sourceDetail)sd.value=sourceDetail;
-  var el=document.getElementById('contact');
-  if(el)window.scrollTo({top:el.getBoundingClientRect().top+scrollY-88,behavior:'smooth'});
-  setTimeout(function(){var n=document.getElementById('f-name');if(n)n.focus({preventScroll:true})},620);
-};
-
 /* ── Live Command console: two staged views ── */
 (function(){
   var tab1=document.getElementById('lcTab1'),tab2=document.getElementById('lcTab2'),
@@ -1058,45 +1112,6 @@ window.goToForm=function(interest,sourceDetail){
     if(es[0].isIntersecting&&!played){played=true;run();obs.disconnect()}
   },{threshold:.3}).observe(document.querySelector('.console'));
 })();
-
-/* ── contact form → same n8n webhook, same payload keys ── */
-var cform=document.getElementById('contact-form'),cbtn=document.getElementById('submit-btn'),
-    cmsg=document.getElementById('formMsg'),cphone=document.getElementById('f-phone');
-cphone.addEventListener('input',function(){
-  var d=cphone.value.replace(/\D/g,'').slice(0,10);
-  cphone.value=d.length>6?'('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6)
-    :d.length>3?'('+d.slice(0,3)+') '+d.slice(3):d.length?'('+d:'';
-});
-cform.addEventListener('submit',function(e){
-  e.preventDefault();
-  var q=function(n){return cform.querySelector('[name="'+n+'"]')};
-  var name=q('name').value.trim(),email=q('email').value.trim(),
-      phone=q('phone').value.trim(),role=q('role').value,
-      interest=q('interest').value,sourceDetail=q('source_detail').value;
-  cmsg.className='';cmsg.textContent='';
-  if(!name||!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    cmsg.className='bad';cmsg.textContent='Agregue su nombre y un correo válido.';return;
-  }
-  cbtn.disabled=true;cbtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Enviando…';
-  var payload={name:name,email:email,phone:phone,role:role,source:'website_form',language:'es',
-               interest:interest,source_detail:sourceDetail||'homepage_form'};
-  ATTR_KEYS.forEach(function(k){if(attribution[k])payload[k]=attribution[k]});
-  if(attribution.landing_page)payload.landing_page=attribution.landing_page;
-  if(attribution.referrer)payload.referrer=attribution.referrer;
-  fetch('https://topherai.app.n8n.cloud/webhook/web-lead',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
-  }).then(function(res){
-    if(!res.ok)throw new Error('Server returned '+res.status);
-    cbtn.innerHTML='<i class="fas fa-check"></i> Recibido — le contactaremos';
-    cmsg.className='ok';cmsg.textContent="Le contactaremos en un día hábil.";
-    setTimeout(function(){location.href='thankyou.html'},1400);
-  }).catch(function(err){
-    console.error('[TOPHER] form submit failed:',err);
-    cbtn.disabled=false;cbtn.innerHTML='Reservar mis 20 minutos gratis →';
-    cmsg.className='bad';cmsg.textContent='Algo salió mal. Intente de nuevo o llame al (213) 898-6724.';
-  });
-});
 
 /* ── reveal + sticky ── */
 var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
