@@ -28,4 +28,7 @@ deployment:
     - /bin/mkdir -p /home/soluykqf/topherai.com/tools/missed-call-cost-calculator
     - 'if [ -f /home/soluykqf/topherai.com/tools/missed-call-cost-calculator/index.html ]; then /bin/cp -p /home/soluykqf/topherai.com/tools/missed-call-cost-calculator/index.html /home/soluykqf/deploy-backups/topherai.com/tools-missed-call-cost-calculator-$(date +%Y%m%d-%H%M%S).html; fi'
     - /bin/cp tools/missed-call-cost-calculator/index.html /home/soluykqf/topherai.com/tools/missed-call-cost-calculator/index.html
+    - /bin/mkdir -p /home/soluykqf/topherai.com/solutions/ai-receptionist
+    - 'if [ -f /home/soluykqf/topherai.com/solutions/ai-receptionist/index.html ]; then /bin/cp -p /home/soluykqf/topherai.com/solutions/ai-receptionist/index.html /home/soluykqf/deploy-backups/topherai.com/solutions-ai-receptionist-$(date +%Y%m%d-%H%M%S).html; fi'
+    - /bin/cp solutions/ai-receptionist/index.html /home/soluykqf/topherai.com/solutions/ai-receptionist/index.html
     - /bin/cp sitemap.xml /home/soluykqf/topherai.com/sitemap.xml
