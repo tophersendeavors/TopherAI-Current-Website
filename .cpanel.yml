@@ -38,3 +38,6 @@ deployment:
     - 'if [ -f /home/soluykqf/topherai.com/assets/topher-demo.js ]; then /bin/cp -p /home/soluykqf/topherai.com/assets/topher-demo.js /home/soluykqf/deploy-backups/topherai.com/topher-demo-$(date +%Y%m%d-%H%M%S).js; fi'
     - /bin/cp assets/topher-demo.js /home/soluykqf/topherai.com/assets/topher-demo.js
     - /bin/cp sitemap.xml /home/soluykqf/topherai.com/sitemap.xml
+    - /bin/mkdir -p /home/soluykqf/topherai.com/assets/video
+    - /bin/cp assets/video/topher-ai-receptionist-introduction.mp4 /home/soluykqf/topherai.com/assets/video/topher-ai-receptionist-introduction.mp4
+    - /bin/cp assets/video/topher-ai-receptionist-introduction.jpg /home/soluykqf/topherai.com/assets/video/topher-ai-receptionist-introduction.jpg
