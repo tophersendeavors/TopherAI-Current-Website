@@ -33,6 +33,8 @@ window.TopherDemo = (function () {
       return;
     }
 
+    vapi.on('speech-start', function () { emit({ type: 'speech', speaking: true }); });
+    vapi.on('speech-end', function () { emit({ type: 'speech', speaking: false }); });
     vapi.on('call-start', function () { state('active'); });
     vapi.on('call-end', function () { reset(); state('idle'); });
     vapi.on('error', function (e) { console.warn('[TopherDemo] call error:', e); reset(); state('error'); });
