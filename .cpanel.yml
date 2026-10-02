@@ -31,4 +31,7 @@ deployment:
     - /bin/mkdir -p /home/soluykqf/topherai.com/solutions/ai-receptionist
     - 'if [ -f /home/soluykqf/topherai.com/solutions/ai-receptionist/index.html ]; then /bin/cp -p /home/soluykqf/topherai.com/solutions/ai-receptionist/index.html /home/soluykqf/deploy-backups/topherai.com/solutions-ai-receptionist-$(date +%Y%m%d-%H%M%S).html; fi'
     - /bin/cp solutions/ai-receptionist/index.html /home/soluykqf/topherai.com/solutions/ai-receptionist/index.html
+    - /bin/mkdir -p /home/soluykqf/topherai.com/ai-receptionist
+    - 'if [ -f /home/soluykqf/topherai.com/ai-receptionist/index.html ]; then /bin/cp -p /home/soluykqf/topherai.com/ai-receptionist/index.html /home/soluykqf/deploy-backups/topherai.com/ad-ai-receptionist-$(date +%Y%m%d-%H%M%S).html; fi'
+    - /bin/cp ai-receptionist/index.html /home/soluykqf/topherai.com/ai-receptionist/index.html
     - /bin/cp sitemap.xml /home/soluykqf/topherai.com/sitemap.xml
