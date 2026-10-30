@@ -1706,6 +1706,11 @@ function CallsTab({ rows, loading, search, setSearch }) {
                       {(r.classification || r.urgency || r.lead_type) && <LeadBadge type={r.classification||r.urgency||r.lead_type}/>}
                     </div>
                     <div className="text-[11.5px] text-slate-400 mt-1 clamp-1">{r.summary || 'No summary available'}</div>
+                    {(r.caller_city || r.caller_region || r.caller_country) && (
+                      <div className="text-[10.5px] text-slate-500 mt-1">
+                        Approx. location: {[r.caller_city, r.caller_region, r.caller_country].filter(Boolean).join(', ')}
+                      </div>
+                    )}
                   </div>
                   <div className="text-right hidden sm:block flex-shrink-0">
                     <div className="text-[11px] text-slate-400">{fmtAgo(r.created_at||r.started_at)}</div>
@@ -1715,6 +1720,12 @@ function CallsTab({ rows, loading, search, setSearch }) {
                 </button>
                 {isOpen && (
                   <div className="px-3 pb-3 fade space-y-3 border-t border-white/5 pt-3">
+                    {(r.caller_city || r.caller_region || r.caller_country) && (
+                      <div>
+                        <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500 mb-1.5">Approximate caller location</div>
+                        <p className="text-[12.5px] text-slate-200">{[r.caller_city, r.caller_region, r.caller_country].filter(Boolean).join(', ')} <span className="text-[10px] text-slate-500">· IP-based estimate</span></p>
+                      </div>
+                    )}
                     {r.summary && (
                       <div>
                         <div className="text-[9.5px] font-semibold uppercase tracking-widest text-slate-500 mb-1.5 flex items-center gap-1.5"><Icon name="spark" size={10} strokeWidth={2.2}/> AI Summary</div>
