@@ -17,10 +17,49 @@ window.TopherDemo = (function () {
 
   function reset() { active = false; vapi = null; pendingToolCallId = null; phoneCollected = false; removeModal(); }
 
+  async function lookupApproximateLocation() {
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timeout = controller ? setTimeout(function () { controller.abort(); }, 2500) : null;
+    try {
+      var options = controller ? { signal: controller.signal, cache: 'no-store' } : { cache: 'no-store' };
+      var response = await fetch('https://ipwho.is/?fields=success,city,region,country', options);
+      if (!response.ok) return {};
+      var data = await response.json();
+      if (!data || data.success !== true) return {};
+      return {
+        city: typeof data.city === 'string' ? data.city.slice(0, 100) : '',
+        region: typeof data.region === 'string' ? data.region.slice(0, 100) : '',
+        country: typeof data.country === 'string' ? data.country.slice(0, 100) : ''
+      };
+    } catch (e) {
+      console.warn('[TopherDemo] approximate location lookup unavailable');
+      return {};
+    } finally {
+      if (timeout) clearTimeout(timeout);
+    }
+  }
+
+  function showLocationNotice() {
+    if (document.getElementById('topher-location-notice')) return;
+    var note = document.createElement('div');
+    note.id = 'topher-location-notice';
+    note.setAttribute('role', 'status');
+    note.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9998;max-width:min(92vw,520px);padding:11px 15px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:#211E29;color:#F3E9DD;font:12px/1.5 system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.28);text-align:center';
+    note.textContent = 'For this website demo, we estimate your city, region and country from your internet connection. We do not store your IP address or GPS coordinates. ';
+    var link = document.createElement('a');
+    link.href = '/privacy.html';
+    link.textContent = 'Privacy Policy';
+    link.style.cssText = 'color:#F0B6A6;text-decoration:underline;white-space:nowrap';
+    note.appendChild(link);
+    document.body.appendChild(note);
+    setTimeout(function () { if (note.parentNode) note.parentNode.removeChild(note); }, 9000);
+  }
+
   async function start(l) {
     if (active) return;
     active = true;
     lang = l === 'es' ? 'es' : 'en';
+    showLocationNotice();
     state('connecting');
     try {
       var mod = await import('https://cdn.jsdelivr.net/npm/@vapi-ai/web/+esm');
@@ -65,8 +104,19 @@ window.TopherDemo = (function () {
       });
     });
 
+    // Resolve approximate IP location before starting the browser call.
+    // Only city/region/country are passed to Vapi; the raw IP and coordinates are discarded.
+    var location = await lookupApproximateLocation();
     vapi.start(ASSISTANT[lang], {
-      metadata: { language: lang, source: 'website-demo', assistantType: lang === 'es' ? 'spanish' : 'english' }
+      metadata: {
+        language: lang,
+        source: 'website-demo',
+        assistantType: lang === 'es' ? 'spanish' : 'english',
+        location_city: location.city || null,
+        location_region: location.region || null,
+        location_country: location.country || null,
+        location_source: (location.city || location.region || location.country) ? 'ipwho.is' : null
+      }
     });
   }
 
