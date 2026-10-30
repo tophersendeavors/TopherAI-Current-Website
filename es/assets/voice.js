@@ -39,7 +39,7 @@
     note.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9998;max-width:min(92vw,520px);padding:11px 15px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:#211E29;color:#F3E9DD;font:12px/1.5 system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.28);text-align:center';
     note.textContent = 'Para esta demo estimamos tu ciudad, región y país a partir de tu conexión. No guardamos tu IP ni coordenadas GPS. ';
     const link = document.createElement('a');
-    link.href = '/privacy.html';
+    link.href = '/es/privacy.html';
     link.textContent = 'Política de privacidad';
     link.style.cssText = 'color:#F0B6A6;text-decoration:underline;white-space:nowrap';
     note.appendChild(link);
