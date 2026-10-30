@@ -9,6 +9,43 @@
   let generation = 0;
   let connectionTimer = null;
   const status = text => statuses.forEach(el => { el.textContent = text; });
+
+  async function lookupApproximateLocation() {
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timeout = controller ? setTimeout(() => controller.abort(), 2500) : null;
+    try {
+      const options = controller ? { signal: controller.signal, cache: 'no-store' } : { cache: 'no-store' };
+      const response = await fetch('https://ipwho.is/?fields=success,city,region,country', options);
+      if (!response.ok) return {};
+      const data = await response.json();
+      if (!data || data.success !== true) return {};
+      return {
+        city: typeof data.city === 'string' ? data.city.slice(0, 100) : '',
+        region: typeof data.region === 'string' ? data.region.slice(0, 100) : '',
+        country: typeof data.country === 'string' ? data.country.slice(0, 100) : ''
+      };
+    } catch (_) {
+      return {};
+    } finally {
+      if (timeout) clearTimeout(timeout);
+    }
+  }
+
+  function showLocationNotice() {
+    if (document.getElementById('topher-location-notice')) return;
+    const note = document.createElement('div');
+    note.id = 'topher-location-notice';
+    note.setAttribute('role', 'status');
+    note.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9998;max-width:min(92vw,520px);padding:11px 15px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:#211E29;color:#F3E9DD;font:12px/1.5 system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.28);text-align:center';
+    note.textContent = 'Para esta demo estimamos tu ciudad, región y país a partir de tu conexión. No guardamos tu IP ni coordenadas GPS. ';
+    const link = document.createElement('a');
+    link.href = '/privacy.html';
+    link.textContent = 'Política de privacidad';
+    link.style.cssText = 'color:#F0B6A6;text-decoration:underline;white-space:nowrap';
+    note.appendChild(link);
+    document.body.appendChild(note);
+    setTimeout(() => { if (note.parentNode) note.parentNode.removeChild(note); }, 9000);
+  }
   const ready = kind => Boolean(config.publicKey && (kind === 'clinic' ? config.clinicReady && config.clinicAssistantId : config.sofiaAssistantId));
   const refresh = () => {
     starts.forEach(b => { b.disabled = busy || !ready(b.dataset.call); });
@@ -29,6 +66,7 @@
     if (busy || !ready(button.dataset.call)) return;
     const kind = button.dataset.call;
     const assistantId = kind === 'clinic' ? config.clinicAssistantId : config.sofiaAssistantId;
+    showLocationNotice();
     busy = true; refresh();
     const run = ++generation;
     status(kind === 'clinic' ? 'Conectando con la recepcionista de la clínica…' : 'Conectando con Sofía, de Topher AI…');
@@ -58,7 +96,18 @@
           status('Para solicitar seguimiento puedes escribir a hello@topherai.com. La llamada continúa.');
         }
       });
-      const call = await active.start(assistantId, { metadata: { language:'es', source:kind==='clinic'?'spanish-clinic-demo':'spanish-website', demo:kind==='clinic', industry:kind==='clinic'?'plastic-surgery-aesthetic-medicine':'general' } });
+      const location = await lookupApproximateLocation();
+      if (expired()) return;
+      const call = await active.start(assistantId, { metadata: {
+        language: 'es',
+        source: kind === 'clinic' ? 'spanish-clinic-demo' : 'spanish-website',
+        demo: kind === 'clinic',
+        industry: kind === 'clinic' ? 'plastic-surgery-aesthetic-medicine' : 'general',
+        location_city: location.city || null,
+        location_region: location.region || null,
+        location_country: location.country || null,
+        location_source: (location.city || location.region || location.country) ? 'ipwho.is' : null
+      } });
       if (expired()) { await active.stop(); return; }
       if (!call) await stop('No se pudo iniciar la llamada. Inténtalo de nuevo.');
     } catch (_) {
