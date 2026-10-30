@@ -40,6 +40,8 @@ deployment:
     - /bin/mkdir -p /home/soluykqf/topherai.com/es/assets
     - 'if [ -f /home/soluykqf/topherai.com/es/assets/voice.js ]; then /bin/cp -p /home/soluykqf/topherai.com/es/assets/voice.js /home/soluykqf/deploy-backups/topherai.com/es-voice-$(date +%Y%m%d-%H%M%S).js; fi'
     - /bin/cp es/assets/voice.js /home/soluykqf/topherai.com/es/assets/voice.js
+    - 'if [ -f /home/soluykqf/topherai.com/es/privacy.html ]; then /bin/cp -p /home/soluykqf/topherai.com/es/privacy.html /home/soluykqf/deploy-backups/topherai.com/es-privacy-$(date +%Y%m%d-%H%M%S).html; fi'
+    - /bin/cp es/privacy.html /home/soluykqf/topherai.com/es/privacy.html
     - 'if [ -f /home/soluykqf/topherai.com/leads-dashboard.html ]; then /bin/cp -p /home/soluykqf/topherai.com/leads-dashboard.html /home/soluykqf/deploy-backups/topherai.com/leads-dashboard-$(date +%Y%m%d-%H%M%S).html; fi'
     - /bin/cp leads-dashboard.html /home/soluykqf/topherai.com/leads-dashboard.html
     - 'if [ -f /home/soluykqf/topherai.com/privacy.html ]; then /bin/cp -p /home/soluykqf/topherai.com/privacy.html /home/soluykqf/deploy-backups/topherai.com/privacy-$(date +%Y%m%d-%H%M%S).html; fi'
