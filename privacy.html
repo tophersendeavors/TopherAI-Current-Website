@@ -252,6 +252,7 @@ src="https://www.facebook.com/tr?id=1826282408412111&ev=PageView&noscript=1"/>
                 <p>When you use our website or Services, we automatically collect:</p>
                 <ul>
                     <li>IP address, browser type, operating system, and device information</li>
+                    <li>For website voice demos, an approximate city, region/state, and country inferred from the visitor's public IP address. Topher AI stores the returned location fields with the call record, but does not store the IP address or GPS coordinates for this feature.</li>
                     <li>Pages visited, links clicked, and time spent on our website</li>
                     <li>Referring URLs and search terms</li>
                     <li>Log data including access times and error logs</li>
@@ -383,6 +384,11 @@ src="https://www.facebook.com/tr?id=1826282408412111&ev=PageView&noscript=1"/>
                             <td>Payment (e.g., Stripe)</td>
                             <td>Subscription billing</td>
                             <td>Payment method details, billing address</td>
+                        </tr>
+                        <tr>
+                            <td>IP geolocation (<a href="https://ipwho.is/" target="_blank" rel="noopener noreferrer">ipwho.is</a>)</td>
+                            <td>Estimate the city, region/state, and country for website demo call analytics</td>
+                            <td>The visitor's public IP is sent to the provider for lookup; Topher AI stores only the returned city, region, and country</td>
                         </tr>
                         <tr>
                             <td>Analytics</td>
