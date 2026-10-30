@@ -107,6 +107,7 @@ window.TopherDemo = (function () {
     // Resolve approximate IP location before starting the browser call.
     // Only city/region/country are passed to Vapi; the raw IP and coordinates are discarded.
     var location = await lookupApproximateLocation();
+    if (!active || !vapi) { reset(); state('idle'); return; }
     vapi.start(ASSISTANT[lang], {
       metadata: {
         language: lang,
