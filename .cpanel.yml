@@ -44,6 +44,8 @@ deployment:
     - /bin/cp es/privacy.html /home/soluykqf/topherai.com/es/privacy.html
     - 'if [ -f /home/soluykqf/topherai.com/leads-dashboard.html ]; then /bin/cp -p /home/soluykqf/topherai.com/leads-dashboard.html /home/soluykqf/deploy-backups/topherai.com/leads-dashboard-$(date +%Y%m%d-%H%M%S).html; fi'
     - /bin/cp leads-dashboard.html /home/soluykqf/topherai.com/leads-dashboard.html
+    - 'if [ -f /home/soluykqf/topherai.com/Topher-Dashboard.html ]; then /bin/cp -p /home/soluykqf/topherai.com/Topher-Dashboard.html /home/soluykqf/deploy-backups/topherai.com/Topher-Dashboard-$(date +%Y%m%d-%H%M%S).html; fi'
+    - /bin/cp Topher-Dashboard.html /home/soluykqf/topherai.com/Topher-Dashboard.html
     - 'if [ -f /home/soluykqf/topherai.com/privacy.html ]; then /bin/cp -p /home/soluykqf/topherai.com/privacy.html /home/soluykqf/deploy-backups/topherai.com/privacy-$(date +%Y%m%d-%H%M%S).html; fi'
     - /bin/cp privacy.html /home/soluykqf/topherai.com/privacy.html
     - /bin/cp sitemap.xml /home/soluykqf/topherai.com/sitemap.xml
