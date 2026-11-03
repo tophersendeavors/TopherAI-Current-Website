@@ -1731,6 +1731,8 @@ function CallsTab({ rows, loading, search, setSearch, session }) {
         <div className="p-3 space-y-2">
           {rows.map((r, i) => {
             const id = r.id || r.call_id || i;
+            const callId = String(r.call_id || '').trim();
+            const hasRecordingId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(callId);
             const isOpen = open === id;
             const status = (r.call_status || 'completed').toLowerCase();
             const tone = status.includes('miss') || status.includes('fail') ? '#fb7185'
@@ -1788,9 +1790,9 @@ function CallsTab({ rows, loading, search, setSearch, session }) {
                     )}
                     <div className="flex items-center justify-between flex-wrap gap-2 text-[10.5px] text-slate-600 pt-1">
                       <span className="font-mono">Call ID · {r.call_id || r.id}</span>
-                      {r.recording_url && (
-                        <button type="button" onClick={() => openRecording(r)} disabled={openingCallId === r.call_id} className="btn btn-ghost disabled:opacity-50">
-                          <Icon name="play" size={11}/>{openingCallId === r.call_id ? 'Opening…' : 'Open recording'}
+                      {hasRecordingId && (
+                        <button type="button" onClick={() => openRecording(r)} disabled={openingCallId === callId} className="btn btn-ghost disabled:opacity-50">
+                          <Icon name="play" size={11}/>{openingCallId === callId ? 'Opening…' : 'Open recording'}
                         </button>
                       )}
                       {recordingError.callId === (r.call_id || String(r.id || '')) && recordingError.message && (
