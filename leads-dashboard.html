@@ -1672,8 +1672,54 @@ function LeadsTab({ rows, loading, onOpenLead, search, setSearch, filter, setFil
 }
 
 /* ─────── Calls tab ─────── */
-function CallsTab({ rows, loading, search, setSearch }) {
+function CallsTab({ rows, loading, search, setSearch, session }) {
   const [open, setOpen] = useState(null);
+  const [openingCallId, setOpeningCallId] = useState(null);
+  const [recordingError, setRecordingError] = useState({ callId: null, message: '' });
+
+  const openRecording = async (call) => {
+    const callId = String(call.call_id || '').trim();
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(callId);
+    if (!isUuid) {
+      setRecordingError({ callId: callId || String(call.id || ''), message: 'This call does not have a valid recording ID.' });
+      return;
+    }
+    if (!session?.access_token) {
+      setRecordingError({ callId, message: 'Your dashboard session has expired. Sign in again.' });
+      return;
+    }
+
+    const popup = window.open('about:blank', '_blank');
+    if (!popup) {
+      setRecordingError({ callId, message: 'Allow pop-ups for topherai.com to open recordings.' });
+      return;
+    }
+    popup.opener = null;
+    setOpeningCallId(callId);
+    setRecordingError({ callId: null, message: '' });
+
+    try {
+      const endpoint = 'https://topherai.app.n8n.cloud/webhook/topherai-recording?callId=' + encodeURIComponent(callId);
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          Authorization: 'Bearer ' + session.access_token,
+          Accept: 'application/json'
+        }
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || typeof result.url !== 'string' || !/^https:\/\//i.test(result.url)) {
+        throw new Error(result.error || 'The recording is unavailable or your account cannot access it.');
+      }
+      if (popup.closed) throw new Error('The recording tab was closed before playback could open.');
+      popup.location.href = result.url;
+    } catch (error) {
+      if (!popup.closed) popup.close();
+      setRecordingError({ callId, message: error?.message || 'Unable to open this recording.' });
+    } finally {
+      setOpeningCallId(null);
+    }
+  };
   return (
     <div className="fade">
       <Toolbar search={search} setSearch={setSearch} placeholder="Search calls by phone or summary…"/>
@@ -1685,6 +1731,8 @@ function CallsTab({ rows, loading, search, setSearch }) {
         <div className="p-3 space-y-2">
           {rows.map((r, i) => {
             const id = r.id || r.call_id || i;
+            const callId = String(r.call_id || '').trim();
+            const hasRecordingId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(callId);
             const isOpen = open === id;
             const status = (r.call_status || 'completed').toLowerCase();
             const tone = status.includes('miss') || status.includes('fail') ? '#fb7185'
@@ -1742,8 +1790,13 @@ function CallsTab({ rows, loading, search, setSearch }) {
                     )}
                     <div className="flex items-center justify-between flex-wrap gap-2 text-[10.5px] text-slate-600 pt-1">
                       <span className="font-mono">Call ID · {r.call_id || r.id}</span>
-                      {r.recording_url && (
-                        <a href={r.recording_url} target="_blank" rel="noreferrer" className="btn btn-ghost"><Icon name="play" size={11}/>Open recording</a>
+                      {hasRecordingId && (
+                        <button type="button" onClick={() => openRecording(r)} disabled={openingCallId === callId} className="btn btn-ghost disabled:opacity-50">
+                          <Icon name="play" size={11}/>{openingCallId === callId ? 'Opening…' : 'Open recording'}
+                        </button>
+                      )}
+                      {recordingError.callId === (r.call_id || String(r.id || '')) && recordingError.message && (
+                        <span className="text-[10px] text-rose-300">{recordingError.message}</span>
                       )}
                     </div>
                   </div>
@@ -3571,7 +3624,7 @@ function App() {
 
               {tab === 'calls' && (
                 <div className="glass rounded-2xl overflow-hidden">
-                  <CallsTab rows={callsFiltered} loading={loading} search={search} setSearch={setSearch}/>
+                  <CallsTab rows={callsFiltered} loading={loading} search={search} setSearch={setSearch} session={session}/>
                 </div>
               )}
 
