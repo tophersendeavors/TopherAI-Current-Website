@@ -50,3 +50,5 @@ deployment:
     - /bin/mkdir -p /home/soluykqf/topherai.com/assets/video
     - /bin/cp assets/video/topher-ai-receptionist-introduction.mp4 /home/soluykqf/topherai.com/assets/video/topher-ai-receptionist-introduction.mp4
     - /bin/cp assets/video/topher-ai-receptionist-introduction.jpg /home/soluykqf/topherai.com/assets/video/topher-ai-receptionist-introduction.jpg
+    - 'if [ -f /home/soluykqf/topherai.com/robots.txt ]; then /bin/cp -p /home/soluykqf/topherai.com/robots.txt /home/soluykqf/deploy-backups/topherai.com/robots-$(date +%Y%m%d-%H%M%S).txt; fi'
+    - /bin/cp robots.txt /home/soluykqf/topherai.com/robots.txt
