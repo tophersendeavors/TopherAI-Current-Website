@@ -8,9 +8,23 @@ Disallow: /exports/
 Disallow: /screenshots/
 Disallow: /assets/topher-bg.js
 
-# AI crawlers are welcome — we want to be cited
+# OpenAI search discovery
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /uploads/
+Disallow: /exports/
+Disallow: /screenshots/
+Disallow: /assets/topher-bg.js
+
+# OpenAI model-training crawler
 User-agent: GPTBot
 Allow: /
+Disallow: /uploads/
+Disallow: /exports/
+Disallow: /screenshots/
+Disallow: /assets/topher-bg.js
+
+# Other AI crawlers
 User-agent: ClaudeBot
 Allow: /
 User-agent: PerplexityBot
