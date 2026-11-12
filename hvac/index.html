@@ -123,6 +123,15 @@ restart.addEventListener('click',reset);reset();
     return sdkPromise;
   }
   loadVoiceClient().catch(()=>{});
+  function failure(error){
+    const cause=error?.error??error;
+    const details=[error?.type,error?.stage,cause?.name,cause?.message].join(' ');
+    if(/NotFoundError|no (?:live )?microphone|no audio input/i.test(details))return 'No microphone was found. Connect one or try this page in your phone’s browser.';
+    if(/NotAllowedError|PermissionDeniedError|permission denied/i.test(details))return 'Microphone access was blocked. Allow it in your browser’s site settings, then try again.';
+    if(/NotReadableError|TrackStartError/i.test(details))return 'The microphone couldn’t start. Close other apps using it, then try again.';
+    if(/microphone/i.test(details))return 'The microphone couldn’t start. Check that it’s available and allowed, then try again.';
+    return 'The voice call could not connect. Try again or use the chat demo.';
+  }
   function show(message){status.textContent=message;}
   function stop(){
     const current=session;
@@ -133,12 +142,24 @@ restart.addEventListener('click',reset);reset();
   }
   async function connect(){
     if(session)return;
+    if(!navigator.mediaDevices?.getUserMedia){
+      show('Microphone access isn’t available in this browser. Open this page directly in Safari or Chrome.');
+      return;
+    }
+    if(!voiceClient){
+      start.disabled=true;
+      show('Loading the voice player…');
+      try{await loadVoiceClient();if(dialog.open)show('Voice player ready. Tap Start voice demo to connect.');}
+      catch{if(dialog.open)show('The voice player could not load. Try again or use the chat demo.');}
+      finally{start.disabled=false;}
+      return;
+    }
     const current={client:null};
     session=current;
     start.disabled=true;
     show('Connecting. Allow microphone access if prompted.');
     try{
-      const Client=voiceClient??await loadVoiceClient();
+      const Client=voiceClient;
       if(session!==current)return;
       const client=new Client(publicKey);
       current.client=client;
@@ -158,7 +179,7 @@ restart.addEventListener('click',reset);reset();
         if(session!==current)return;
         stop();
         close.textContent='Close';
-        show(/microphone|notallowed|permission/i.test(error?.message??String(error??'')) ? 'Allow microphone access in your browser, then try again.' : 'The voice call could not connect. Try again or use the chat demo.');
+        show(failure(error));
       });
       await client.start(assistantId);
       if(session!==current){try{client.stop();}catch{}}
@@ -166,7 +187,7 @@ restart.addEventListener('click',reset);reset();
       if(session!==current)return;
       stop();
       close.textContent='Close';
-      show(!voiceClient ? 'The voice player could not load. Try again or use the chat demo.' : /microphone|notallowed|permission/i.test(error?.message??'') ? 'Allow microphone access in your browser, then try again.' : 'The voice call could not connect. Try again or use the chat demo.');
+      show(failure(error));
     }
   }
   for(const button of document.querySelectorAll('[data-hvac-voice]')){
