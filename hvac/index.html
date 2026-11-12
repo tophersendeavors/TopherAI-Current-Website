@@ -112,6 +112,17 @@ restart.addEventListener('click',reset);reset();
   const assistantId="f48e55d8-af3a-4b6c-b532-8f1174fe0a86";
   const publicKey="9794aec6-8b69-43df-ad52-9107ea8170e5";
   let session=null;
+  let voiceClient=null;
+  let sdkPromise=null;
+  function loadVoiceClient(){
+    if(!sdkPromise)sdkPromise=import('https://cdn.jsdelivr.net/npm/@vapi-ai/web@3.1.0/+esm').then(sdk=>{
+      const Client=[sdk.default,sdk.default?.default,sdk.Vapi].find(value=>typeof value==='function');
+      if(!Client)throw new Error('Voice SDK did not expose a client');
+      return voiceClient=Client;
+    }).catch(error=>{sdkPromise=null;throw error;});
+    return sdkPromise;
+  }
+  loadVoiceClient().catch(()=>{});
   function show(message){status.textContent=message;}
   function stop(){
     const current=session;
@@ -127,9 +138,8 @@ restart.addEventListener('click',reset);reset();
     start.disabled=true;
     show('Connecting. Allow microphone access if prompted.');
     try{
-      const sdk=await import('https://cdn.jsdelivr.net/npm/@vapi-ai/web/+esm');
+      const Client=voiceClient??await loadVoiceClient();
       if(session!==current)return;
-      const Client=sdk.default??sdk.Vapi;
       const client=new Client(publicKey);
       current.client=client;
       client.on('call-start',()=>{
@@ -144,18 +154,19 @@ restart.addEventListener('click',reset);reset();
         close.textContent='Close';
         show('Voice demo ended.');
       });
-      client.on('error',()=>{
+      client.on('error',(error)=>{
         if(session!==current)return;
         stop();
         close.textContent='Close';
-        show('Could not connect. Check microphone access and try again.');
+        show(/microphone|notallowed|permission/i.test(error?.message??String(error??'')) ? 'Allow microphone access in your browser, then try again.' : 'The voice call could not connect. Try again or use the chat demo.');
       });
       await client.start(assistantId);
-    }catch{
+      if(session!==current){try{client.stop();}catch{}}
+    }catch(error){
       if(session!==current)return;
       stop();
       close.textContent='Close';
-      show('Could not connect. Check microphone access and try again.');
+      show(!voiceClient ? 'The voice player could not load. Try again or use the chat demo.' : /microphone|notallowed|permission/i.test(error?.message??'') ? 'Allow microphone access in your browser, then try again.' : 'The voice call could not connect. Try again or use the chat demo.');
     }
   }
   for(const button of document.querySelectorAll('[data-hvac-voice]')){
