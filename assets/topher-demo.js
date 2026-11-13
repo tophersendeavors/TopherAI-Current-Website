@@ -6,7 +6,7 @@
    Back-compat: window.startVapiCall(lang) / window.endVapiCall(). */
 window.TopherDemo = (function () {
   var PUBLIC_KEY = '9794aec6-8b69-43df-ad52-9107ea8170e5';
-  var ASSISTANT = { en: '5f428f8c-2ab9-4200-91fa-511e01c08fa5', es: 'a91daf92-a477-46ed-b4cf-3e8df3a92699' };
+  var ASSISTANT = { en: '70881146-c7b9-48ce-bee8-00801380bcbf', es: 'a91daf92-a477-46ed-b4cf-3e8df3a92699' };
   var LEAD_HOOK = 'https://topherai.app.n8n.cloud/webhook/web-lead';
 
   var vapi = null, active = false, lang = 'en', pendingToolCallId = null, phoneCollected = false;
